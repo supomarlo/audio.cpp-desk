@@ -1,0 +1,3 @@
+{
+  "sopro_tts": {"reference":"required","referenceText":"hidden","instruction":"hidden","language":"optional","languageDefault":"","source":"docs/community_models/sopro_tts.md"}
+}

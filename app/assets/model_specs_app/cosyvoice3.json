@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "family": "cosyvoice3",
+  "display_name": "CosyVoice3",
+  "description": "Fun-CosyVoice3 native GGUF package for zero-shot, cross-lingual, and instruction-conditioned text-to-speech using CosyVoice3 speech-token AR generation, causal masked flow mel decoding, CAM++ speaker conditioning, and causal HiFT waveform decoding.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "zh",
+    "en",
+    "ja",
+    "ko",
+    "de",
+    "es",
+    "fr",
+    "it",
+    "ru",
+    "yue"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "dependencies": [],
+  "capabilities": {
+    "tts": [
+      "speaker_reference",
+      "style_control"
+    ],
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "template_name",
+        "type": "enum",
+        "description": "CosyVoice3 request template.",
+        "required": false,
+        "values": [
+          "zero_shot",
+          "cross_lingual",
+          "instruct"
+        ],
+        "default": "zero_shot"
+      },
+      {
+        "name": "reference_text",
+        "type": "string",
+        "description": "Transcript for the prompt audio.",
+        "required": false
+      },
+      {
+        "name": "instruction",
+        "type": "string",
+        "description": "Instruction text for instruct mode.",
+        "required": false
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated CosyVoice3 speech tokens.",
+        "required": false,
+        "min": 1,
+        "default": 1600
+      },
+      {
+        "name": "min_tokens",
+        "type": "int",
+        "description": "Minimum generated CosyVoice3 speech tokens before stop tokens are accepted.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "AR speech-token top-k sampling limit; default 25.",
+        "required": false,
+        "min": 1,
+        "default": 25
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Flow decoder Euler steps; default 10.",
+        "required": false,
+        "min": 1,
+        "default": 10
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed.",
+        "required": false,
+        "min": 0,
+        "default": 1986
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "CosyVoice3 matmul weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "conv_weight_type",
+        "type": "enum",
+        "description": "CosyVoice3 convolution weight storage type; default native.",
+        "preset": "weight_type_conv",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "graph_arena_mb",
+        "type": "int",
+        "description": "Reusable runtime graph arena size in MiB; default 1024.",
+        "required": false,
+        "min": 1,
+        "default": 1024
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight loading context size in MiB; default 2048.",
+        "required": false,
+        "min": 1,
+        "default": 2048
+      },
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "description": "Prepared reference-audio cache slots; set 0 to disable reuse.",
+        "required": false,
+        "min": 0,
+        "default": 4
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release cached runtime graphs after each request to reduce peak VRAM; default false.",
+        "required": false,
+        "default": false
+      }
+    ],
+    "load": []
+  },
+  "ui": {
+    "recommended_package": "cosyvoice3_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "cosyvoice3_yaml": "model:cosyvoice3.yaml",
+        "qwen_config": "model:CosyVoice-BlankEN/config.json",
+        "tokenizer_config": "model:CosyVoice-BlankEN/tokenizer_config.json",
+        "vocab_json": "model:CosyVoice-BlankEN/vocab.json",
+        "merges_txt": "model:CosyVoice-BlankEN/merges.txt"
+      },
+      "tensors": {
+        "llm_weights": {
+          "source": "weights:",
+          "prefix": "llm"
+        },
+        "flow_weights": {
+          "source": "weights:",
+          "prefix": "flow"
+        },
+        "hift_weights": {
+          "source": "weights:",
+          "prefix": "hift"
+        },
+        "campplus_weights": {
+          "source": "weights:",
+          "prefix": "campplus"
+        },
+        "speech_tokenizer_weights": {
+          "source": "weights:",
+          "prefix": "speech_tokenizer"
+        },
+        "blank_en_weights": {
+          "source": "weights:",
+          "prefix": "blank_en"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "cosyvoice3_q8_0",
+      "display_name": "CosyVoice3 Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "CosyVoice3-GGUF",
+      "files": [
+        "CosyVoice3-GGUF/cosyvoice3-q8_0.gguf"
+      ],
+      "strip_prefix": "CosyVoice3-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf",
+        "revision": "main",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2257658080,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2257658080,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2257658080,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2257658080,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2281701376,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "cosyvoice3_f32",
+      "display_name": "CosyVoice3 F32 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "CosyVoice3-GGUF",
+      "files": [
+        "CosyVoice3-GGUF/cosyvoice3-f32.gguf"
+      ],
+      "strip_prefix": "CosyVoice3-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf",
+        "revision": "main",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6995036608,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6995036608,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 6995036608,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6995036608,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6979321856,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Fun-CosyVoice3 native GGUF package for zero-shot, cross-lingual, and instruction-conditioned text-to-speech using CosyVoice3 speech-token AR generation, causal masked flow mel decoding, CAM++ speaker conditioning, and causal HiFT waveform decoding.",
+      "zh": "Fun-CosyVoice3 原生 GGUF 包，采用 CosyVoice3 语音 token 自回归生成、因果掩码流式 mel 解码、CAM++ 说话人条件与因果 HiFT 波形解码，支持零样本、跨语言与指令条件文本转语音。"
+    },
+    "options": {
+      "template_name": {
+        "en": "CosyVoice3 request template.",
+        "zh": "CosyVoice3 请求模板。"
+      },
+      "reference_text": {
+        "en": "Transcript for the prompt audio.",
+        "zh": "提示音频对应的文本。"
+      },
+      "instruction": {
+        "en": "Instruction text for instruct mode.",
+        "zh": "instruct 模式下的指令文本。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated CosyVoice3 speech tokens.",
+        "zh": "最多生成的 CosyVoice3 语音 token 数。"
+      },
+      "min_tokens": {
+        "en": "Minimum generated CosyVoice3 speech tokens before stop tokens are accepted.",
+        "zh": "接受停止 token 前至少生成的 CosyVoice3 语音 token 数。"
+      },
+      "top_k": {
+        "en": "AR speech-token top-k sampling limit; default 25.",
+        "zh": "AR 语音 token 的 top-k 采样上限，默认 25。"
+      },
+      "num_inference_steps": {
+        "en": "Flow decoder Euler steps; default 10.",
+        "zh": "流解码器 Euler 步数，默认 10。"
+      },
+      "seed": {
+        "en": "Generation seed.",
+        "zh": "生成随机种子。"
+      }
+    }
+  }
+}

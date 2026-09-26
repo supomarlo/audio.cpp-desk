@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "family": "minimax_music3",
+  "display_name": "MiniMax Music 3",
+  "description": "MiniMax Music 3 text-to-music generation with lyrics conditioning.",
+  "category": "audio_generation",
+  "status": "experimental",
+  "tasks": [
+    "music"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "auto"
+  ],
+  "capabilities": {
+    "music": [
+      "lyrics",
+      "style_control"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "lyrics",
+        "type": "string",
+        "description": "Lyrics to sing. Structure tags such as [verse] and [chorus] are supported.",
+        "required": true
+      },
+      {
+        "name": "duration_sec",
+        "type": "float",
+        "description": "Maximum generated audio duration in seconds.",
+        "required": false,
+        "min": 0.1,
+        "default": 20.0
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Flow matching Euler steps per chunk.",
+        "required": false,
+        "min": 1,
+        "default": 30
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Flow transformer classifier-free guidance scale.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.7
+      },
+      {
+        "name": "ar_guidance_scale",
+        "type": "float",
+        "description": "Autoregressive semantic and depth CFG scale.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.5
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling for semantic and residual code sampling.",
+        "required": false,
+        "min": 1,
+        "default": 50
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      },
+      {
+        "name": "ensemble_takes",
+        "type": "int",
+        "description": "Decode N independent takes of the same prompt in one batched AR pass (seeds seed..seed+N-1); flow and vocoder run per take. Outputs are returned as named audio (take_01..take_NN) for --out-dir.",
+        "default": 1
+      },
+      {
+        "name": "ensemble_prefix_frames",
+        "type": "int",
+        "description": "Intro-lock for ensembles: decode the first N frames once as a shared master trajectory (~25 frames per second), then fork the takes (take_01 continues the master exactly). 0 disables.",
+        "default": 0
+      },
+      {
+        "name": "flow_chunk_hop_frames",
+        "type": "int",
+        "description": "Flow chunk hop in AR frames (~25/sec). Default 0 keeps the model config (100, 50% chunk overlap). 150 measures flow ~-35% with consistently rederived crops/carry.",
+        "default": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "values": [
+          "native",
+          "bf16",
+          "f16",
+          "q8_0",
+          "q4_0",
+          "q4_k"
+        ],
+        "description": "Shared weight storage type.",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "language_model_gguf",
+        "type": "string",
+        "description": "Language model component GGUF file relative to the model root.",
+        "required": false,
+        "default": "language_model_q4_0.gguf"
+      },
+      {
+        "name": "rvq_depth_decoder_gguf",
+        "type": "string",
+        "description": "RVQ depth decoder component GGUF file relative to the model root.",
+        "required": false,
+        "default": "rvq_depth_decoder_bf16.gguf"
+      },
+      {
+        "name": "flow_transformer_gguf",
+        "type": "string",
+        "description": "Flow transformer component GGUF file relative to the model root.",
+        "required": false,
+        "default": "transformer_q4_0.gguf"
+      },
+      {
+        "name": "graph_context_mb",
+        "type": "int",
+        "description": "Runtime graph arena size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 32
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight context size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 32
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Load large generation stages only while they are needed to reduce peak VRAM.",
+        "required": false,
+        "default": true
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/MiniMax-Music3-GGUF",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "minimax_music3_q4_0",
+    "tags": [
+      "Music",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/music_generation.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "root_config": "model:config.json",
+        "language_model_config": "model:config/language_model.json",
+        "depth_decoder_config": "model:config/rvq_depth_decoder.json",
+        "condition_encoder_config": "model:config/condition_encoder.json",
+        "transformer_config": "model:config/transformer.json",
+        "vocoder_config": "model:config/vocoder.json",
+        "tokenizer_json": "model:tokenizer/tokenizer.json",
+        "tokenizer_config": "model:tokenizer/tokenizer_config.json"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "root_config": "model:config.json",
+        "language_model_config": "model:config/language_model.json",
+        "depth_decoder_config": "model:config/rvq_depth_decoder.json",
+        "condition_encoder_config": "model:config/condition_encoder.json",
+        "transformer_config": "model:config/transformer.json",
+        "vocoder_config": "model:config/vocoder.json",
+        "tokenizer_json": "model:tokenizer/tokenizer.json",
+        "tokenizer_config": "model:tokenizer/tokenizer_config.json"
+      },
+      "tensors": {
+        "language_model_weights": {
+          "source": "model:language_model/model.safetensors.index.json"
+        },
+        "depth_decoder_weights": {
+          "source": "model:rvq_depth_decoder/diffusion_pytorch_model.safetensors"
+        },
+        "condition_encoder_weights": {
+          "source": "model:condition_encoder/diffusion_pytorch_model.safetensors"
+        },
+        "transformer_weights": {
+          "source": "model:transformer/diffusion_pytorch_model.safetensors.index.json"
+        },
+        "vocoder_weights": {
+          "source": "model:vocoder/diffusion_pytorch_model.safetensors"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "minimax_music3_q4_0",
+      "display_name": "MiniMax Music 3 Q4_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q4_0",
+      "target_directory": "MiniMax-Music3-GGUF",
+      "files": [
+        "config.json",
+        "config/language_model.json",
+        "config/rvq_depth_decoder.json",
+        "config/condition_encoder.json",
+        "config/transformer.json",
+        "config/vocoder.json",
+        "tokenizer/tokenizer.json",
+        "tokenizer/tokenizer_config.json",
+        "language_model_q4_0.gguf",
+        "rvq_depth_decoder_q8_0.gguf",
+        "condition_encoder.gguf",
+        "transformer_q4_0.gguf",
+        "vocoder.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 8446096592,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/MiniMax-Music3-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 8446096592,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/MiniMax-Music3-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 8446096592,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "minimax-music3-community-license",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/MiniMax-Music3-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 8446096592,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 8455716864,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "minimax_music3_q8_0",
+      "display_name": "MiniMax Music 3 Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "MiniMax-Music3-GGUF",
+      "files": [
+        "config.json",
+        "config/language_model.json",
+        "config/rvq_depth_decoder.json",
+        "config/condition_encoder.json",
+        "config/transformer.json",
+        "config/vocoder.json",
+        "tokenizer/tokenizer.json",
+        "tokenizer/tokenizer_config.json",
+        "language_model_q8_0.gguf",
+        "rvq_depth_decoder_q8_0.gguf",
+        "condition_encoder.gguf",
+        "transformer_q8_0.gguf",
+        "vocoder.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 13539030224,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/MiniMax-Music3-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 13539030224,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/MiniMax-Music3-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 13539030224,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "minimax-music3-community-license",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/MiniMax-Music3-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 13539030224,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 13555990528,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "minimax_music3_bf16",
+      "display_name": "MiniMax Music 3 BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "MiniMax-Music3-GGUF",
+      "files": [
+        "config.json",
+        "config/language_model.json",
+        "config/rvq_depth_decoder.json",
+        "config/condition_encoder.json",
+        "config/transformer.json",
+        "config/vocoder.json",
+        "tokenizer/tokenizer.json",
+        "tokenizer/tokenizer_config.json",
+        "language_model_bf16.gguf",
+        "rvq_depth_decoder_bf16.gguf",
+        "condition_encoder.gguf",
+        "transformer_bf16.gguf",
+        "vocoder.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 28517567408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/MiniMax-Music3-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 28517567408,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/MiniMax-Music3-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/MiniMax-Music3-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 28517567408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "minimax-music3-community-license",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/MiniMax-Music3-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 28517567408,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 28521267200,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "MiniMax Music 3 text-to-music generation with lyrics conditioning.",
+      "zh": "MiniMax Music 3 文本生音乐，支持歌词条件。"
+    },
+    "options": {
+      "lyrics": {
+        "en": "Lyrics to sing. Structure tags such as [verse] and [chorus] are supported.",
+        "zh": "要演唱的歌词。支持 [verse]、[chorus] 等结构标签。"
+      },
+      "duration_sec": {
+        "en": "Maximum generated audio duration in seconds.",
+        "zh": "生成音频的最大时长（秒）。"
+      },
+      "num_inference_steps": {
+        "en": "Flow matching Euler steps per chunk.",
+        "zh": "每个分块的流匹配 Euler 步数。"
+      },
+      "guidance_scale": {
+        "en": "Flow transformer classifier-free guidance scale.",
+        "zh": "Flow transformer 的无分类器引导强度。"
+      },
+      "ar_guidance_scale": {
+        "en": "Autoregressive semantic and depth CFG scale.",
+        "zh": "自回归语义与 depth 的 CFG 强度。"
+      },
+      "top_k": {
+        "en": "Top-k sampling for semantic and residual code sampling.",
+        "zh": "语义与残差码采样所用的 top-k。"
+      },
+      "seed": {
+        "en": "Generation seed.",
+        "zh": "生成随机种子。"
+      },
+      "ensemble_takes": {
+        "en": "Decode N independent takes of the same prompt in one batched AR pass (seeds seed..seed+N-1); flow and vocoder run per take. Outputs are returned as named audio (take_01..take_NN) for --out-dir.",
+        "zh": "在一次批处理自回归中解码同一提示的 N 个独立 take（种子为 seed..seed+N-1）；flow 与声码器按 take 分别运行。结果以命名音频（take_01..take_NN）输出到 --out-dir。"
+      },
+      "ensemble_prefix_frames": {
+        "en": "Intro-lock for ensembles: decode the first N frames once as a shared master trajectory (~25 frames per second), then fork the takes (take_01 continues the master exactly). 0 disables.",
+        "zh": "集成的前奏锁定：先把前 N 帧解码为共享主轨迹（约每秒 25 帧），再分叉各 take（take_01 精确延续主轨迹）。0 表示关闭。"
+      },
+      "flow_chunk_hop_frames": {
+        "en": "Flow chunk hop in AR frames (~25/sec). Default 0 keeps the model config (100, 50% chunk overlap). 150 measures flow ~-35% with consistently rederived crops/carry.",
+        "zh": "以自回归帧计（约每秒 25 帧）的 flow 分块跳步。默认 0 保持模型配置（100，50% 分块重叠）。取 150 时实测 flow 约快 35%，且裁剪/携带会持续重算。"
+      }
+    }
+  }
+}

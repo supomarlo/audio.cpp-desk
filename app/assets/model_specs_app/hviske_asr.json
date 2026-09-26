@@ -1,0 +1,361 @@
+{
+  "family": "hviske_asr",
+  "schema_version": 1,
+  "display_name": "Hviske ASR",
+  "description": "Danish-optimized Conformer encoder-decoder ASR model fine-tuned from the Hviske v5 family, with selectable Cohere ASR language prompts.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "ar",
+    "da",
+    "de",
+    "el",
+    "en",
+    "es",
+    "fr",
+    "it",
+    "ja",
+    "ko",
+    "nl",
+    "pl",
+    "pt",
+    "vi",
+    "zh"
+  ],
+  "capabilities": {},
+  "dependencies": [],
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "ASR language code; default da.",
+        "required": false,
+        "default": "da"
+      },
+      {
+        "name": "punctuation",
+        "type": "bool",
+        "description": "Enable or disable punctuation tokens in the decoder prompt; default true.",
+        "required": false,
+        "default": true
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated transcript tokens; defaults to the model config.",
+        "required": false,
+        "min": 1
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Decoder sampling temperature; must be positive when set; default 1.0.",
+        "required": false,
+        "min": 1e-06,
+        "default": 1.0
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling limit; default 50, 0 disables top-k.",
+        "required": false,
+        "min": 0,
+        "default": 50
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Nucleus sampling limit in (0, 1]; default 1.0.",
+        "required": false,
+        "min": 1e-06,
+        "max": 1.0,
+        "default": 1.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Decoder sampling seed; random if omitted.",
+        "required": false,
+        "min": 0
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Audio chunking mode; default auto uses quiet-energy splitting only when audio exceeds the model clip window.",
+        "values": [
+          "auto",
+          "fixed",
+          "quiet_energy",
+          "none"
+        ],
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Maximum audio chunk duration in seconds; defaults to the model clip window.",
+        "required": false,
+        "min": 1e-06
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Matmul weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "conv_weight_type",
+        "type": "enum",
+        "description": "Convolution weight storage type; defaults to weight_type when set, otherwise native.",
+        "preset": "weight_type_conv",
+        "required": false
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight descriptor context size in MiB; default 32.",
+        "required": false,
+        "min": 1,
+        "default": 32
+      },
+      {
+        "name": "encoder_graph_arena_mb",
+        "type": "int",
+        "description": "Encoder graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      },
+      {
+        "name": "decoder_prefill_graph_arena_mb",
+        "type": "int",
+        "description": "Decoder prefill graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      },
+      {
+        "name": "decoder_decode_graph_arena_mb",
+        "type": "int",
+        "description": "Decoder cached-step graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "hviske_asr_q8_0",
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/asr.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "tokenizer": "model:tokenizer.model"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "tokenizer": "model:tokenizer.model"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "hviske_asr_q8_0",
+      "display_name": "Hviske v5.3 Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Hviske-v5.3-GGUF",
+      "files": [
+        "Audio to text (ASR)/hviske-v5.3_Q8.gguf"
+      ],
+      "strip_prefix": "Audio to text (ASR)",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "mirek190/audio.cpp"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "mirek190/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2436359808,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/mirek190/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "mirek190/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2436359808,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/mirek190/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2436359808,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2415919104,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "hviske_asr_safetensors",
+      "display_name": "Hviske v5.3 Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "hviske-v5.3",
+      "files": [
+        "config.json",
+        "generation_config.json",
+        "model.safetensors",
+        "tokenizer.model"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "syvai/hviske-v5.3"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "syvai/hviske-v5.3",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4132293306,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/syvai/hviske-v5.3"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "syvai/hviske-v5.3",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4132293306,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/syvai/hviske-v5.3"
+        },
+        {
+          "source": "modelscope",
+          "repo": "syvai/hviske-v5.3",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4132293306,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://www.modelscope.cn/models/syvai/hviske-v5.3"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4132293306,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4160749568,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Danish-optimized Conformer encoder-decoder ASR model fine-tuned from the Hviske v5 family, with selectable Cohere ASR language prompts.",
+      "zh": "面向丹麦语优化的 Conformer 编码器-解码器 ASR 模型，由 Hviske v5 家族微调，并可选用 Cohere ASR 语言提示。"
+    },
+    "options": {
+      "language": {
+        "en": "ASR language code; default da.",
+        "zh": "ASR 语言代码；默认 da。"
+      },
+      "punctuation": {
+        "en": "Enable or disable punctuation tokens in the decoder prompt; default true.",
+        "zh": "在解码提示中启用或关闭标点 token；默认 true。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated transcript tokens; defaults to the model config.",
+        "zh": "最多生成的转写 token 数；默认取模型配置。"
+      },
+      "temperature": {
+        "en": "Decoder sampling temperature; must be positive when set; default 1.0.",
+        "zh": "解码器采样温度；设置时须为正数；默认 1.0。"
+      },
+      "top_k": {
+        "en": "Top-k sampling limit; default 50, 0 disables top-k.",
+        "zh": "top-k 采样上限；默认 50，0 表示关闭 top-k。"
+      },
+      "top_p": {
+        "en": "Nucleus sampling limit in (0, 1]; default 1.0.",
+        "zh": "核采样上限，取值 (0, 1]；默认 1.0。"
+      },
+      "seed": {
+        "en": "Decoder sampling seed; random if omitted.",
+        "zh": "解码器采样随机种子；省略时随机。"
+      },
+      "audio_chunk_mode": {
+        "en": "Audio chunking mode; default auto uses quiet-energy splitting only when audio exceeds the model clip window.",
+        "zh": "音频分块模式；默认 auto 仅在音频超过模型片段窗口时使用静音能量切分。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Maximum audio chunk duration in seconds; defaults to the model clip window.",
+        "zh": "音频分块的最大时长（秒）；默认取模型片段窗口。"
+      }
+    }
+  }
+}

@@ -1,0 +1,915 @@
+{
+  "family": "ace_step",
+  "display_name": "ACE-Step",
+  "description": "Open-source ACE-Step 1.5 music generation model for text-to-music and lyrics-to-song workflows across 50+ languages, with editing routes such as cover generation, repainting, continuation, stem extraction, and vocal-to-BGM conversion.",
+  "category": "audio_generation",
+  "status": "supported",
+  "tasks": [
+    "music",
+    "edit"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "50+ languages"
+  ],
+  "capabilities": {
+    "music": [
+      "lyrics"
+    ],
+    "edit": [
+      "prompt_editing"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "route",
+        "type": "enum",
+        "description": "ACE-Step operation; also exposed as --task-route.",
+        "values": [
+          "text2music",
+          "complete",
+          "lego",
+          "extract",
+          "cover",
+          "cover-nofsq",
+          "repaint"
+        ]
+      },
+      {
+        "name": "lyrics",
+        "type": "string",
+        "description": "Vocal lyrics."
+      },
+      {
+        "name": "duration_seconds",
+        "type": "float",
+        "description": "Target duration; also exposed as --duration-seconds."
+      },
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Vocal language for lyrics; also exposed as --language."
+      },
+      {
+        "name": "track_name",
+        "type": "string",
+        "description": "Track name used by lego and extract routes; also exposed as --track-name."
+      },
+      {
+        "name": "complete_track_classes",
+        "type": "string",
+        "description": "Track classes for complete route."
+      },
+      {
+        "name": "repainting_start",
+        "type": "float",
+        "description": "Start time for repaint route; also exposed as --repaint-start."
+      },
+      {
+        "name": "repainting_end",
+        "type": "float",
+        "description": "End time for repaint route; also exposed as --repaint-end."
+      },
+      {
+        "name": "repaint_mode",
+        "type": "enum",
+        "description": "Preset repaint blending policy; also exposed as --repaint-mode.",
+        "values": [
+          "balanced",
+          "conservative",
+          "aggressive"
+        ]
+      },
+      {
+        "name": "repaint_strength",
+        "type": "float",
+        "description": "Repaint strength; also exposed as --repaint-strength.",
+        "min": 0.0,
+        "max": 1.0
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Diffusion denoising steps; also exposed as --num-inference-steps."
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Diffusion guidance scale; also exposed as --guidance-scale."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed; also exposed as --seed."
+      },
+      {
+        "name": "bpm",
+        "type": "int",
+        "description": "Force BPM metadata."
+      },
+      {
+        "name": "keyscale",
+        "type": "string",
+        "description": "Force key metadata."
+      },
+      {
+        "name": "timesignature",
+        "type": "string",
+        "description": "Force time signature metadata."
+      },
+      {
+        "name": "negative_prompt",
+        "type": "string",
+        "description": "Negative prompt."
+      },
+      {
+        "name": "audio_codes",
+        "type": "string",
+        "description": "Use supplied ACE semantic code text instead of planner generation."
+      },
+      {
+        "name": "audio_cover_strength",
+        "type": "float",
+        "description": "Cover strength for cover/edit-style conditioning.",
+        "default": 1.0
+      },
+      {
+        "name": "cover_noise_strength",
+        "type": "float",
+        "description": "Noise strength for cover conditioning.",
+        "default": 0.0
+      },
+      {
+        "name": "lm_temperature",
+        "type": "float",
+        "description": "Planner sampling temperature.",
+        "default": 0.85
+      },
+      {
+        "name": "lm_cfg_scale",
+        "type": "float",
+        "description": "Planner CFG scale.",
+        "default": 2.0
+      },
+      {
+        "name": "lm_top_k",
+        "type": "int",
+        "description": "Planner top-k; 0 disables top-k.",
+        "default": 0
+      },
+      {
+        "name": "lm_top_p",
+        "type": "float",
+        "description": "Planner top-p.",
+        "default": 0.9
+      },
+      {
+        "name": "lm_repetition_penalty",
+        "type": "float",
+        "description": "Planner repetition penalty.",
+        "default": 1.0
+      },
+      {
+        "name": "sampler_mode",
+        "type": "enum",
+        "description": "Diffusion sampler mode.",
+        "values": [
+          "euler",
+          "heun"
+        ],
+        "default": "euler"
+      },
+      {
+        "name": "retake_seed",
+        "type": "int",
+        "description": "Optional retake noise seed; -1 clears it."
+      },
+      {
+        "name": "retake_variance",
+        "type": "float",
+        "description": "Retake noise mixing strength.",
+        "default": 0.0
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "ace_step_turbo_bf16",
+    "tags": [
+      "Music",
+      "Edit",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/ace_step.md",
+      "docs/music_generation.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "dit_turbo_config": "model:acestep-v15-turbo/config.json",
+        "dit_base_config": "model:acestep-v15-base/config.json",
+        "lm_config": "model:acestep-5Hz-lm-1.7B/config.json",
+        "lm_tokenizer_config": "model:acestep-5Hz-lm-1.7B/tokenizer_config.json",
+        "lm_vocab": "model:acestep-5Hz-lm-1.7B/vocab.json",
+        "lm_merges": "model:acestep-5Hz-lm-1.7B/merges.txt",
+        "lm_tokenizer_json": "model:acestep-5Hz-lm-1.7B/tokenizer.json",
+        "lm_chat_template": "model:acestep-5Hz-lm-1.7B/chat_template.jinja",
+        "text_encoder_config": "model:Qwen3-Embedding-0.6B/config.json",
+        "text_encoder_tokenizer_config": "model:Qwen3-Embedding-0.6B/tokenizer_config.json",
+        "text_encoder_vocab": "model:Qwen3-Embedding-0.6B/vocab.json",
+        "text_encoder_merges": "model:Qwen3-Embedding-0.6B/merges.txt",
+        "text_encoder_tokenizer_json": "model:Qwen3-Embedding-0.6B/tokenizer.json",
+        "text_encoder_chat_template": "model:Qwen3-Embedding-0.6B/chat_template.jinja",
+        "vae_config": "model:vae/config.json"
+      },
+      "optional_files": {
+        "dit_xl_turbo_config": "model:acestep-v15-xl-turbo/config.json",
+        "dit_xl_sft_config": "model:acestep-v15-xl-sft/config.json"
+      },
+      "optional_tensors": {
+        "dit_xl_turbo_weights": {
+          "source": "weights:",
+          "prefix": "dit_xl_turbo_weights"
+        },
+        "dit_xl_turbo_silence_latent": {
+          "source": "weights:",
+          "prefix": "dit_xl_turbo_silence_latent"
+        },
+        "dit_xl_sft_weights": {
+          "source": "weights:",
+          "prefix": "dit_xl_sft_weights"
+        },
+        "dit_xl_sft_silence_latent": {
+          "source": "weights:",
+          "prefix": "dit_xl_sft_silence_latent"
+        }
+      },
+      "tensors": {
+        "dit_turbo_weights": {
+          "source": "weights:",
+          "prefix": "dit_turbo_weights"
+        },
+        "dit_turbo_silence_latent": {
+          "source": "weights:",
+          "prefix": "dit_turbo_silence_latent"
+        },
+        "dit_base_weights": {
+          "source": "weights:",
+          "prefix": "dit_base_weights"
+        },
+        "dit_base_silence_latent": {
+          "source": "weights:",
+          "prefix": "dit_base_silence_latent"
+        },
+        "lm_weights": {
+          "source": "weights:",
+          "prefix": "lm_weights"
+        },
+        "text_encoder_weights": {
+          "source": "weights:",
+          "prefix": "text_encoder_weights"
+        },
+        "vae_weights": {
+          "source": "weights:",
+          "prefix": "vae_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "dit_turbo_config": "model:acestep-v15-turbo/config.json",
+        "dit_base_config": "model:acestep-v15-base/config.json",
+        "lm_config": "model:acestep-5Hz-lm-1.7B/config.json",
+        "lm_tokenizer_config": "model:acestep-5Hz-lm-1.7B/tokenizer_config.json",
+        "lm_vocab": "model:acestep-5Hz-lm-1.7B/vocab.json",
+        "lm_merges": "model:acestep-5Hz-lm-1.7B/merges.txt",
+        "lm_tokenizer_json": "model:acestep-5Hz-lm-1.7B/tokenizer.json",
+        "lm_chat_template": "model:acestep-5Hz-lm-1.7B/chat_template.jinja",
+        "text_encoder_config": "model:Qwen3-Embedding-0.6B/config.json",
+        "text_encoder_tokenizer_config": "model:Qwen3-Embedding-0.6B/tokenizer_config.json",
+        "text_encoder_vocab": "model:Qwen3-Embedding-0.6B/vocab.json",
+        "text_encoder_merges": "model:Qwen3-Embedding-0.6B/merges.txt",
+        "text_encoder_tokenizer_json": "model:Qwen3-Embedding-0.6B/tokenizer.json",
+        "text_encoder_chat_template": "model:Qwen3-Embedding-0.6B/chat_template.jinja",
+        "vae_config": "model:vae/config.json"
+      },
+      "optional_files": {
+        "dit_xl_turbo_config": "model:acestep-v15-xl-turbo/config.json",
+        "dit_xl_sft_config": "model:acestep-v15-xl-sft/config.json"
+      },
+      "optional_tensors": {
+        "dit_xl_turbo_weights": "model:acestep-v15-xl-turbo/model.safetensors.index.json",
+        "dit_xl_turbo_silence_latent": "model:acestep-v15-xl-turbo/silence_latent.safetensors",
+        "dit_xl_sft_weights": "model:acestep-v15-xl-sft/model.safetensors.index.json",
+        "dit_xl_sft_silence_latent": "model:acestep-v15-xl-sft/silence_latent.safetensors"
+      },
+      "tensors": {
+        "dit_turbo_weights": "model:acestep-v15-turbo/model.safetensors",
+        "dit_turbo_silence_latent": "model:acestep-v15-turbo/silence_latent.safetensors",
+        "dit_base_weights": "model:acestep-v15-base/model.safetensors",
+        "dit_base_silence_latent": "model:acestep-v15-base/silence_latent.safetensors",
+        "lm_weights": "model:acestep-5Hz-lm-1.7B/model.safetensors",
+        "text_encoder_weights": "model:Qwen3-Embedding-0.6B/model.safetensors",
+        "vae_weights": "model:vae/diffusion_pytorch_model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "ace_step_turbo_q8_0",
+      "display_name": "ACE-Step 1.5 Turbo Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "ACE-Step1.5-GGUF",
+      "files": [
+        "ACE-Step1.5-GGUF/turbo/ace-step-1.5-turbo-q8_0.gguf"
+      ],
+      "strip_prefix": "ACE-Step1.5-GGUF",
+      "i18n": {
+        "description": {
+          "en": "ACE-Step 1.5 Turbo: the default DiT, guidance-distilled and fast; it ignores guidance_scale.",
+          "zh": "ACE-Step 1.5 Turbo：默认 DiT，经 guidance 蒸馏、速度更快，会忽略 guidance_scale。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6185460032,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6185460032,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 6185460032,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6185460032,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 17179869184,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "ace_step_turbo_bf16",
+      "display_name": "ACE-Step 1.5 Turbo BF16 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "ACE-Step1.5-GGUF",
+      "files": [
+        "ACE-Step1.5-GGUF/turbo/ace-step-1.5-turbo-bf16.gguf"
+      ],
+      "strip_prefix": "ACE-Step1.5-GGUF",
+      "i18n": {
+        "description": {
+          "en": "ACE-Step 1.5 Turbo: the default DiT, guidance-distilled and fast; it ignores guidance_scale.",
+          "zh": "ACE-Step 1.5 Turbo：默认 DiT，经 guidance 蒸馏、速度更快，会忽略 guidance_scale。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 10090398272,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 10090398272,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 10090398272,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 10090398272,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 21072183296,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "ace_step_base_q8_0",
+      "display_name": "ACE-Step 1.5 Base Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "ACE-Step1.5-GGUF",
+      "files": [
+        "ACE-Step1.5-GGUF/base/ace-step-1.5-base-q8_0.gguf"
+      ],
+      "strip_prefix": "ACE-Step1.5-GGUF",
+      "i18n": {
+        "description": {
+          "en": "ACE-Step 1.5 Base: the base DiT, which runs the CFG (guidance) path.",
+          "zh": "ACE-Step 1.5 Base：基础 DiT，走 CFG（guidance）路径。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6185458880,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6185458880,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 6185458880,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6185458880,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 17179869184,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "ace_step_base_bf16",
+      "display_name": "ACE-Step 1.5 Base BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "ACE-Step1.5-GGUF",
+      "files": [
+        "ACE-Step1.5-GGUF/base/ace-step-1.5-base-bf16.gguf"
+      ],
+      "strip_prefix": "ACE-Step1.5-GGUF",
+      "i18n": {
+        "description": {
+          "en": "ACE-Step 1.5 Base: the base DiT, which runs the CFG (guidance) path.",
+          "zh": "ACE-Step 1.5 Base：基础 DiT，走 CFG（guidance）路径。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 10090397120,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 10090397120,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 10090397120,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 10090397120,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 21072183296,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "ace_step_xl_turbo_bf16",
+      "display_name": "ACE-Step 1.5 XL Turbo BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "ACE-Step1.5-GGUF",
+      "files": [
+        "ACE-Step1.5-GGUF/xl-turbo/ace-step-1.5-xl-turbo-bf16.gguf"
+      ],
+      "strip_prefix": "ACE-Step1.5-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "CaptainArni/audio.cpp-gguf"
+      },
+      "i18n": {
+        "description": {
+          "en": "ACE-Step 1.5 XL Turbo: a larger 32-layer DiT (vs 24), guidance-distilled like Turbo.",
+          "zh": "ACE-Step 1.5 XL Turbo：更大的 32 层 DiT（标准版 24 层），与 Turbo 一样经 guidance 蒸馏。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "CaptainArni/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 15277379424,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/CaptainArni/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "CaptainArni/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 15277379424,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/CaptainArni/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 15277379424,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 26239565824,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "ace_step_xl_sft_bf16",
+      "display_name": "ACE-Step 1.5 XL SFT BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "ACE-Step1.5-GGUF",
+      "files": [
+        "ACE-Step1.5-GGUF/xl-sft/ace-step-1.5-xl-sft-bf16.gguf"
+      ],
+      "strip_prefix": "ACE-Step1.5-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "CaptainArni/audio.cpp-gguf"
+      },
+      "i18n": {
+        "description": {
+          "en": "ACE-Step 1.5 XL SFT: the same larger 32-layer DiT, SFT fine-tuned and running the CFG path like Base.",
+          "zh": "ACE-Step 1.5 XL SFT：同为 32 层大 DiT，经 SFT 微调，与 Base 一样走 CFG 路径。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "CaptainArni/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 15277585088,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/CaptainArni/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "CaptainArni/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 15277585088,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/CaptainArni/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 15277585088,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 26239565824,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "ace_step_xl_turbo_q8dit",
+      "display_name": "ACE-Step 1.5 XL Turbo Q8_0 DiT GGUF (BF16 planner)",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "ACE-Step1.5-GGUF",
+      "files": [
+        "ACE-Step1.5-GGUF/xl-turbo-q8dit/ace-step-1.5-xl-turbo-q8dit.gguf"
+      ],
+      "strip_prefix": "ACE-Step1.5-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "CaptainArni/audio.cpp-gguf"
+      },
+      "i18n": {
+        "description": {
+          "en": "ACE-Step 1.5 XL Turbo: a larger 32-layer DiT (vs 24), guidance-distilled like Turbo.",
+          "zh": "ACE-Step 1.5 XL Turbo：更大的 32 层 DiT（标准版 24 层），与 Turbo 一样经 guidance 蒸馏。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "CaptainArni/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 10710565056,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/CaptainArni/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "CaptainArni/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 10710565056,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/CaptainArni/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 10710565056,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 21676163072,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "ace_step_xl_sft_q8dit",
+      "display_name": "ACE-Step 1.5 XL SFT Q8_0 DiT GGUF (BF16 planner)",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "ACE-Step1.5-GGUF",
+      "files": [
+        "ACE-Step1.5-GGUF/xl-sft-q8dit/ace-step-1.5-xl-sft-q8dit.gguf"
+      ],
+      "strip_prefix": "ACE-Step1.5-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "CaptainArni/audio.cpp-gguf"
+      },
+      "i18n": {
+        "description": {
+          "en": "ACE-Step 1.5 XL SFT: the same larger 32-layer DiT, SFT fine-tuned and running the CFG path like Base.",
+          "zh": "ACE-Step 1.5 XL SFT：同为 32 层大 DiT，经 SFT 微调，与 Base 一样走 CFG 路径。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "CaptainArni/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 10710562816,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/CaptainArni/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "CaptainArni/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 10710562816,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/CaptainArni/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 10710562816,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 21676163072,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Open-source ACE-Step 1.5 music generation model for text-to-music and lyrics-to-song workflows across 50+ languages, with editing routes such as cover generation, repainting, continuation, stem extraction, and vocal-to-BGM conversion.",
+      "zh": "开源 ACE-Step 1.5 音乐生成模型，支持 50+ 语言的文本生音乐与歌词生歌，并提供翻唱生成、重绘、续写、分轨提取、人声转伴奏等编辑路径。"
+    },
+    "options": {
+      "route": {
+        "en": "ACE-Step operation; also exposed as --task-route.",
+        "zh": "ACE-Step 操作；也可用 --task-route 指定。"
+      },
+      "lyrics": {
+        "en": "Vocal lyrics.",
+        "zh": "演唱歌词。"
+      },
+      "duration_seconds": {
+        "en": "Target duration; also exposed as --duration-seconds.",
+        "zh": "目标时长；也可用 --duration-seconds 指定。"
+      },
+      "language": {
+        "en": "Vocal language for lyrics; also exposed as --language.",
+        "zh": "歌词演唱语言；也可用 --language 指定。"
+      },
+      "track_name": {
+        "en": "Track name used by lego and extract routes; also exposed as --track-name.",
+        "zh": "lego 与 extract 路线使用的轨道名；也可用 --track-name 指定。"
+      },
+      "complete_track_classes": {
+        "en": "Track classes for complete route.",
+        "zh": "complete 路线使用的轨道类别。"
+      },
+      "repainting_start": {
+        "en": "Start time for repaint route; also exposed as --repaint-start.",
+        "zh": "repaint 路线的开始时间；也可用 --repaint-start 指定。"
+      },
+      "repainting_end": {
+        "en": "End time for repaint route; also exposed as --repaint-end.",
+        "zh": "repaint 路线的结束时间；也可用 --repaint-end 指定。"
+      },
+      "repaint_mode": {
+        "en": "Preset repaint blending policy; also exposed as --repaint-mode.",
+        "zh": "预置的重绘混合策略；也可用 --repaint-mode 指定。"
+      },
+      "repaint_strength": {
+        "en": "Repaint strength; also exposed as --repaint-strength.",
+        "zh": "重绘强度；也可用 --repaint-strength 指定。"
+      },
+      "num_inference_steps": {
+        "en": "Diffusion denoising steps; also exposed as --num-inference-steps.",
+        "zh": "扩散去噪步数；也可用 --num-inference-steps 指定。"
+      },
+      "guidance_scale": {
+        "en": "Diffusion guidance scale; also exposed as --guidance-scale.",
+        "zh": "扩散引导强度；也可用 --guidance-scale 指定。"
+      },
+      "seed": {
+        "en": "Generation seed; also exposed as --seed.",
+        "zh": "生成随机种子；也可用 --seed 指定。"
+      },
+      "bpm": {
+        "en": "Force BPM metadata.",
+        "zh": "强制 BPM 元数据。"
+      },
+      "keyscale": {
+        "en": "Force key metadata.",
+        "zh": "强制调性元数据。"
+      },
+      "timesignature": {
+        "en": "Force time signature metadata.",
+        "zh": "强制拍号元数据。"
+      },
+      "negative_prompt": {
+        "en": "Negative prompt.",
+        "zh": "负向提示。"
+      },
+      "audio_codes": {
+        "en": "Use supplied ACE semantic code text instead of planner generation.",
+        "zh": "使用提供的 ACE 语义码文本，而非规划器生成。"
+      },
+      "audio_cover_strength": {
+        "en": "Cover strength for cover/edit-style conditioning.",
+        "zh": "cover/编辑类条件的覆盖强度。"
+      },
+      "cover_noise_strength": {
+        "en": "Noise strength for cover conditioning.",
+        "zh": "cover 条件的噪声强度。"
+      },
+      "lm_temperature": {
+        "en": "Planner sampling temperature.",
+        "zh": "规划器采样温度。"
+      },
+      "lm_cfg_scale": {
+        "en": "Planner CFG scale.",
+        "zh": "规划器 CFG 强度。"
+      },
+      "lm_top_k": {
+        "en": "Planner top-k; 0 disables top-k.",
+        "zh": "规划器 top-k；0 表示关闭 top-k。"
+      },
+      "lm_top_p": {
+        "en": "Planner top-p.",
+        "zh": "规划器 top-p。"
+      },
+      "lm_repetition_penalty": {
+        "en": "Planner repetition penalty.",
+        "zh": "规划器重复惩罚。"
+      },
+      "sampler_mode": {
+        "en": "Diffusion sampler mode.",
+        "zh": "扩散采样器模式。"
+      },
+      "retake_seed": {
+        "en": "Optional retake noise seed; -1 clears it.",
+        "zh": "可选的重录噪声种子；-1 表示清除。"
+      },
+      "retake_variance": {
+        "en": "Retake noise mixing strength.",
+        "zh": "重录噪声混合强度。"
+      }
+    }
+  }
+}

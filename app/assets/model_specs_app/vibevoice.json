@@ -1,0 +1,345 @@
+{
+  "family": "vibevoice",
+  "display_name": "VibeVoice",
+  "description": "Microsoft long-form multi-speaker TTS model for expressive conversational audio such as podcasts, supporting up to 90 minutes of speech with as many as four speakers.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en",
+    "zh"
+  ],
+  "capabilities": {
+    "tts": [
+      "multi_speaker",
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "voice_samples",
+        "type": "string",
+        "description": "Comma-separated speaker reference WAV paths for multi-speaker prompts."
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Diffusion inference steps."
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale."
+      },
+      {
+        "name": "max_length_times",
+        "type": "float",
+        "description": "Generation length multiplier."
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Sampling temperature."
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling limit."
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Nucleus sampling probability."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed; random if omitted."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated tokens."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "vibevoice_1_5b_q8_0",
+    "tags": [
+      "TTS",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "preprocessor_config": "model:preprocessor_config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_vocab": "model:vocab.json",
+        "tokenizer_merges": "model:merges.txt"
+      },
+      "tensors": {
+        "model_weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "preprocessor_config": "model:preprocessor_config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_vocab": "model:vocab.json",
+        "tokenizer_merges": "model:merges.txt"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors.index.json"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "vibevoice_1_5b_q8_0",
+      "display_name": "VibeVoice 1.5B Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "VibeVoice-1.5B-GGUF",
+      "files": [
+        "VibeVoice-1.5B-GGUF/vibevoice-1.5b-q8_0.gguf"
+      ],
+      "strip_prefix": "VibeVoice-1.5B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3224701538,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3224701538,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3224701538,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3224701538,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3221225472,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "vibevoice_1_5b_bf16",
+      "display_name": "VibeVoice 1.5B BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "VibeVoice-1.5B-GGUF",
+      "files": [
+        "VibeVoice-1.5B-GGUF/vibevoice-1.5b-bf16.gguf"
+      ],
+      "strip_prefix": "VibeVoice-1.5B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5420021858,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5420021858,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 5420021858,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 5420021858,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5435817984,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "vibevoice_7b_q8_0",
+      "display_name": "VibeVoice 7B Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "VibeVoice-7B-GGUF",
+      "files": [
+        "vibevoice-7b-q8_0.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/VibeVoice-7B-GGUF",
+        "revision": "main",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/VibeVoice-7B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 10581659618,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-7B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/VibeVoice-7B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 10581659618,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-7B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/VibeVoice-7B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 10581659618,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/VibeVoice-7B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 10581659618,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 10603200512,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Microsoft long-form multi-speaker TTS model for expressive conversational audio such as podcasts, supporting up to 90 minutes of speech with as many as four speakers.",
+      "zh": "微软长音频多说话人 TTS 模型，面向播客等富有表现力的对话音频，支持最长 90 分钟语音、最多四位说话人。"
+    },
+    "options": {
+      "voice_samples": {
+        "en": "Comma-separated speaker reference WAV paths for multi-speaker prompts.",
+        "zh": "多说话人提示的说话人参考 WAV 路径（逗号分隔）。"
+      },
+      "num_inference_steps": {
+        "en": "Diffusion inference steps.",
+        "zh": "扩散推理步数。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale.",
+        "zh": "无分类器引导强度。"
+      },
+      "max_length_times": {
+        "en": "Generation length multiplier.",
+        "zh": "生成长度倍率。"
+      },
+      "temperature": {
+        "en": "Sampling temperature.",
+        "zh": "采样温度。"
+      },
+      "top_k": {
+        "en": "Top-k sampling limit.",
+        "zh": "top-k 采样上限。"
+      },
+      "top_p": {
+        "en": "Nucleus sampling probability.",
+        "zh": "核采样概率。"
+      },
+      "seed": {
+        "en": "Sampling seed; random if omitted.",
+        "zh": "采样随机种子；省略时随机。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated tokens.",
+        "zh": "最多生成的 token 数。"
+      }
+    }
+  }
+}

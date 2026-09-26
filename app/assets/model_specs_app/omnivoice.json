@@ -1,0 +1,369 @@
+{
+  "family": "omnivoice",
+  "display_name": "OmniVoice",
+  "description": "Massively multilingual zero-shot TTS model from k2-fsa for 600+ languages, supporting short-reference voice cloning, attribute-based voice design, pronunciation controls, and nonverbal tags.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone",
+    "design"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "600+ languages"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ],
+    "design": [
+      "voice_design"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "speed",
+        "type": "float",
+        "description": "Speech speed multiplier.",
+        "default": 1.0
+      },
+      {
+        "name": "audio_chunk_duration",
+        "type": "float",
+        "description": "Model-side automatic chunk duration when framework chunking is not explicitly enabled.",
+        "default": 15.0
+      },
+      {
+        "name": "audio_chunk_threshold",
+        "type": "float",
+        "description": "Estimated audio length threshold before model-side chunking is used.",
+        "default": 30.0
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "ui": {
+    "recommended_package": "omnivoice_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "Design",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/models/omnivoice.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "audio_tokenizer_config": "model:audio_tokenizer/config.json",
+        "audio_tokenizer_preprocessor": "model:audio_tokenizer/preprocessor_config.json"
+      },
+      "optional_files": {
+        "chat_template": "model:chat_template.jinja"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        },
+        "audio_tokenizer_weights": {
+          "source": "weights:",
+          "prefix": "audio_tokenizer_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "audio_tokenizer_config": "model:audio_tokenizer/config.json",
+        "audio_tokenizer_preprocessor": "model:audio_tokenizer/preprocessor_config.json"
+      },
+      "optional_files": {
+        "chat_template": "model:chat_template.jinja"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors",
+        "audio_tokenizer_weights": "model:audio_tokenizer/model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "omnivoice_q8_0",
+      "display_name": "OmniVoice Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "OmniVoice-GGUF",
+      "files": [
+        "OmniVoice-GGUF/omnivoice-q8_0.gguf"
+      ],
+      "strip_prefix": "OmniVoice-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1350288416,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1350288416,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1350288416,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1350288416,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3288334336,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "omnivoice_bf16",
+      "display_name": "OmniVoice BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "OmniVoice-GGUF",
+      "files": [
+        "OmniVoice-GGUF/omnivoice-bf16.gguf"
+      ],
+      "strip_prefix": "OmniVoice-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1639548640,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1639548640,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1639548640,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1639548640,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3422552064,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "omnivoice_f16",
+      "display_name": "OmniVoice F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "OmniVoice-GGUF",
+      "files": [
+        "OmniVoice-GGUF/omnivoice-f16.gguf"
+      ],
+      "strip_prefix": "OmniVoice-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1639548768,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1639548768,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1639548768,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1639548768,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3422552064,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "omnivoice_safetensors",
+      "display_name": "OmniVoice Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "OmniVoice",
+      "files": [
+        "config.json",
+        "model.safetensors",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "audio_tokenizer/config.json",
+        "audio_tokenizer/preprocessor_config.json",
+        "audio_tokenizer/model.safetensors"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "k2-fsa/OmniVoice"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "k2-fsa/OmniVoice",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3267439234,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/k2-fsa/OmniVoice"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "k2-fsa/OmniVoice",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3267439234,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/k2-fsa/OmniVoice"
+        },
+        {
+          "source": "modelscope",
+          "repo": "k2-fsa/OmniVoice",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3267439234,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/k2-fsa/OmniVoice"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3267439234,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5234491392,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Massively multilingual zero-shot TTS model from k2-fsa for 600+ languages, supporting short-reference voice cloning, attribute-based voice design, pronunciation controls, and nonverbal tags.",
+      "zh": "k2-fsa 的海量多语言零样本 TTS 模型，覆盖 600+ 语言，支持短参考音色克隆、基于属性的声音设计、发音控制与非语言标签。"
+    },
+    "options": {
+      "speed": {
+        "en": "Speech speed multiplier.",
+        "zh": "语速倍率。"
+      },
+      "audio_chunk_duration": {
+        "en": "Model-side automatic chunk duration when framework chunking is not explicitly enabled.",
+        "zh": "未显式启用框架分块时，模型侧自动分块的时长。"
+      },
+      "audio_chunk_threshold": {
+        "en": "Estimated audio length threshold before model-side chunking is used.",
+        "zh": "启用模型侧分块前的估计音频长度阈值。"
+      }
+    }
+  }
+}

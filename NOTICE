@@ -1,0 +1,19 @@
+audio.cpp Desk
+Copyright (C) 2026 SupoMarlo
+
+This application is an independent client for audio.cpp. It does NOT include
+audio.cpp itself or any model weights; obtain them separately from their
+upstream sources. Each model carries its own license.
+
+Included third-party material:
+- A local model-spec overlay (app/assets/model_specs_app), layered over the
+  backend's model_specs and based on the official audio.cpp repository
+  (© 2026 ShugoAI LLC, Apache-2.0). A copy of that upstream license is included
+  at app/assets/licenses/audio.cpp-LICENSE.txt.
+- The Microsoft Visual C++ Runtime (e.g. msvcp140.dll, vcruntime140.dll,
+  vcruntime140_1.dll), redistributed app-locally under Microsoft's Distributable
+  Code terms so the app runs without a separate Redistributable install.
+
+This application is licensed under the Apache License, Version 2.0 — see LICENSE.
+It also uses Flutter and other open-source packages; their licenses are listed
+in-app (Settings → About → Open-source licenses).

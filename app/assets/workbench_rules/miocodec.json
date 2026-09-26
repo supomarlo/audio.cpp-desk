@@ -1,0 +1,3 @@
+{
+  "miocodec": {"reference":"required","referenceText":"hidden","instruction":"hidden","language":"hidden","requiredInputs":["--audio"],"source":"docs/audio_tools.md"}
+}

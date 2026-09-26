@@ -1,0 +1,436 @@
+{
+  "family": "voxcpm2",
+  "display_name": "VoxCPM2",
+  "description": "OpenBMB tokenizer-free TTS model supporting 30 languages and 9 Chinese dialects, with 48 kHz output, natural-language voice design, controllable short-reference voice cloning, and expressive style guidance.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone",
+    "design"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "ar",
+    "my",
+    "zh",
+    "zh dialects",
+    "da",
+    "nl",
+    "en",
+    "fi",
+    "fr",
+    "de",
+    "el",
+    "he",
+    "hi",
+    "id",
+    "it",
+    "ja",
+    "km",
+    "ko",
+    "lo",
+    "ms",
+    "no",
+    "pl",
+    "pt",
+    "ru",
+    "es",
+    "sw",
+    "sv",
+    "tl",
+    "th",
+    "tr",
+    "vi"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ],
+    "design": [
+      "voice_design"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "voxcpm2.chunk_strategy",
+        "type": "enum",
+        "description": "Long-form chunk generation strategy; default continuation.",
+        "values": [
+          "continuation",
+          "stateless"
+        ]
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Random seed for MiniCPM and diffusion sampling."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum MiniCPM output tokens."
+      },
+      {
+        "name": "min_tokens",
+        "type": "int",
+        "description": "Minimum MiniCPM output tokens before an EOS stop is honored."
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "CFM diffusion sampling steps."
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "CFM classifier-free guidance rate."
+      },
+      {
+        "name": "prompt_text",
+        "type": "string",
+        "description": "Text prompt for prompt-continuation voice cloning."
+      },
+      {
+        "name": "reference_text",
+        "type": "string",
+        "description": "Alias for prompt_text; text prompt for prompt-continuation voice cloning."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "ui": {
+    "recommended_package": "voxcpm2_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "Design",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "special_tokens_map": "model:special_tokens_map.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        },
+        "audiovae_weights": {
+          "source": "weights:",
+          "prefix": "audiovae_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "special_tokens_map": "model:special_tokens_map.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors",
+        "audiovae_weights": "model:audiovae.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "voxcpm2_q8_0",
+      "display_name": "VoxCPM2 Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "VoxCPM2-GGUF",
+      "files": [
+        "VoxCPM2-GGUF/voxcpm2-q8_0.gguf"
+      ],
+      "strip_prefix": "VoxCPM2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2955000480,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2955000480,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2955000480,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2955000480,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 11878268928,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "voxcpm2_bf16",
+      "display_name": "VoxCPM2 BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "VoxCPM2-GGUF",
+      "files": [
+        "VoxCPM2-GGUF/voxcpm2-bf16.gguf"
+      ],
+      "strip_prefix": "VoxCPM2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4772288288,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4772288288,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4772288288,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4772288288,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 13690208256,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "voxcpm2_orig",
+      "display_name": "VoxCPM2 Original-Dtype GGUF",
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "VoxCPM2-GGUF",
+      "files": [
+        "VoxCPM2-GGUF/voxcpm2-orig.gguf"
+      ],
+      "strip_prefix": "VoxCPM2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4960716192,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4960716192,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4960716192,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4960716192,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 13891534848,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "voxcpm2_safetensors",
+      "display_name": "VoxCPM2 Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "VoxCPM2",
+      "files": [
+        "config.json",
+        "model.safetensors",
+        "tokenizer.json",
+        "tokenizer_config.json"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "OpenBMB/VoxCPM2"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "OpenBMB/VoxCPM2",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4583766759,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/OpenBMB/VoxCPM2"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "OpenBMB/VoxCPM2",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4583766759,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/OpenBMB/VoxCPM2"
+        },
+        {
+          "source": "modelscope",
+          "repo": "OpenBMB/VoxCPM2",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4583766759,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://www.modelscope.cn/models/OpenBMB/VoxCPM2"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4583766759,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 13555990528,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "OpenBMB tokenizer-free TTS model supporting 30 languages and 9 Chinese dialects, with 48 kHz output, natural-language voice design, controllable short-reference voice cloning, and expressive style guidance.",
+      "zh": "OpenBMB 无分词器 TTS 模型，支持 30 种语言与 9 种中文方言，48 kHz 输出、自然语言声音设计、可控短参考音色克隆与表现力风格引导。"
+    },
+    "options": {
+      "voxcpm2.chunk_strategy": {
+        "en": "Long-form chunk generation strategy; default continuation.",
+        "zh": "长文本分块生成策略；默认 continuation。"
+      },
+      "seed": {
+        "en": "Random seed for MiniCPM and diffusion sampling.",
+        "zh": "MiniCPM 与扩散采样的随机种子。"
+      },
+      "max_tokens": {
+        "en": "Maximum MiniCPM output tokens.",
+        "zh": "MiniCPM 输出 token 上限。"
+      },
+      "min_tokens": {
+        "en": "Minimum MiniCPM output tokens before an EOS stop is honored.",
+        "zh": "接受 EOS 停止前 MiniCPM 至少输出的 token 数。"
+      },
+      "num_inference_steps": {
+        "en": "CFM diffusion sampling steps.",
+        "zh": "CFM 扩散采样步数。"
+      },
+      "guidance_scale": {
+        "en": "CFM classifier-free guidance rate.",
+        "zh": "CFM 的无分类器引导强度。"
+      },
+      "prompt_text": {
+        "en": "Text prompt for prompt-continuation voice cloning.",
+        "zh": "用于提示续写式音色克隆的文本提示。"
+      },
+      "reference_text": {
+        "en": "Alias for prompt_text; text prompt for prompt-continuation voice cloning.",
+        "zh": "prompt_text 的别名；提示续写式音色克隆的文本提示。"
+      }
+    }
+  }
+}

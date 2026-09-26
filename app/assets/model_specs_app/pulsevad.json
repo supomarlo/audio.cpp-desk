@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "family": "pulsevad",
+  "display_name": "PulseVAD",
+  "description": "Speech activity detection for 16 kHz mono audio with 2.1K student and 81K teacher weights.",
+  "category": "audio_tools",
+  "status": "supported",
+  "tasks": [
+    "vad"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "vad": [
+      "speech_segments"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "threshold",
+        "type": "float",
+        "description": "Speech probability threshold.",
+        "required": false,
+        "default": 0.5,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "min_speech_duration_ms",
+        "type": "int",
+        "description": "Minimum speech segment duration in milliseconds.",
+        "required": false,
+        "default": 100,
+        "min": 0
+      },
+      {
+        "name": "min_silence_duration_ms",
+        "type": "int",
+        "description": "Minimum silence before closing a speech segment, in milliseconds.",
+        "required": false,
+        "default": 100,
+        "min": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Weight storage override; native preserves the packaged tensor types.",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16"
+        ],
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "VAD",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/pulsevad.md"
+    ],
+    "recommended_package": "pulsevad_2_1k_f32"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "tensors": {
+        "weights": "model:pulsevad-f32.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "pulsevad_2_1k_f32",
+      "display_name": "PulseVAD 2.1K GGUF F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "PulseVAD-GGUF",
+      "files": [
+        "PulseVAD-GGUF/pulsevad-2.1k-f32.gguf"
+      ],
+      "strip_prefix": "PulseVAD-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 81408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 81408,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 81408,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; memory/vram=n/a"
+      }
+    },
+    {
+      "id": "pulsevad_81k_f32",
+      "display_name": "PulseVAD 81K GGUF F32",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "PulseVAD-GGUF",
+      "files": [
+        "PulseVAD-GGUF/pulsevad-81k-f32.gguf"
+      ],
+      "strip_prefix": "PulseVAD-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 394240,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 394240,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 394240,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; memory/vram=n/a"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Speech activity detection for 16 kHz mono audio with 2.1K student and 81K teacher weights.",
+      "zh": "面向 16 kHz 单声道音频的语音活动检测，提供 2.1K student 与 81K teacher 权重。"
+    },
+    "options": {
+      "threshold": {
+        "en": "Speech probability threshold.",
+        "zh": "语音概率阈值。"
+      },
+      "min_speech_duration_ms": {
+        "en": "Minimum speech segment duration in milliseconds.",
+        "zh": "语音分段的最小时长（毫秒）。"
+      },
+      "min_silence_duration_ms": {
+        "en": "Minimum silence before closing a speech segment, in milliseconds.",
+        "zh": "关闭语音分段前的最小静音时长（毫秒）。"
+      }
+    }
+  }
+}

@@ -1,0 +1,577 @@
+{
+  "family": "vevo2",
+  "display_name": "Vevo2",
+  "description": "Unified controllable framework for English and Chinese speech and singing voice generation, voice conversion, and editing, with tokenizers that disentangle content, prosody, melody, style, and timbre.",
+  "category": "voice_conversion",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "music",
+    "vc",
+    "edit",
+    "svc",
+    "s2s"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en",
+    "zh"
+  ],
+  "capabilities": {
+    "music": [
+      "lyrics"
+    ],
+    "vc": [
+      "speaker_reference"
+    ],
+    "svc": [
+      "speaker_reference",
+      "singing"
+    ],
+    "s2s": [
+      "speaker_reference"
+    ],
+    "edit": [
+      "prompt_editing"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "route",
+        "type": "enum",
+        "description": "VeVo2 route: zero_shot_tts, text_to_singing, svs, style_preserved_vc, style_preserved_svc, style_converted_vc, style_converted_svc, editing, singing_style_conversion, humming_to_singing, or instrument_to_singing",
+        "values": [
+          "zero_shot_tts",
+          "text_to_singing",
+          "svs",
+          "style_preserved_vc",
+          "style_preserved_svc",
+          "style_converted_vc",
+          "style_converted_svc",
+          "editing",
+          "singing_style_conversion",
+          "humming_to_singing",
+          "instrument_to_singing"
+        ]
+      },
+      {
+        "name": "source_audio",
+        "type": "path",
+        "description": "Source speech or singing audio for conversion/editing routes."
+      },
+      {
+        "name": "target_voice",
+        "type": "path",
+        "description": "Target timbre reference audio."
+      },
+      {
+        "name": "prosody_ref",
+        "type": "path",
+        "description": "Prosody or melody reference audio."
+      },
+      {
+        "name": "style_ref",
+        "type": "path",
+        "description": "Style reference audio."
+      },
+      {
+        "name": "target_text",
+        "type": "string",
+        "description": "Text or lyrics to vocalize."
+      },
+      {
+        "name": "style_ref_text",
+        "type": "string",
+        "description": "Transcript for the style reference when text conditioning is used."
+      },
+      {
+        "name": "use_prosody_code",
+        "type": "bool",
+        "description": "Enable explicit prosody-code conditioning."
+      },
+      {
+        "name": "predict_target_prosody",
+        "type": "bool",
+        "description": "Predict target prosody during AR generation."
+      },
+      {
+        "name": "use_pitch_shift",
+        "type": "bool",
+        "description": "Pitch-align source/prosody/style references to the target voice."
+      },
+      {
+        "name": "source_shift_steps",
+        "type": "int",
+        "description": "Manual pitch-shift semitone steps for source audio."
+      },
+      {
+        "name": "prosody_shift_steps",
+        "type": "int",
+        "description": "Manual pitch-shift semitone steps for prosody reference audio."
+      },
+      {
+        "name": "style_shift_steps",
+        "type": "int",
+        "description": "Manual pitch-shift semitone steps for style reference audio."
+      },
+      {
+        "name": "target_duration_seconds",
+        "type": "float",
+        "description": "Target output duration hint for flow matching."
+      },
+      {
+        "name": "reference_duration_seconds",
+        "type": "float",
+        "description": "Trim target voice reference duration before conditioning."
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "AR sampling temperature."
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "AR top-k sampling limit."
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "AR nucleus sampling threshold."
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "AR repetition penalty."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated AR content/style tokens."
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Flow-matching denoising steps."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Request seed; omitted means random."
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Opt-in source-audio chunking for style_preserved_vc and style_preserved_svc. 0 keeps the existing one-shot path.",
+        "default": 0.0
+      },
+      {
+        "name": "cross_fade_duration_sec",
+        "type": "float",
+        "description": "Source chunk overlap and output crossfade duration when source-audio chunking is enabled. Must be smaller than audio_chunk_duration_sec."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "vevo2_q8_0",
+    "tags": [
+      "TTS",
+      "Music",
+      "VC",
+      "Edit",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/vevo2.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "ar_config": "model:contentstyle_modeling/posttrained/config.json",
+        "ar_amphion_config": "model:contentstyle_modeling/posttrained/amphion_config.json",
+        "ar_generation_config": "model:contentstyle_modeling/posttrained/generation_config.json",
+        "ar_tokenizer_config": "model:contentstyle_modeling/posttrained/tokenizer_config.json",
+        "ar_tokenizer_json": "model:contentstyle_modeling/posttrained/tokenizer.json",
+        "ar_vocab": "model:contentstyle_modeling/posttrained/vocab.json",
+        "ar_merges": "model:contentstyle_modeling/posttrained/merges.txt",
+        "ar_added_tokens": "model:contentstyle_modeling/posttrained/added_tokens.json",
+        "ar_special_tokens": "model:contentstyle_modeling/posttrained/special_tokens_map.json",
+        "fm_config": "model:acoustic_modeling/fm_emilia101k_singnet7k_repa/config.json",
+        "fm_text_config": "model:acoustic_modeling/fm_emilia101k_singnet7k_repa_text/config.json",
+        "vocoder_config": "model:vocoder/config.json",
+        "whisper_config": "model:whisper-medium/config.json"
+      },
+      "tensors": {
+        "content_style_tokenizer_weights": {
+          "source": "weights:",
+          "prefix": "content_style_tokenizer_weights"
+        },
+        "prosody_tokenizer_weights": {
+          "source": "weights:",
+          "prefix": "prosody_tokenizer_weights"
+        },
+        "ar_weights": {
+          "source": "weights:",
+          "prefix": "ar_weights"
+        },
+        "fm_weights": {
+          "source": "weights:",
+          "prefix": "fm_weights"
+        },
+        "fm_whisper_stats": {
+          "source": "weights:",
+          "prefix": "fm_whisper_stats"
+        },
+        "fm_text_weights": {
+          "source": "weights:",
+          "prefix": "fm_text_weights"
+        },
+        "fm_text_whisper_stats": {
+          "source": "weights:",
+          "prefix": "fm_text_whisper_stats"
+        },
+        "vocoder_weights_0": {
+          "source": "weights:",
+          "prefix": "vocoder_weights_0"
+        },
+        "vocoder_weights_1": {
+          "source": "weights:",
+          "prefix": "vocoder_weights_1"
+        },
+        "vocoder_weights_2": {
+          "source": "weights:",
+          "prefix": "vocoder_weights_2"
+        },
+        "whisper_weights": {
+          "source": "weights:",
+          "prefix": "whisper_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": ".",
+        "whisper": "../whisper-medium"
+      },
+      "files": {
+        "ar_config": "model:contentstyle_modeling/posttrained/config.json",
+        "ar_amphion_config": "model:contentstyle_modeling/posttrained/amphion_config.json",
+        "ar_generation_config": "model:contentstyle_modeling/posttrained/generation_config.json",
+        "ar_tokenizer_config": "model:contentstyle_modeling/posttrained/tokenizer_config.json",
+        "ar_tokenizer_json": "model:contentstyle_modeling/posttrained/tokenizer.json",
+        "ar_vocab": "model:contentstyle_modeling/posttrained/vocab.json",
+        "ar_merges": "model:contentstyle_modeling/posttrained/merges.txt",
+        "ar_added_tokens": "model:contentstyle_modeling/posttrained/added_tokens.json",
+        "ar_special_tokens": "model:contentstyle_modeling/posttrained/special_tokens_map.json",
+        "fm_config": "model:acoustic_modeling/fm_emilia101k_singnet7k_repa/config.json",
+        "fm_text_config": "model:acoustic_modeling/fm_emilia101k_singnet7k_repa_text/config.json",
+        "vocoder_config": "model:vocoder/config.json",
+        "whisper_config": "whisper:config.json"
+      },
+      "tensors": {
+        "content_style_tokenizer_weights": "model:tokenizer/contentstyle_fvq16384_12.5hz/model.safetensors",
+        "prosody_tokenizer_weights": "model:tokenizer/prosody_fvq512_6.25hz/model.safetensors",
+        "ar_weights": "model:contentstyle_modeling/posttrained/model.safetensors",
+        "fm_weights": "model:acoustic_modeling/fm_emilia101k_singnet7k_repa/model.safetensors",
+        "fm_whisper_stats": "model:acoustic_modeling/fm_emilia101k_singnet7k_repa/whisper_stats.safetensors",
+        "fm_text_weights": "model:acoustic_modeling/fm_emilia101k_singnet7k_repa_text/model.safetensors",
+        "fm_text_whisper_stats": "model:acoustic_modeling/fm_emilia101k_singnet7k_repa_text/whisper_stats.safetensors",
+        "vocoder_weights_0": "model:vocoder/model.safetensors",
+        "vocoder_weights_1": "model:vocoder/model_1.safetensors",
+        "vocoder_weights_2": "model:vocoder/model_2.safetensors",
+        "whisper_weights": "whisper:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "vevo2_q8_0",
+      "display_name": "Vevo2 Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Vevo2-GGUF",
+      "files": [
+        "Vevo2-GGUF/vevo2-q8_0.gguf"
+      ],
+      "strip_prefix": "Vevo2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3242124800,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3242124800,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3242124800,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3242124800,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3221225472,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "vevo2_f16",
+      "display_name": "Vevo2 F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Vevo2-GGUF",
+      "files": [
+        "Vevo2-GGUF/vevo2-f16.gguf"
+      ],
+      "strip_prefix": "Vevo2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5021112128,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5021112128,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 5021112128,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 5021112128,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5033164800,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "vevo2_orig",
+      "display_name": "Vevo2 Original-Dtype GGUF",
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Vevo2-GGUF",
+      "files": [
+        "Vevo2-GGUF/vevo2-orig.gguf"
+      ],
+      "strip_prefix": "Vevo2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 7449615488,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 7449615488,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 7449615488,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 7449615488,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 7449083904,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Unified controllable framework for English and Chinese speech and singing voice generation, voice conversion, and editing, with tokenizers that disentangle content, prosody, melody, style, and timbre.",
+      "zh": "面向中英文语音与歌声生成、音色转换与编辑的统一可控框架，其分词器可解耦内容、韵律、旋律、风格与音色。"
+    },
+    "options": {
+      "route": {
+        "en": "VeVo2 route: zero_shot_tts, text_to_singing, svs, style_preserved_vc, style_preserved_svc, style_converted_vc, style_converted_svc, editing, singing_style_conversion, humming_to_singing, or instrument_to_singing",
+        "zh": "VeVo2 路线：zero_shot_tts、text_to_singing、svs、style_preserved_vc、style_preserved_svc、style_converted_vc、style_converted_svc、editing、singing_style_conversion、humming_to_singing 或 instrument_to_singing。"
+      },
+      "source_audio": {
+        "en": "Source speech or singing audio for conversion/editing routes.",
+        "zh": "转换/编辑路线使用的源语音或歌声音频。"
+      },
+      "target_voice": {
+        "en": "Target timbre reference audio.",
+        "zh": "目标音色参考音频。"
+      },
+      "prosody_ref": {
+        "en": "Prosody or melody reference audio.",
+        "zh": "韵律或旋律参考音频。"
+      },
+      "style_ref": {
+        "en": "Style reference audio.",
+        "zh": "风格参考音频。"
+      },
+      "target_text": {
+        "en": "Text or lyrics to vocalize.",
+        "zh": "要演唱的文本或歌词。"
+      },
+      "style_ref_text": {
+        "en": "Transcript for the style reference when text conditioning is used.",
+        "zh": "使用文本条件时风格参考对应的文本。"
+      },
+      "use_prosody_code": {
+        "en": "Enable explicit prosody-code conditioning.",
+        "zh": "启用显式韵律码条件。"
+      },
+      "predict_target_prosody": {
+        "en": "Predict target prosody during AR generation.",
+        "zh": "在自回归生成期间预测目标韵律。"
+      },
+      "use_pitch_shift": {
+        "en": "Pitch-align source/prosody/style references to the target voice.",
+        "zh": "把源/韵律/风格参考的音高对齐到目标音色。"
+      },
+      "source_shift_steps": {
+        "en": "Manual pitch-shift semitone steps for source audio.",
+        "zh": "源音频的手动半音移调步数。"
+      },
+      "prosody_shift_steps": {
+        "en": "Manual pitch-shift semitone steps for prosody reference audio.",
+        "zh": "韵律参考音频的手动半音移调步数。"
+      },
+      "style_shift_steps": {
+        "en": "Manual pitch-shift semitone steps for style reference audio.",
+        "zh": "风格参考音频的手动半音移调步数。"
+      },
+      "target_duration_seconds": {
+        "en": "Target output duration hint for flow matching.",
+        "zh": "流匹配的目标输出时长提示。"
+      },
+      "reference_duration_seconds": {
+        "en": "Trim target voice reference duration before conditioning.",
+        "zh": "条件化前裁剪目标音色参考的时长。"
+      },
+      "temperature": {
+        "en": "AR sampling temperature.",
+        "zh": "自回归采样温度。"
+      },
+      "top_k": {
+        "en": "AR top-k sampling limit.",
+        "zh": "自回归 top-k 采样上限。"
+      },
+      "top_p": {
+        "en": "AR nucleus sampling threshold.",
+        "zh": "自回归核采样阈值。"
+      },
+      "repetition_penalty": {
+        "en": "AR repetition penalty.",
+        "zh": "自回归重复惩罚。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated AR content/style tokens.",
+        "zh": "最多生成的自回归内容/风格 token 数。"
+      },
+      "num_inference_steps": {
+        "en": "Flow-matching denoising steps.",
+        "zh": "流匹配去噪步数。"
+      },
+      "seed": {
+        "en": "Request seed; omitted means random.",
+        "zh": "请求随机种子；省略时随机。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Opt-in source-audio chunking for style_preserved_vc and style_preserved_svc. 0 keeps the existing one-shot path.",
+        "zh": "source/风格保持类路线可选的源音频分块时长；0 保持原有一次成型的路径。"
+      },
+      "cross_fade_duration_sec": {
+        "en": "Source chunk overlap and output crossfade duration when source-audio chunking is enabled. Must be smaller than audio_chunk_duration_sec.",
+        "zh": "启用源音频分块时的分块重叠与输出交叉淡入淡出时长；须小于 audio_chunk_duration_sec。"
+      }
+    }
+  }
+}

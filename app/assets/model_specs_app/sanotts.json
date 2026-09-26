@@ -1,0 +1,1048 @@
+{
+  "schema_version": 1,
+  "family": "sanotts",
+  "display_name": "sanoTTS Nano",
+  "description": "Very small multilingual text-to-speech across fourteen languages. Two graphs: the nano lineage (duration student, contextual acoustic student to mel-100, noise-fed ConvNeXt-1D decoder with an iSTFT head; voices heart 2.27M and heart-nano 294k, English, 24 kHz) and the deterministic piperlite lineage (duration student, acoustic student to a 192-channel latent, optionally through a calibration adapter, then a 3-stage ConvTranspose1d decoder with dilated residual banks; voices amy, hfc and kristin for English, vi, id, cs, de, es, fr, it, pt, ro, ru, tr, ne and hi at 1.1-1.8M parameters, 22.05 kHz). Uses an external eSpeak-ng phonemizer.",
+  "category": "tts",
+  "status": "community",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en",
+    "vi",
+    "id",
+    "cs",
+    "de",
+    "es",
+    "fr",
+    "it",
+    "pt",
+    "ro",
+    "ru",
+    "tr",
+    "ne",
+    "hi"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "speaking_rate",
+        "type": "float",
+        "description": "Duration multiplier on the voice's tuned length scale; larger is slower. Applied before the per-token clamp.",
+        "required": false,
+        "min": 0.5,
+        "max": 2.0,
+        "default": 1.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Decoder noise seed. The decoder is noise-fed, so a given seed picks one of many valid renderings; 0 derives it from the text as sha256(text)[:8], which is what the reference implementations do. Piperlite voices are deterministic and ignore the seed.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "espeak_library_path",
+        "type": "path",
+        "description": "Optional explicit path to the eSpeak-ng shared library.",
+        "required": false
+      },
+      {
+        "name": "espeak_data_path",
+        "type": "path",
+        "description": "Optional explicit path to the directory containing espeak-ng-data.",
+        "required": false
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "ampixa/sanoTTS",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "sanotts_heart_nano_orig",
+    "tags": [
+      "TTS",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/community_models/sanotts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "sanotts_heart_nano_orig",
+      "display_name": "sanoTTS heart-nano 294k FP32 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-heart-nano-GGUF",
+      "files": [
+        "gguf/heart-nano-f32.gguf",
+        "gguf/config.json"
+      ],
+      "strip_prefix": "gguf",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS heart-nano: English nano-graph voice (294k), microcontroller-class.",
+          "zh": "sanoTTS heart-nano：英语 nano 图音色（294k），微控制器级。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1197865,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1197865,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1197865,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1048576,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_heart_orig",
+      "display_name": "sanoTTS heart 2.27M FP32 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-heart-GGUF",
+      "files": [
+        "gguf/heart/heart-f32.gguf",
+        "gguf/heart/config.json"
+      ],
+      "strip_prefix": "gguf/heart",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS heart: English nano-graph voice (2.27M), the best quality of the nano pair.",
+          "zh": "sanoTTS heart：英语 nano 图音色（2.27M），nano 组合中质量最佳。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 9110089,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 9110089,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 9110089,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 9437184,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_amy_orig",
+      "display_name": "sanoTTS amy 1.46M FP32 GGUF (English, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-amy-GGUF",
+      "files": [
+        "gguf/amy/amy-f32.gguf",
+        "gguf/amy/config.json"
+      ],
+      "strip_prefix": "gguf/amy",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS amy: English piperlite voice (1.46M), Piper-distilled.",
+          "zh": "sanoTTS amy：英语 piperlite 音色（1.46M），由 Piper 蒸馏。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5840484,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5840484,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 5840484,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_hfc_orig",
+      "display_name": "sanoTTS hfc 1.83M FP32 GGUF (English, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-hfc-GGUF",
+      "files": [
+        "gguf/hfc/hfc-f32.gguf",
+        "gguf/hfc/config.json"
+      ],
+      "strip_prefix": "gguf/hfc",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS hfc: English piperlite voice (1.83M), the largest piperlite voice.",
+          "zh": "sanoTTS hfc：英语 piperlite 音色（1.83M），最大的 piperlite 音色。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 7360930,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 7360930,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 7360930,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 7340032,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_kristin_orig",
+      "display_name": "sanoTTS kristin 1.40M FP32 GGUF (English, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-kristin-GGUF",
+      "files": [
+        "gguf/kristin/kristin-f32.gguf",
+        "gguf/kristin/config.json"
+      ],
+      "strip_prefix": "gguf/kristin",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS kristin: English piperlite voice (1.40M) with a learned post filter.",
+          "zh": "sanoTTS kristin：英语 piperlite 音色（1.40M），带学习型后置滤波器。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5609996,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5609996,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 5609996,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5242880,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_vi_orig",
+      "display_name": "sanoTTS vi 1.57M FP32 GGUF (Vietnamese, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-vi-GGUF",
+      "files": [
+        "gguf/vi/vi-f32.gguf",
+        "gguf/vi/config.json"
+      ],
+      "strip_prefix": "gguf/vi",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS vi: Vietnamese piperlite voice (1.57M).",
+          "zh": "sanoTTS vi：越南语 piperlite 音色（1.57M）。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6285413,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6285413,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6285413,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_id_orig",
+      "display_name": "sanoTTS id 1.56M FP32 GGUF (Indonesian, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-id-GGUF",
+      "files": [
+        "gguf/id/id-f32.gguf",
+        "gguf/id/config.json"
+      ],
+      "strip_prefix": "gguf/id",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS id: Indonesian piperlite voice (1.56M).",
+          "zh": "sanoTTS id：印尼语 piperlite 音色（1.56M）。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6272061,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6272061,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6272061,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_cs_orig",
+      "display_name": "sanoTTS cs 1.57M FP32 GGUF (Czech, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-cs-GGUF",
+      "files": [
+        "gguf/cs/cs-f32.gguf",
+        "gguf/cs/config.json"
+      ],
+      "strip_prefix": "gguf/cs",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS cs: Czech piperlite voice (1.57M), from cs_CZ-jirka-medium.",
+          "zh": "sanoTTS cs：捷克语 piperlite 音色（1.57M），来自 cs_CZ-jirka-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6299079,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6299079,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6299079,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_de_orig",
+      "display_name": "sanoTTS de 1.57M FP32 GGUF (German, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-de-GGUF",
+      "files": [
+        "gguf/de/de-f32.gguf",
+        "gguf/de/config.json"
+      ],
+      "strip_prefix": "gguf/de",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS de: German piperlite voice (1.57M), from de_DE-thorsten-medium.",
+          "zh": "sanoTTS de：德语 piperlite 音色（1.57M），来自 de_DE-thorsten-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6288110,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6288110,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6288110,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_es_orig",
+      "display_name": "sanoTTS es 1.56M FP32 GGUF (Spanish, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-es-GGUF",
+      "files": [
+        "gguf/es/es-f32.gguf",
+        "gguf/es/config.json"
+      ],
+      "strip_prefix": "gguf/es",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS es: Spanish piperlite voice (1.56M), from es_ES-davefx-medium.",
+          "zh": "sanoTTS es：西班牙语 piperlite 音色（1.56M），来自 es_ES-davefx-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6278510,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6278510,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6278510,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_fr_orig",
+      "display_name": "sanoTTS fr 1.57M FP32 GGUF (French, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-fr-GGUF",
+      "files": [
+        "gguf/fr/fr-f32.gguf",
+        "gguf/fr/config.json"
+      ],
+      "strip_prefix": "gguf/fr",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS fr: French piperlite voice (1.57M), from fr_FR-siwis-medium.",
+          "zh": "sanoTTS fr：法语 piperlite 音色（1.57M），来自 fr_FR-siwis-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6288136,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6288136,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6288136,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_it_orig",
+      "display_name": "sanoTTS it 1.57M FP32 GGUF (Italian, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-it-GGUF",
+      "files": [
+        "gguf/it/it-f32.gguf",
+        "gguf/it/config.json"
+      ],
+      "strip_prefix": "gguf/it",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS it: Italian piperlite voice (1.57M), from it_IT-serena-medium.",
+          "zh": "sanoTTS it：意大利语 piperlite 音色（1.57M），来自 it_IT-serena-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6288814,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6288814,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6288814,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_pt_orig",
+      "display_name": "sanoTTS pt 1.57M FP32 GGUF (Portuguese (Brazil), piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-pt-GGUF",
+      "files": [
+        "gguf/pt/pt-f32.gguf",
+        "gguf/pt/config.json"
+      ],
+      "strip_prefix": "gguf/pt",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS pt: Brazilian Portuguese piperlite voice (1.57M), from pt_BR-cadu-medium.",
+          "zh": "sanoTTS pt：巴西葡萄牙语 piperlite 音色（1.57M），来自 pt_BR-cadu-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6288229,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6288229,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6288229,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_ro_orig",
+      "display_name": "sanoTTS ro 1.57M FP32 GGUF (Romanian, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-ro-GGUF",
+      "files": [
+        "gguf/ro/ro-f32.gguf",
+        "gguf/ro/config.json"
+      ],
+      "strip_prefix": "gguf/ro",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS ro: Romanian piperlite voice (1.57M), from ro_RO-mihai-medium.",
+          "zh": "sanoTTS ro：罗马尼亚语 piperlite 音色（1.57M），来自 ro_RO-mihai-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6287496,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6287496,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6287496,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_ru_orig",
+      "display_name": "sanoTTS ru 1.57M FP32 GGUF (Russian, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-ru-GGUF",
+      "files": [
+        "gguf/ru/ru-f32.gguf",
+        "gguf/ru/config.json"
+      ],
+      "strip_prefix": "gguf/ru",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS ru: Russian piperlite voice (1.57M), from ru_RU-irina-medium.",
+          "zh": "sanoTTS ru：俄语 piperlite 音色（1.57M），来自 ru_RU-irina-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6293857,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6293857,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6293857,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_tr_orig",
+      "display_name": "sanoTTS tr 1.56M FP32 GGUF (Turkish, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-tr-GGUF",
+      "files": [
+        "gguf/tr/tr-f32.gguf",
+        "gguf/tr/config.json"
+      ],
+      "strip_prefix": "gguf/tr",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS tr: Turkish piperlite voice (1.56M), from tr_TR-dfki-medium.",
+          "zh": "sanoTTS tr：土耳其语 piperlite 音色（1.56M），来自 tr_TR-dfki-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6275976,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6275976,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6275976,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_ne_orig",
+      "display_name": "sanoTTS ne 1.47M FP32 GGUF (Nepali, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-ne-GGUF",
+      "files": [
+        "gguf/ne/ne-f32.gguf",
+        "gguf/ne/config.json"
+      ],
+      "strip_prefix": "gguf/ne",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS ne: Nepali piperlite voice (1.47M), from ne_NP-chitwan-medium.",
+          "zh": "sanoTTS ne：尼泊尔语 piperlite 音色（1.47M），来自 ne_NP-chitwan-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5927394,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5927394,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 5927394,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "sanotts_hi_orig",
+      "display_name": "sanoTTS hi 1.50M FP32 GGUF (Hindi, piperlite)",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "sanoTTS-hi-GGUF",
+      "files": [
+        "gguf/hi/hi-f32.gguf",
+        "gguf/hi/config.json"
+      ],
+      "strip_prefix": "gguf/hi",
+      "i18n": {
+        "description": {
+          "en": "sanoTTS hi: Hindi piperlite voice (1.50M) with a calibration adapter, from hi_IN-pratham-medium.",
+          "zh": "sanoTTS hi：印地语 piperlite 音色（1.50M），带校准适配器，来自 hi_IN-pratham-medium。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6026880,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ampixa/sanoTTS",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6026880,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/ampixa/sanoTTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6026880,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6291456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Very small multilingual text-to-speech across fourteen languages. Two graphs: the nano lineage (duration student, contextual acoustic student to mel-100, noise-fed ConvNeXt-1D decoder with an iSTFT head; voices heart 2.27M and heart-nano 294k, English, 24 kHz) and the deterministic piperlite lineage (duration student, acoustic student to a 192-channel latent, optionally through a calibration adapter, then a 3-stage ConvTranspose1d decoder with dilated residual banks; voices amy, hfc and kristin for English, vi, id, cs, de, es, fr, it, pt, ro, ru, tr, ne and hi at 1.1-1.8M parameters, 22.05 kHz). Uses an external eSpeak-ng phonemizer.",
+      "zh": "超小型多语言文本转语音，覆盖十四种语言。两条图：nano 谱系（时长 student、上下文声学 student 至 mel-100、带 iSTFT 头的噪声驱动 ConvNeXt-1D 解码器；音色 heart 2.27M 与 heart-nano 294k，英语，24 kHz）；确定性 piperlite 谱系（时长 student、声学 student 至 192 通道潜在，可选经校准适配器，再由带空洞残差块的三级 ConvTranspose1d 解码器解码；音色 amy、hfc、kristin 以及 vi、id、cs、de、es、fr、it、pt、ro、ru、tr、ne、hi，参数 1.1-1.8M，22.05 kHz）。使用外部 eSpeak-ng 音素器。"
+    },
+    "options": {
+      "speaking_rate": {
+        "en": "Duration multiplier on the voice's tuned length scale; larger is slower. Applied before the per-token clamp.",
+        "zh": "作用于该音色调校时长尺度的倍率；越大越慢。在逐 token 截断之前施加。"
+      },
+      "seed": {
+        "en": "Decoder noise seed. The decoder is noise-fed, so a given seed picks one of many valid renderings; 0 derives it from the text as sha256(text)[:8], which is what the reference implementations do. Piperlite voices are deterministic and ignore the seed.",
+        "zh": "解码器噪声种子。解码器以噪声驱动，因此同一 seed 只是从多种合法结果中选一种；0 表示由文本按 sha256(text)[:8] 推导，与参考实现一致。Piperlite 音色是确定性的，会忽略该 seed。"
+      }
+    }
+  }
+}

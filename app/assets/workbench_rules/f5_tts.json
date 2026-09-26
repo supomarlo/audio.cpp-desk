@@ -1,0 +1,3 @@
+{
+  "f5_tts": {"reference":"required","referenceText":"required","instruction":"hidden","language":"hidden","source":"docs/community_models/f5_tts.md"}
+}

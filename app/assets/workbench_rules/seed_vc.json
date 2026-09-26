@@ -1,0 +1,3 @@
+{
+  "seed_vc": {"reference":"required","referenceText":"hidden","instruction":"hidden","language":"hidden","requiredInputs":["--audio"],"source":"docs/models/seed_vc.md"}
+}

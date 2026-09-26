@@ -1,0 +1,306 @@
+{
+  "family": "vibevoice_asr",
+  "display_name": "VibeVoice ASR",
+  "description": "Microsoft long-form speech-to-text model that processes up to 60 minutes of audio in one pass and produces structured transcripts with speakers, timestamps, content, hotwords, and 50+ language support.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "auto",
+    "51 languages"
+  ],
+  "capabilities": {
+    "asr": [
+      "segments",
+      "speaker_turns",
+      "vad_chunking"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "ASR language label."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated text tokens."
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Sampling temperature; 0 uses deterministic decoding."
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Nucleus sampling probability."
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling limit; 0 disables top-k filtering."
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "Generation repetition penalty."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Acoustic latent sampling seed."
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Audio chunking mode; default auto uses fixed chunks.",
+        "values": [
+          "auto",
+          "fixed",
+          "vad",
+          "none"
+        ]
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Audio chunk duration; default 1200."
+      },
+      {
+        "name": "context",
+        "type": "string",
+        "description": "Extra context or hotwords injected into the streaming prompt."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "vibevoice_asr_q8_0",
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/asr.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_vocab": "model:vocab.json",
+        "tokenizer_merges": "model:merges.txt"
+      },
+      "optional_files": {
+        "preprocessor_config": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "model_weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_vocab": "model:vocab.json",
+        "tokenizer_merges": "model:merges.txt"
+      },
+      "optional_files": {
+        "preprocessor_config": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors.index.json"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "vibevoice_asr_q8_0",
+      "display_name": "VibeVoice ASR Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "VibeVoice-ASR-GGUF",
+      "files": [
+        "VibeVoice-ASR-GGUF/vibevoice-asr-q8_0.gguf"
+      ],
+      "strip_prefix": "VibeVoice-ASR-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 9858644224,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 9858644224,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 9858644224,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 9858644224,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 19595788288,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "vibevoice_asr_f16",
+      "display_name": "VibeVoice ASR F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "VibeVoice-ASR-GGUF",
+      "files": [
+        "VibeVoice-ASR-GGUF/vibevoice-asr-f16.gguf"
+      ],
+      "strip_prefix": "VibeVoice-ASR-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 17361090304,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 17361090304,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 17361090304,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 17361090304,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 27111981056,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Microsoft long-form speech-to-text model that processes up to 60 minutes of audio in one pass and produces structured transcripts with speakers, timestamps, content, hotwords, and 50+ language support.",
+      "zh": "微软长音频语音转文本模型，单次可处理最长 60 分钟音频，输出含说话人、时间戳、内容、热词的结构化转写，支持 50+ 语言。"
+    },
+    "options": {
+      "language": {
+        "en": "ASR language label.",
+        "zh": "ASR 语言标记。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated text tokens.",
+        "zh": "最多生成的文本 token 数。"
+      },
+      "temperature": {
+        "en": "Sampling temperature; 0 uses deterministic decoding.",
+        "zh": "采样温度；0 表示确定性解码。"
+      },
+      "top_p": {
+        "en": "Nucleus sampling probability.",
+        "zh": "核采样概率。"
+      },
+      "top_k": {
+        "en": "Top-k sampling limit; 0 disables top-k filtering.",
+        "zh": "top-k 采样上限；0 表示关闭 top-k 过滤。"
+      },
+      "repetition_penalty": {
+        "en": "Generation repetition penalty.",
+        "zh": "生成重复惩罚。"
+      },
+      "seed": {
+        "en": "Acoustic latent sampling seed.",
+        "zh": "声学隐变量采样的随机种子。"
+      },
+      "audio_chunk_mode": {
+        "en": "Audio chunking mode; default auto uses fixed chunks.",
+        "zh": "音频分块模式；默认 auto 使用固定分块。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Audio chunk duration; default 1200.",
+        "zh": "音频分块时长；默认 1200。"
+      },
+      "context": {
+        "en": "Extra context or hotwords injected into the streaming prompt.",
+        "zh": "注入流式提示的额外上下文或热词。"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "kitten_tts": {
+    "reference": "hidden",
+    "referenceText": "hidden",
+    "voiceId": { "values": ["Bella","Jasper","Luna","Bruno","Rosie","Hugo","Kiki","Leo"], "default": "" },
+    "instruction": "hidden",
+    "language": "hidden",
+    "source": "docs/community_models/kitten_tts.md"
+  }
+}

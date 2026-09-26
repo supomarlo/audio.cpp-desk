@@ -1,0 +1,33 @@
+name: audio_cpp_desk
+description: Desktop UI for audio.cpp
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  dio: ^5.7.0
+  path: ^1.9.0
+  file_selector: ^1.0.3
+  audioplayers: ^6.1.0
+  url_launcher: ^6.3.0
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/model_specs_app/
+    - assets/workbench_rules/
+    - assets/licenses/
+    - assets/icon/

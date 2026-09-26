@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "family": "kitten_tts",
+  "display_name": "KittenTTS Mini 0.8",
+  "description": "Native KittenTTS Mini 0.8 English text-to-speech with eight built-in voices and shared eSpeak-ng phonemization.",
+  "category": "tts",
+  "status": "community",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "built_in_voices",
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "speed",
+        "type": "float",
+        "description": "Speech speed multiplier; larger values produce faster speech.",
+        "required": false,
+        "min": 0.01,
+        "default": 1.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Decoder noise seed; omitted requests choose a random seed.",
+        "required": false,
+        "min": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "preset": "weight_type_full",
+        "description": "Storage type for matrix multiplication weights.",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "conv_weight_type",
+        "type": "enum",
+        "preset": "weight_type_conv",
+        "description": "Storage type for convolution weights.",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "graph_capacity_mode",
+        "type": "enum",
+        "description": "Offline graph capacity policy.",
+        "values": [
+          "fixed",
+          "tiered",
+          "grow",
+          "double"
+        ],
+        "required": false,
+        "default": "fixed"
+      },
+      {
+        "name": "max_input_tokens",
+        "type": "int",
+        "description": "Maximum predictor input token capacity.",
+        "required": false,
+        "min": 1,
+        "max": 512,
+        "default": 512
+      },
+      {
+        "name": "pre_tail_tokens",
+        "type": "int",
+        "description": "Optional prebuilt predictor tail token capacity.",
+        "required": false,
+        "min": 0,
+        "max": 512,
+        "default": 0
+      },
+      {
+        "name": "espeak_library_path",
+        "type": "path",
+        "description": "Optional explicit path to the eSpeak-ng shared library.",
+        "required": false
+      },
+      {
+        "name": "espeak_data_path",
+        "type": "path",
+        "description": "Optional explicit path to espeak-ng-data.",
+        "required": false
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "kitten_tts_mini_0_8_orig",
+    "tags": [
+      "TTS",
+      "GGUF"
+    ],
+    "builtin_voices": [
+      "Bella",
+      "Jasper",
+      "Luna",
+      "Bruno",
+      "Rosie",
+      "Hugo",
+      "Kiki",
+      "Leo"
+    ],
+    "default_voice": "Leo",
+    "docs": [
+      "docs/community_models/kitten_tts.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "kitten"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "model:ggml/kitten_tts.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "kitten_tts_mini_0_8_orig",
+      "display_name": "KittenTTS Mini 0.8 Original-Dtype GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "KittenTTS-GGUF",
+      "files": [
+        "KittenTTS-GGUF/kitten-tts-mini-0.8-orig.gguf"
+      ],
+      "strip_prefix": "KittenTTS-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 302167104,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 302167104,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 302167104,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 335544320,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Native KittenTTS Mini 0.8 English text-to-speech with eight built-in voices and shared eSpeak-ng phonemization.",
+      "zh": "原生 KittenTTS Mini 0.8 英语文本转语音，含八个内置音色与共享的 eSpeak-ng 音素化。"
+    },
+    "options": {
+      "speed": {
+        "en": "Speech speed multiplier; larger values produce faster speech.",
+        "zh": "语速倍率；值越大语速越快。"
+      },
+      "seed": {
+        "en": "Decoder noise seed; omitted requests choose a random seed.",
+        "zh": "解码器噪声种子；省略时随机。"
+      }
+    }
+  }
+}

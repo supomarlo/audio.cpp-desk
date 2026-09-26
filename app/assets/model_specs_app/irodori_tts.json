@@ -1,0 +1,818 @@
+{
+  "schema_version": 1,
+  "family": "irodori_tts",
+  "display_name": "Irodori-TTS",
+  "description": "Japanese TTS model based on RF-DiT continuous audio latents, supporting zero-shot voice cloning, automatic duration prediction, multimodal voice design, and emoji-style control.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone",
+    "design"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "ja"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ],
+    "design": [
+      "voice_design"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Text language code; Irodori-TTS supports Japanese only.",
+        "required": false,
+        "default": "ja"
+      },
+      {
+        "name": "instruction",
+        "type": "string",
+        "description": "Natural-language voice or style instruction describing target voice identity, style, or emotion; supported only by caption-conditioned checkpoints. Legacy caption is accepted as an alias.",
+        "required": false
+      },
+      {
+        "name": "no_ref",
+        "type": "bool",
+        "description": "Use no-reference generation; default true unless a speaker reference is provided.",
+        "required": false,
+        "default": true
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "RF diffusion steps; default 40.",
+        "required": false,
+        "min": 1,
+        "default": 40
+      },
+      {
+        "name": "duration_sec",
+        "type": "float",
+        "description": "Explicit output duration in seconds; must be positive when set, otherwise predicted duration is used.",
+        "required": false,
+        "min": 0.0
+      },
+      {
+        "name": "duration_scale",
+        "type": "float",
+        "description": "Predicted-duration multiplier; must be positive when set; default 1.0.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.0
+      },
+      {
+        "name": "min_duration_sec",
+        "type": "float",
+        "description": "Minimum generated duration in seconds; must be positive and no greater than max_duration_sec; default 0.5.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.5
+      },
+      {
+        "name": "max_duration_sec",
+        "type": "float",
+        "description": "Maximum generated duration in seconds; must be at least min_duration_sec; default 30.",
+        "required": false,
+        "min": 0.0,
+        "default": 30.0
+      },
+      {
+        "name": "text_guidance_scale",
+        "type": "float",
+        "description": "Text classifier-free guidance scale; default 3.0.",
+        "required": false,
+        "min": 0.0,
+        "default": 3.0
+      },
+      {
+        "name": "speaker_guidance_scale",
+        "type": "float",
+        "description": "Speaker classifier-free guidance scale; default 5.0.",
+        "required": false,
+        "min": 0.0,
+        "default": 5.0
+      },
+      {
+        "name": "caption_guidance_scale",
+        "type": "float",
+        "description": "Caption classifier-free guidance scale; default 3.0.",
+        "required": false,
+        "min": 0.0,
+        "default": 3.0
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Override all classifier-free guidance scales when set.",
+        "required": false,
+        "min": 0.0
+      },
+      {
+        "name": "guidance_mode",
+        "type": "enum",
+        "description": "Classifier-free guidance combination mode; default independent.",
+        "values": [
+          "independent",
+          "joint",
+          "alternating"
+        ],
+        "required": false,
+        "default": "independent"
+      },
+      {
+        "name": "guidance_min_t",
+        "type": "float",
+        "description": "Minimum diffusion timestep value where guidance is active; default 0.5.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.5
+      },
+      {
+        "name": "guidance_max_t",
+        "type": "float",
+        "description": "Maximum diffusion timestep value where guidance is active; default 1.0.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed for reproducible output; omitted uses a random seed.",
+        "required": false,
+        "min": 0
+      },
+      {
+        "name": "trim_tail",
+        "type": "bool",
+        "description": "Trim trailing silence-like samples; default true.",
+        "required": false,
+        "default": true
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Model weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "codec_weight_type",
+        "type": "enum",
+        "description": "DACVAE codec weight storage type; default native.",
+        "preset": "weight_type_codec_q8",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "codec_backend",
+        "type": "enum",
+        "description": "DACVAE codec execution backend. Use cpu as an opt-in workaround for backend-specific codec decoder issues; default same.",
+        "values": [
+          "same",
+          "cpu"
+        ],
+        "required": false,
+        "default": "same"
+      },
+      {
+        "name": "condition_graph_arena_mb",
+        "type": "int",
+        "description": "Condition encoder graph arena size in MiB; default 256.",
+        "required": false,
+        "min": 0,
+        "default": 256
+      },
+      {
+        "name": "rf_graph_arena_mb",
+        "type": "int",
+        "description": "RF sampler graph arena size in MiB; default 768.",
+        "required": false,
+        "min": 0,
+        "default": 768
+      },
+      {
+        "name": "codec_graph_arena_mb",
+        "type": "int",
+        "description": "DACVAE codec graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 0,
+        "default": 512
+      },
+      {
+        "name": "condition_weight_context_mb",
+        "type": "int",
+        "description": "Condition encoder weight context size in MiB; default 32.",
+        "required": false,
+        "min": 0,
+        "default": 32
+      },
+      {
+        "name": "rf_weight_context_mb",
+        "type": "int",
+        "description": "RF sampler weight context size in MiB; default 32.",
+        "required": false,
+        "min": 0,
+        "default": 32
+      },
+      {
+        "name": "codec_weight_context_mb",
+        "type": "int",
+        "description": "DACVAE codec weight context size in MiB; default 32.",
+        "required": false,
+        "min": 0,
+        "default": 32
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release staged runtime graphs after request phases; default true.",
+        "required": false,
+        "default": true
+      },
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "description": "Prepared reference-speaker cache slots; default 1.",
+        "required": false,
+        "min": 0,
+        "default": 1
+      }
+    ],
+    "load": []
+  },
+  "dependencies": [],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "irodori_tts_v4_small_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "Design",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "model_config": "model:model_config.json"
+      },
+      "optional_files": {
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_v4_json": "model:tokenizer/tokenizer.json",
+        "pretrained_text_config": "model:text_encoder_config.json"
+      },
+      "tensors": {
+        "model_weights": {
+          "source": "weights:",
+          "prefix": "model_weights"
+        },
+        "codec_weights": {
+          "source": "weights:",
+          "prefix": "codec_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": ".",
+        "tokenizer": "../llm-jp-3-150m",
+        "codec": "../Semantic-DACVAE-Japanese-32dim"
+      },
+      "files": {
+        "model_config": "model:model_config.json"
+      },
+      "optional_files": {
+        "tokenizer_json": "tokenizer:tokenizer.json",
+        "tokenizer_v4_json": "model:tokenizer/tokenizer.json",
+        "pretrained_text_config": "model:text_encoder_config.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors",
+        "codec_weights": "codec:weights.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "irodori_tts_v4_small_q8_0",
+      "display_name": "Irodori-TTS v4.1 Small Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Irodori-TTS-v4-Small-GGUF",
+      "files": [
+        "Irodori-TTS-v4-Small-GGUF/irodori-tts-v4-small-q8_0.gguf"
+      ],
+      "strip_prefix": "Irodori-TTS-v4-Small-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Irodori-TTS v4 Small: Japanese TTS whose single checkpoint covers no-reference synthesis, voice cloning, and instruction-based voice design; bundles its v4 tokenizer.",
+          "zh": "Irodori-TTS v4 Small：日语语音合成，单个检查点即可覆盖无参考合成、声音克隆与指令式声音设计，自带 v4 tokenizer。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1368991360,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1368991360,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1368991360,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1368991360,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 14898167808,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "irodori_tts_v4_1_anime_q8_0",
+      "display_name": "Irodori-TTS v4.1 Anime Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Irodori-TTS-v4-Small-GGUF",
+      "files": [
+        "Irodori-TTS-v4-Small-GGUF/irodori-tts-v4.1-anime-q8_0.gguf"
+      ],
+      "strip_prefix": "Irodori-TTS-v4-Small-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1112547264,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1112547264,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1112547264,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1112547264,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 14629732352,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "irodori_tts_v4_small_f16",
+      "display_name": "Irodori-TTS v4.1 Small F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Irodori-TTS-v4-Small-GGUF",
+      "files": [
+        "Irodori-TTS-v4-Small-GGUF/irodori-tts-v4-small-f16.gguf"
+      ],
+      "strip_prefix": "Irodori-TTS-v4-Small-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Irodori-TTS v4 Small: Japanese TTS whose single checkpoint covers no-reference synthesis, voice cloning, and instruction-based voice design; bundles its v4 tokenizer.",
+          "zh": "Irodori-TTS v4 Small：日语语音合成，单个检查点即可覆盖无参考合成、声音克隆与指令式声音设计，自带 v4 tokenizer。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1762148352,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1762148352,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1762148352,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1762148352,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 15300820992,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "irodori_tts_600m_v3_voicedesign_q8_0",
+      "display_name": "Irodori-TTS 600M v3 VoiceDesign Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Irodori-TTS-600M-v3-VoiceDesign-GGUF",
+      "files": [
+        "Irodori-TTS-600M-v3-VoiceDesign-GGUF/irodori-tts-600m-v3-voicedesign-q8_0.gguf"
+      ],
+      "strip_prefix": "Irodori-TTS-600M-v3-VoiceDesign-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Irodori-TTS 600M v3 VoiceDesign: v3 checkpoint that adds instruction/caption conditioning for voice design on top of TTS and cloning.",
+          "zh": "Irodori-TTS 600M v3 VoiceDesign：在语音合成与克隆之外，增加 instruction/caption 条件以支持声音设计。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1272140064,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1272140064,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1272140064,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1272140064,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 14831058944,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      },
+      "task": "vdes"
+    },
+    {
+      "id": "irodori_tts_600m_v3_voicedesign_f16",
+      "display_name": "Irodori-TTS 600M v3 VoiceDesign F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Irodori-TTS-600M-v3-VoiceDesign-GGUF",
+      "files": [
+        "Irodori-TTS-600M-v3-VoiceDesign-GGUF/irodori-tts-600m-v3-voicedesign-f16.gguf"
+      ],
+      "strip_prefix": "Irodori-TTS-600M-v3-VoiceDesign-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Irodori-TTS 600M v3 VoiceDesign: v3 checkpoint that adds instruction/caption conditioning for voice design on top of TTS and cloning.",
+          "zh": "Irodori-TTS 600M v3 VoiceDesign：在语音合成与克隆之外，增加 instruction/caption 条件以支持声音设计。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1463787680,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1463787680,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1463787680,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1463787680,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 15032385536,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      },
+      "task": "vdes"
+    },
+    {
+      "id": "irodori_tts_500m_v3_q8_0",
+      "display_name": "Irodori-TTS 500M v3 Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Irodori-TTS-500M-v3-GGUF",
+      "files": [
+        "Irodori-TTS-500M-v3-GGUF/irodori-tts-500m-v3-q8_0.gguf"
+      ],
+      "strip_prefix": "Irodori-TTS-500M-v3-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Irodori-TTS 500M v3: older Japanese TTS checkpoint for no-reference synthesis and voice cloning (no voice design).",
+          "zh": "Irodori-TTS 500M v3：较早的日语语音检查点，支持无参考合成与声音克隆（不支持声音设计）。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1093739584,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1093739584,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1093739584,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1093739584,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 14629732352,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "irodori_tts_500m_v3_f16",
+      "display_name": "Irodori-TTS 500M v3 F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Irodori-TTS-500M-v3-GGUF",
+      "files": [
+        "Irodori-TTS-500M-v3-GGUF/irodori-tts-500m-v3-f16.gguf"
+      ],
+      "strip_prefix": "Irodori-TTS-500M-v3-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Irodori-TTS 500M v3: older Japanese TTS checkpoint for no-reference synthesis and voice cloning (no voice design).",
+          "zh": "Irodori-TTS 500M v3：较早的日语语音检查点，支持无参考合成与声音克隆（不支持声音设计）。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1254813120,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1254813120,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1254813120,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1254813120,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 14763950080,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Japanese TTS model based on RF-DiT continuous audio latents, supporting zero-shot voice cloning, automatic duration prediction, multimodal voice design, and emoji-style control.",
+      "zh": "基于 RF-DiT 连续音频潜在的日语 TTS 模型，支持零样本音色克隆、自动时长预测、多模态声音设计与 emoji 风格控制。"
+    },
+    "options": {
+      "language": {
+        "en": "Text language code; Irodori-TTS supports Japanese only.",
+        "zh": "文本语言代码；Irodori-TTS 仅支持日语。"
+      },
+      "instruction": {
+        "en": "Natural-language voice or style instruction describing target voice identity, style, or emotion; supported only by caption-conditioned checkpoints. Legacy caption is accepted as an alias.",
+        "zh": "用自然语言描述目标音色身份、风格或情绪的声音/风格指令；仅 caption 条件化的检查点支持。旧名 caption 可作为别名。"
+      },
+      "no_ref": {
+        "en": "Use no-reference generation; default true unless a speaker reference is provided.",
+        "zh": "使用无参考生成；默认 true，除非提供了说话人参考。"
+      },
+      "num_inference_steps": {
+        "en": "RF diffusion steps; default 40.",
+        "zh": "RF 扩散步数；默认 40。"
+      },
+      "duration_sec": {
+        "en": "Explicit output duration in seconds; must be positive when set, otherwise predicted duration is used.",
+        "zh": "显式输出时长（秒）；设置时须为正数，否则使用预测时长。"
+      },
+      "duration_scale": {
+        "en": "Predicted-duration multiplier; must be positive when set; default 1.0.",
+        "zh": "预测时长的倍率；设置时须为正数；默认 1.0。"
+      },
+      "min_duration_sec": {
+        "en": "Minimum generated duration in seconds; must be positive and no greater than max_duration_sec; default 0.5.",
+        "zh": "生成时长下限（秒）；须为正数且不大于 max_duration_sec；默认 0.5。"
+      },
+      "max_duration_sec": {
+        "en": "Maximum generated duration in seconds; must be at least min_duration_sec; default 30.",
+        "zh": "生成时长上限（秒）；须不小于 min_duration_sec；默认 30。"
+      },
+      "text_guidance_scale": {
+        "en": "Text classifier-free guidance scale; default 3.0.",
+        "zh": "文本无分类器引导强度；默认 3.0。"
+      },
+      "speaker_guidance_scale": {
+        "en": "Speaker classifier-free guidance scale; default 5.0.",
+        "zh": "说话人无分类器引导强度；默认 5.0。"
+      },
+      "caption_guidance_scale": {
+        "en": "Caption classifier-free guidance scale; default 3.0.",
+        "zh": "caption 无分类器引导强度；默认 3.0。"
+      },
+      "guidance_scale": {
+        "en": "Override all classifier-free guidance scales when set.",
+        "zh": "设置后覆盖所有无分类器引导强度。"
+      },
+      "guidance_mode": {
+        "en": "Classifier-free guidance combination mode; default independent.",
+        "zh": "无分类器引导的组合方式；默认 independent。"
+      },
+      "guidance_min_t": {
+        "en": "Minimum diffusion timestep value where guidance is active; default 0.5.",
+        "zh": "引导生效的扩散时间步最小值；默认 0.5。"
+      },
+      "guidance_max_t": {
+        "en": "Maximum diffusion timestep value where guidance is active; default 1.0.",
+        "zh": "引导生效的扩散时间步最大值；默认 1.0。"
+      },
+      "seed": {
+        "en": "Generation seed for reproducible output; omitted uses a random seed.",
+        "zh": "用于可复现输出的生成随机种子；省略时随机。"
+      },
+      "trim_tail": {
+        "en": "Trim trailing silence-like samples; default true.",
+        "zh": "裁剪末尾类似静音的采样；默认 true。"
+      }
+    }
+  }
+}

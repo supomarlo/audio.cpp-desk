@@ -1,0 +1,3 @@
+{
+  "vevo2": {"reference":"required","referenceText":"optional","instruction":"hidden","language":"hidden","inputs":[{"option":"source_audio","type":"path","label":{"en":"Source audio","zh":"源音频"}},{"option":"target_voice","type":"path","label":{"en":"Target voice","zh":"目标音色"}},{"option":"prosody_ref","type":"path","label":{"en":"Prosody reference","zh":"韵律参考"}},{"option":"style_ref","type":"path","label":{"en":"Style reference","zh":"风格参考"}}],"requiredInputs":["--task-route"],"source":"docs/models/vevo2.md"}
+}

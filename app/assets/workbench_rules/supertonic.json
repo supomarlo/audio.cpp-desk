@@ -1,0 +1,12 @@
+{
+  "supertonic": {
+    "reference": "hidden",
+    "referenceText": "hidden",
+    "voiceId": { "values": ["M1","M2","M3","M4","M5","F1","F2","F3","F4","F5"], "default": "M1" },
+    "hiddenOptions": ["voice_id"],
+    "instruction": "hidden",
+    "language": "optional",
+    "languageDefault": "en",
+    "source": "docs/tts.md"
+  }
+}

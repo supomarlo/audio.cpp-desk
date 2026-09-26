@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "family": "rvc",
+  "display_name": "RVC",
+  "description": "RVC is an offline retrieval-based voice conversion family packaged for audio.cpp with native HuBERT content features, RMVPE pitch extraction, optional IVF retrieval blending, packaged v1/v2 voices, and support for user-supplied RVC checkpoints.",
+  "category": "voice_conversion",
+  "status": "experimental",
+  "tasks": [
+    "vc"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {},
+  "options": {
+    "request": [
+      {
+        "name": "voice_id",
+        "type": "enum",
+        "description": "Packaged RVC voice id; default selects the v2 default voice. Ignored when voice_model_path is provided.",
+        "values": [
+          "default",
+          "manthos",
+          "chocola",
+          "fraise"
+        ],
+        "required": false,
+        "default": "default"
+      },
+      {
+        "name": "voice_model_path",
+        "type": "path",
+        "description": "Optional user RVC .pth or .pt voice checkpoint path. When set, this overrides the packaged voice id.",
+        "required": false
+      },
+      {
+        "name": "pitch_extractor",
+        "type": "enum",
+        "description": "Pitch extraction method for F0-enabled voices; the native path currently supports rmvpe only.",
+        "values": [
+          "rmvpe"
+        ],
+        "required": false,
+        "default": "rmvpe"
+      },
+      {
+        "name": "semitone_shift",
+        "type": "int",
+        "description": "Semitone pitch shift applied before synthesis; default 0.",
+        "required": false,
+        "default": 0
+      },
+      {
+        "name": "pitch_filter_radius",
+        "type": "int",
+        "description": "Median filter radius for F0 smoothing; values greater than 2 enable filtering, default 3.",
+        "required": false,
+        "min": 0,
+        "default": 3
+      },
+      {
+        "name": "output_sample_rate",
+        "type": "int",
+        "description": "Output sample rate in Hz; default 0 keeps the selected voice model sample rate.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      },
+      {
+        "name": "rms_mix_rate",
+        "type": "float",
+        "description": "RMS envelope mix rate applied after conversion; default 0.25.",
+        "required": false,
+        "default": 0.25
+      },
+      {
+        "name": "unvoiced_protection",
+        "type": "float",
+        "description": "Unvoiced consonant protection strength; must be in [0, 1], default 0.33.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 0.33
+      },
+      {
+        "name": "speaker_id",
+        "type": "int",
+        "description": "Speaker embedding id for multi-speaker RVC checkpoints; default 0.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      },
+      {
+        "name": "audio_pad_duration_sec",
+        "type": "int",
+        "description": "Long-audio chunk pad duration in seconds; default 1.",
+        "required": false,
+        "min": 1,
+        "default": 1
+      },
+      {
+        "name": "split_query_sec",
+        "type": "int",
+        "description": "Quiet-point query window in seconds for long-audio splitting; default 5.",
+        "required": false,
+        "min": 1,
+        "default": 5
+      },
+      {
+        "name": "split_center_sec",
+        "type": "int",
+        "description": "Long-audio split center stride in seconds; default 30.",
+        "required": false,
+        "min": 1,
+        "default": 30
+      },
+      {
+        "name": "split_threshold_sec",
+        "type": "int",
+        "description": "Input duration in seconds before quiet-point splitting is used; default 32.",
+        "required": false,
+        "min": 1,
+        "default": 32
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Tensor storage type for native RVC, HuBERT, and RMVPE weights; default f32.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "f32"
+      },
+      {
+        "name": "voice_cache_slots",
+        "type": "int",
+        "description": "User voice model cache slots; default 4, set 0 to disable caching.",
+        "required": false,
+        "min": 0,
+        "default": 4
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "rvc_f16",
+    "tags": [
+      "VC",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/audio_tools.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "voice_v1_chocola_index": "model:voices/v1/chocola/added_IVF732_Flat_nprobe_1.index",
+        "voice_v1_fraise_index": "model:voices/v1/fraise/added_IVF802_Flat_nprobe_1.index",
+        "voice_v2_default_index": "model:voices/v2/default/added_IVF511_Flat_nprobe_1_default_v2.index",
+        "voice_v2_manthos_index": "model:voices/v2/manthos/added_IVF2586_Flat_nprobe_1_manthos_v2.index"
+      },
+      "tensors": {
+        "support_hubert_base": {
+          "source": "weights:",
+          "prefix": "support_hubert_base"
+        },
+        "support_rmvpe": {
+          "source": "weights:",
+          "prefix": "support_rmvpe"
+        },
+        "voice_v1_chocola_checkpoint": {
+          "source": "weights:",
+          "prefix": "voice_v1_chocola_checkpoint"
+        },
+        "voice_v1_chocola_index_vectors": {
+          "source": "weights:",
+          "prefix": "voice_v1_chocola_index_vectors"
+        },
+        "voice_v1_fraise_checkpoint": {
+          "source": "weights:",
+          "prefix": "voice_v1_fraise_checkpoint"
+        },
+        "voice_v1_fraise_index_vectors": {
+          "source": "weights:",
+          "prefix": "voice_v1_fraise_index_vectors"
+        },
+        "voice_v2_default_checkpoint": {
+          "source": "weights:",
+          "prefix": "voice_v2_default_checkpoint"
+        },
+        "voice_v2_default_index_vectors": {
+          "source": "weights:",
+          "prefix": "voice_v2_default_index_vectors"
+        },
+        "voice_v2_manthos_checkpoint": {
+          "source": "weights:",
+          "prefix": "voice_v2_manthos_checkpoint"
+        },
+        "voice_v2_manthos_index_vectors": {
+          "source": "weights:",
+          "prefix": "voice_v2_manthos_index_vectors"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "safetensors": "../safetensors"
+      },
+      "files": {
+        "voice_v1_chocola_index": "safetensors:voices/v1/chocola/added_IVF732_Flat_nprobe_1.index",
+        "voice_v1_fraise_index": "safetensors:voices/v1/fraise/added_IVF802_Flat_nprobe_1.index",
+        "voice_v2_default_index": "safetensors:voices/v2/default/added_IVF511_Flat_nprobe_1_default_v2.index",
+        "voice_v2_manthos_index": "safetensors:voices/v2/manthos/added_IVF2586_Flat_nprobe_1_manthos_v2.index"
+      },
+      "tensors": {
+        "support_hubert_base": "safetensors:support/hubert_base.safetensors",
+        "support_rmvpe": "safetensors:support/rmvpe.safetensors",
+        "voice_v1_chocola_checkpoint": "safetensors:voices/v1/chocola/chocola2333333.safetensors",
+        "voice_v1_chocola_index_vectors": "safetensors:voices/v1/chocola/added_IVF732_Flat_nprobe_1.ivf.safetensors",
+        "voice_v1_fraise_checkpoint": "safetensors:voices/v1/fraise/fraise2333333.safetensors",
+        "voice_v1_fraise_index_vectors": "safetensors:voices/v1/fraise/added_IVF802_Flat_nprobe_1.ivf.safetensors",
+        "voice_v2_default_checkpoint": "safetensors:voices/v2/default/default.safetensors",
+        "voice_v2_default_index_vectors": "safetensors:voices/v2/default/added_IVF511_Flat_nprobe_1_default_v2.ivf.safetensors",
+        "voice_v2_manthos_checkpoint": "safetensors:voices/v2/manthos/manthos.safetensors",
+        "voice_v2_manthos_index_vectors": "safetensors:voices/v2/manthos/added_IVF2586_Flat_nprobe_1_manthos_v2.ivf.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "rvc_f16",
+      "display_name": "RVC F16 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "RVC-GGUF",
+      "files": [
+        "RVC-GGUF/rvc-f16.gguf"
+      ],
+      "strip_prefix": "RVC-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1260188416,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1260188416,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1260188416,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1260188416,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1275068416,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "RVC is an offline retrieval-based voice conversion family packaged for audio.cpp with native HuBERT content features, RMVPE pitch extraction, optional IVF retrieval blending, packaged v1/v2 voices, and support for user-supplied RVC checkpoints.",
+      "zh": "RVC 是面向 audio.cpp 打包的离线检索式音色转换家族，含原生 HuBERT 内容特征、RMVPE 音高提取、可选 IVF 检索混合、打包的 v1/v2 音色，并支持用户自备 RVC 检查点。"
+    },
+    "options": {
+      "voice_id": {
+        "en": "Packaged RVC voice id; default selects the v2 default voice. Ignored when voice_model_path is provided.",
+        "zh": "打包的 RVC 音色 id；默认选择 v2 默认音色。提供 voice_model_path 时忽略。"
+      },
+      "voice_model_path": {
+        "en": "Optional user RVC .pth or .pt voice checkpoint path. When set, this overrides the packaged voice id.",
+        "zh": "可选的用户 RVC .pth/.pt 音色检查点路径。设置后会覆盖打包音色 id。"
+      },
+      "pitch_extractor": {
+        "en": "Pitch extraction method for F0-enabled voices; the native path currently supports rmvpe only.",
+        "zh": "启用 F0 的音色所用的音高提取方法；原生路径目前仅支持 rmvpe。"
+      },
+      "semitone_shift": {
+        "en": "Semitone pitch shift applied before synthesis; default 0.",
+        "zh": "合成前施加的半音移调；默认 0。"
+      },
+      "pitch_filter_radius": {
+        "en": "Median filter radius for F0 smoothing; values greater than 2 enable filtering, default 3.",
+        "zh": "F0 平滑的中值滤波半径；大于 2 时启用滤波，默认 3。"
+      },
+      "output_sample_rate": {
+        "en": "Output sample rate in Hz; default 0 keeps the selected voice model sample rate.",
+        "zh": "输出采样率（Hz）；默认 0 表示保持所选音色模型的采样率。"
+      },
+      "rms_mix_rate": {
+        "en": "RMS envelope mix rate applied after conversion; default 0.25.",
+        "zh": "转换后施加的 RMS 包络混合比例；默认 0.25。"
+      },
+      "unvoiced_protection": {
+        "en": "Unvoiced consonant protection strength; must be in [0, 1], default 0.33.",
+        "zh": "清辅音保护强度，取值 [0, 1]，默认 0.33。"
+      },
+      "speaker_id": {
+        "en": "Speaker embedding id for multi-speaker RVC checkpoints; default 0.",
+        "zh": "多说话人 RVC 检查点的说话人嵌入 id；默认 0。"
+      },
+      "audio_pad_duration_sec": {
+        "en": "Long-audio chunk pad duration in seconds; default 1.",
+        "zh": "长音频分块的补边时长（秒）；默认 1。"
+      },
+      "split_query_sec": {
+        "en": "Quiet-point query window in seconds for long-audio splitting; default 5.",
+        "zh": "长音频切分时静音点的查询窗口（秒）；默认 5。"
+      },
+      "split_center_sec": {
+        "en": "Long-audio split center stride in seconds; default 30.",
+        "zh": "长音频切分中心步长（秒）；默认 30。"
+      },
+      "split_threshold_sec": {
+        "en": "Input duration in seconds before quiet-point splitting is used; default 32.",
+        "zh": "启用静音点切分前的输入时长阈值（秒）；默认 32。"
+      }
+    }
+  }
+}

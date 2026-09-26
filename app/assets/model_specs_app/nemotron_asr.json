@@ -1,0 +1,300 @@
+{
+  "family": "nemotron_asr",
+  "display_name": "Nemotron 3.5 ASR",
+  "description": "NVIDIA 600M streaming ASR model for low-latency and batch transcription across 40 language-locales, with native punctuation, capitalization, automatic language detection, and configurable chunk sizes.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "ar-AR",
+    "bg-BG",
+    "cs-CZ",
+    "da-DK",
+    "de-DE",
+    "el-GR",
+    "en-GB",
+    "en-US",
+    "es-ES",
+    "es-US",
+    "et-EE",
+    "fi-FI",
+    "fr-CA",
+    "fr-FR",
+    "he-IL",
+    "hi-IN",
+    "hr-HR",
+    "hu-HU",
+    "it-IT",
+    "ja-JP",
+    "ko-KR",
+    "lt-LT",
+    "lv-LV",
+    "mt-MT",
+    "nb-NO",
+    "nl-NL",
+    "nn-NO",
+    "pl-PL",
+    "pt-BR",
+    "pt-PT",
+    "ro-RO",
+    "ru-RU",
+    "sk-SK",
+    "sl-SI",
+    "sv-SE",
+    "th-TH",
+    "tr-TR",
+    "uk-UA",
+    "vi-VN",
+    "zh-CN"
+  ],
+  "capabilities": {},
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "ASR prompt language such as en-US, da-DK, or auto."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum RNNT generated tokens; 0 uses the model-derived limit."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "ui": {
+    "recommended_package": "nemotron_asr_q8_0",
+    "tags": [
+      "ASR",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/asr.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "processor_config": "model:processor_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "processor_config": "model:processor_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "nemotron_asr_q8_0",
+      "display_name": "Nemotron 3.5 ASR Streaming 0.6B Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Nemotron-3.5-ASR-Streaming-0.6B-GGUF",
+      "files": [
+        "Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf"
+      ],
+      "strip_prefix": "Nemotron-3.5-ASR-Streaming-0.6B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 930620256,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 930620256,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 930620256,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4227858432,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "nemotron_asr_f16",
+      "display_name": "Nemotron 3.5 ASR Streaming 0.6B F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Nemotron-3.5-ASR-Streaming-0.6B-GGUF",
+      "files": [
+        "Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-f16.gguf"
+      ],
+      "strip_prefix": "Nemotron-3.5-ASR-Streaming-0.6B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1277710880,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1277710880,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1277710880,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5368709120,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "nemotron_asr_safetensors",
+      "display_name": "Nemotron 3.5 ASR Streaming 0.6B Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "nemotron-3.5-asr-streaming-0.6b",
+      "files": [
+        "config.json",
+        "model.safetensors",
+        "processor_config.json",
+        "tokenizer.json"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "nvidia/nemotron-3.5-asr-streaming-0.6b"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "nvidia/nemotron-3.5-asr-streaming-0.6b",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2552818890,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "nvidia/nemotron-3.5-asr-streaming-0.6b",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2552818890,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2552818890,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5368709120,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "NVIDIA 600M streaming ASR model for low-latency and batch transcription across 40 language-locales, with native punctuation, capitalization, automatic language detection, and configurable chunk sizes.",
+      "zh": "NVIDIA 600M 流式 ASR 模型，面向 40 种语言区域的低延迟与批量转写，具备原生标点、大小写、自动语言检测与可配置分块大小。"
+    },
+    "options": {
+      "language": {
+        "en": "ASR prompt language such as en-US, da-DK, or auto.",
+        "zh": "ASR 提示语言，如 en-US、da-DK 或 auto。"
+      },
+      "max_tokens": {
+        "en": "Maximum RNNT generated tokens; 0 uses the model-derived limit.",
+        "zh": "RNNT 最多生成的 token 数；0 表示使用按模型推算的上限。"
+      }
+    }
+  }
+}

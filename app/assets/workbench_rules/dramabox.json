@@ -1,0 +1,3 @@
+{
+  "dramabox": {"reference":"optional","referenceText":"hidden","instruction":"hidden","language":"hidden","inputs":[{"option":"target_voice","type":"audio_path","label":{"en":"Target voice","zh":"目标音色"}}],"source":"docs/tts.md"}
+}

@@ -1,0 +1,3 @@
+{
+  "vibevoice": {"reference":"optional","referenceText":"hidden","instruction":"hidden","language":"hidden","optionTypes":{"voice_samples":"audio_path"},"source":"docs/tts.md"}
+}

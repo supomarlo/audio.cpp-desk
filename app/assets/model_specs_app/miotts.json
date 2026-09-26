@@ -1,0 +1,370 @@
+{
+  "family": "miotts",
+  "display_name": "MioTTS",
+  "description": "Lightweight LLM-based English and Japanese TTS family built on MioCodec, supporting low-latency speech generation and zero-shot voice cloning from short reference audio.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en",
+    "ja"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "miotts.best_of_n",
+        "type": "int",
+        "description": "Generate n candidates for this request and select by ASR scoring."
+      },
+      {
+        "name": "miotts.best_of_n_enabled",
+        "type": "bool",
+        "description": "Enable best-of-N candidate selection for this request.",
+        "default": false
+      },
+      {
+        "name": "miotts.best_of_n_language",
+        "type": "enum",
+        "description": "Language used when scoring best-of-N candidates.",
+        "values": [
+          "auto",
+          "en",
+          "ja"
+        ],
+        "default": "auto"
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Sampling temperature."
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling limit."
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Nucleus sampling probability."
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "Repetition penalty."
+      },
+      {
+        "name": "frequency_penalty",
+        "type": "float",
+        "description": "Frequency penalty."
+      },
+      {
+        "name": "presence_penalty",
+        "type": "float",
+        "description": "Presence penalty."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed; random if omitted."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated tokens."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "miotts_1_7b_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/miotts.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt"
+      },
+      "optional_files": {
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt"
+      },
+      "optional_files": {
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "miotts_1_7b_q8_0",
+      "display_name": "MioTTS 1.7B Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "MioTTS-1.7B-GGUF",
+      "files": [
+        "MioTTS-1.7B-GGUF/miotts-1.7b-q8_0.gguf"
+      ],
+      "strip_prefix": "MioTTS-1.7B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2197326752,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2197326752,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2197326752,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2197326752,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2214592512,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "miotts_1_7b_bf16",
+      "display_name": "MioTTS 1.7B BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "MioTTS-1.7B-GGUF",
+      "files": [
+        "MioTTS-1.7B-GGUF/miotts-1.7b-bf16.gguf"
+      ],
+      "strip_prefix": "MioTTS-1.7B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3518532512,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3518532512,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3518532512,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3518532512,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3489660928,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "miotts_1_7b_orig",
+      "display_name": "MioTTS 1.7B Original-Dtype GGUF",
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "MioTTS-1.7B-GGUF",
+      "files": [
+        "MioTTS-1.7B-GGUF/miotts-1.7b-orig.gguf"
+      ],
+      "strip_prefix": "MioTTS-1.7B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3518532512,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3518532512,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3518532512,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3518532512,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3489660928,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Lightweight LLM-based English and Japanese TTS family built on MioCodec, supporting low-latency speech generation and zero-shot voice cloning from short reference audio.",
+      "zh": "基于 MioCodec 的轻量 LLM 英语/日语 TTS 家族，支持低延迟语音生成与从短参考音频的零样本音色克隆。"
+    },
+    "options": {
+      "miotts.best_of_n": {
+        "en": "Generate n candidates for this request and select by ASR scoring.",
+        "zh": "为本请求生成 n 个候选，并按 ASR 打分选择。"
+      },
+      "miotts.best_of_n_enabled": {
+        "en": "Enable best-of-N candidate selection for this request.",
+        "zh": "为本请求启用 best-of-N 候选选择。"
+      },
+      "miotts.best_of_n_language": {
+        "en": "Language used when scoring best-of-N candidates.",
+        "zh": "best-of-N 候选打分所用的语言。"
+      },
+      "temperature": {
+        "en": "Sampling temperature.",
+        "zh": "采样温度。"
+      },
+      "top_k": {
+        "en": "Top-k sampling limit.",
+        "zh": "top-k 采样上限。"
+      },
+      "top_p": {
+        "en": "Nucleus sampling probability.",
+        "zh": "核采样概率。"
+      },
+      "repetition_penalty": {
+        "en": "Repetition penalty.",
+        "zh": "重复惩罚。"
+      },
+      "frequency_penalty": {
+        "en": "Frequency penalty.",
+        "zh": "频率惩罚。"
+      },
+      "presence_penalty": {
+        "en": "Presence penalty.",
+        "zh": "存在惩罚。"
+      },
+      "seed": {
+        "en": "Sampling seed; random if omitted.",
+        "zh": "采样随机种子；省略时随机。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated tokens.",
+        "zh": "最多生成的 token 数。"
+      }
+    }
+  }
+}

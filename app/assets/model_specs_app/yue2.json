@@ -1,0 +1,638 @@
+{
+  "schema_version": 1,
+  "family": "yue2",
+  "display_name": "YuE2",
+  "description": "YuE2 music generation model with symbolic ABC planning, semantic codec generation, NAR acoustic flow synthesis, and Oobleck VAE decode.",
+  "category": "audio_generation",
+  "status": "supported",
+  "tasks": [
+    "music"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "capabilities": {
+    "music": [
+      "lyrics",
+      "style_control"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "yue2_main_q8_0",
+    "tags": [
+      "Music",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/yue2.md",
+      "docs/music_generation.md",
+      "docs/gguf.md"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "style",
+        "type": "string",
+        "description": "Song style/tags.",
+        "required": true
+      },
+      {
+        "name": "lyrics",
+        "type": "string",
+        "description": "Lyrics text. If omitted, the CLI text input is used.",
+        "required": true
+      },
+      {
+        "name": "cot",
+        "type": "enum",
+        "values": [
+          "off",
+          "melody",
+          "full"
+        ],
+        "description": "Symbolic planning route. off skips ABC generation; melody/full generate or consume ABC before music tokens.",
+        "required": false,
+        "default": "full"
+      },
+      {
+        "name": "stop_after",
+        "type": "enum",
+        "values": [
+          "abc",
+          "semantic",
+          "audio"
+        ],
+        "description": "Last stage to run. abc writes the generated score only; semantic also writes the semantic token export; audio renders the full song.",
+        "required": false,
+        "default": "audio"
+      },
+      {
+        "name": "abc",
+        "type": "string",
+        "description": "External ABC score text for melody/full routes.",
+        "required": false
+      },
+      {
+        "name": "abc_file",
+        "type": "string",
+        "description": "Path to an external ABC score file for melody/full routes.",
+        "required": false
+      },
+      {
+        "name": "export_semantic",
+        "type": "bool",
+        "description": "Attach the semantic token stream as a semantic artifact (JSON array of codec indices); default false.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Semantic classifier-free guidance scale. Default follows the upstream route defaults.",
+        "required": false,
+        "min": 0.0,
+        "max": 20.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed.",
+        "required": false,
+        "min": 0,
+        "default": 1234
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "NAR midpoint ODE steps.",
+        "required": false,
+        "min": 1,
+        "default": 8
+      }
+    ],
+    "session": [
+      {
+        "name": "ar_lora",
+        "type": "string",
+        "description": "Unfused AR LoRA safetensors file. Absolute path or relative to the model root. Requires session reload.",
+        "required": false
+      },
+      {
+        "name": "ar_lora_scale",
+        "type": "float",
+        "description": "AR LoRA delta scale; zero disables the adapter. Requires session reload.",
+        "required": false,
+        "default": 1.0
+      },
+      {
+        "name": "nar_lora",
+        "type": "string",
+        "description": "Unfused NAR adapter safetensors file. Absolute path or relative to the model root. Requires session reload.",
+        "required": false
+      },
+      {
+        "name": "nar_lora_scale",
+        "type": "float",
+        "description": "NAR LoRA delta scale; full vae2llm/llm2vae replacements are unscaled. Zero disables the entire adapter. Requires session reload.",
+        "required": false,
+        "default": 1.0
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_k"
+        ],
+        "description": "Shared weight storage type.",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "model_weight_type",
+        "type": "enum",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_k"
+        ],
+        "description": "YuE2 MoT weight storage type.",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "model_gguf",
+        "type": "string",
+        "description": "Yue2 main AR/NAR component GGUF file relative to the model root.",
+        "required": false,
+        "default": "yue2-3b-q8_0.gguf"
+      },
+      {
+        "name": "vae_gguf",
+        "type": "string",
+        "description": "Yue2 VAE component GGUF file relative to the model root.",
+        "required": false,
+        "default": "yue2-vae-f16.gguf"
+      },
+      {
+        "name": "vae_weight_type",
+        "type": "enum",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_k"
+        ],
+        "description": "YuE2 VAE weight storage type.",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "model_weight_context_mb",
+        "type": "int",
+        "description": "YuE2 MoT weight context size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 6144
+      },
+      {
+        "name": "vae_weight_context_mb",
+        "type": "int",
+        "description": "YuE2 VAE weight context size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 1536
+      },
+      {
+        "name": "ar_prefill_graph_arena_mb",
+        "type": "int",
+        "description": "AR prefill graph arena size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 4096
+      },
+      {
+        "name": "ar_decode_graph_arena_mb",
+        "type": "int",
+        "description": "AR one-token decode graph arena size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 1536
+      },
+      {
+        "name": "nar_graph_arena_mb",
+        "type": "int",
+        "description": "NAR acoustic flow graph arena size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 6144
+      },
+      {
+        "name": "vae_graph_arena_mb",
+        "type": "int",
+        "description": "VAE decode graph arena size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 1536
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/Yue2-3B-GGUF",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "model_config": "model:sidecars/yue2-model-config.json",
+        "generation_config": "model:sidecars/yue2-generation-config.json",
+        "tiktoken": "model:sidecars/yue2-qwen.tiktoken",
+        "vae_config": "model:sidecars/yue2-vae-config.json"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "YuE2-3B",
+        "vae": "YuE2-Vae"
+      },
+      "files": {
+        "model_config": "model:config.json",
+        "generation_config": "model:yue2_generation_config.json",
+        "tiktoken": "model:qwen.tiktoken",
+        "vae_config": "vae:config.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors",
+        "vae_weights": "vae:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "yue2_main_q8_0",
+      "display_name": "Yue2 3B Main Q8_0",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Yue2-3B-GGUF",
+      "files": [
+        "sidecars/yue2-model-config.json",
+        "sidecars/yue2-generation-config.json",
+        "sidecars/yue2-qwen.tiktoken",
+        "sidecars/yue2-vae-config.json",
+        "yue2-3b-q8_0.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4266750453,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4266750453,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4266750453,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/Yue2-3B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4266750453,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4294967296,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "yue2_main_bf16",
+      "display_name": "Yue2 3B Main BF16",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "Yue2-3B-GGUF",
+      "files": [
+        "sidecars/yue2-model-config.json",
+        "sidecars/yue2-generation-config.json",
+        "sidecars/yue2-qwen.tiktoken",
+        "sidecars/yue2-vae-config.json",
+        "yue2-3b-bf16.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 7264039413,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 7264039413,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 7264039413,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/Yue2-3B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 7264039413,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 7247757312,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "yue2_main_q4_0",
+      "display_name": "Yue2 3B Main Q4_0",
+      "format": "gguf",
+      "precision": "q4_0",
+      "target_directory": "Yue2-3B-GGUF",
+      "files": [
+        "sidecars/yue2-model-config.json",
+        "sidecars/yue2-generation-config.json",
+        "sidecars/yue2-qwen.tiktoken",
+        "sidecars/yue2-vae-config.json",
+        "yue2-3b-q4_0.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2668196341,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2668196341,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2668196341,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/Yue2-3B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2668196341,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2684354560,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "yue2_vae_f16",
+      "display_name": "Yue2 VAE F16",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Yue2-3B-GGUF",
+      "files": [
+        "sidecars/yue2-model-config.json",
+        "sidecars/yue2-generation-config.json",
+        "sidecars/yue2-qwen.tiktoken",
+        "sidecars/yue2-vae-config.json",
+        "yue2-vae-f16.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 267782677,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 267782677,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 267782677,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/Yue2-3B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 267782677,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 268435456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "yue2_vae_f32",
+      "display_name": "Yue2 VAE F32",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "Yue2-3B-GGUF",
+      "files": [
+        "sidecars/yue2-model-config.json",
+        "sidecars/yue2-generation-config.json",
+        "sidecars/yue2-qwen.tiktoken",
+        "sidecars/yue2-vae-config.json",
+        "yue2-vae-f32.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 533101781,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 533101781,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/Yue2-3B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/Yue2-3B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 533101781,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/Yue2-3B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 533101781,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 536870912,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "YuE2 music generation model with symbolic ABC planning, semantic codec generation, NAR acoustic flow synthesis, and Oobleck VAE decode.",
+      "zh": "YuE2 音乐生成模型，含符号 ABC 规划、语义编解码生成、NAR 声学流合成与 Oobleck VAE 解码。"
+    },
+    "options": {
+      "style": {
+        "en": "Song style/tags.",
+        "zh": "歌曲风格/标签。"
+      },
+      "lyrics": {
+        "en": "Lyrics text. If omitted, the CLI text input is used.",
+        "zh": "歌词文本。省略时使用 CLI 的文本输入。"
+      },
+      "cot": {
+        "en": "Symbolic planning route. off skips ABC generation; melody/full generate or consume ABC before music tokens.",
+        "zh": "符号规划路线。off 跳过 ABC 生成；melody/full 会在音乐 token 之前生成或使用 ABC。"
+      },
+      "stop_after": {
+        "en": "Last stage to run. abc writes the generated score only; semantic also writes the semantic token export; audio renders the full song.",
+        "zh": "运行到哪个阶段为止。abc 仅写出生成的乐谱；semantic 还写出语义 token 导出；audio 渲染完整歌曲。"
+      },
+      "abc": {
+        "en": "External ABC score text for melody/full routes.",
+        "zh": "melody/full 路线使用的外部 ABC 乐谱文本。"
+      },
+      "abc_file": {
+        "en": "Path to an external ABC score file for melody/full routes.",
+        "zh": "melody/full 路线使用的外部 ABC 乐谱文件路径。"
+      },
+      "export_semantic": {
+        "en": "Attach the semantic token stream as a semantic artifact (JSON array of codec indices); default false.",
+        "zh": "把语义 token 流作为语义产物附带输出（编解码索引的 JSON 数组）；默认 false。"
+      },
+      "guidance_scale": {
+        "en": "Semantic classifier-free guidance scale. Default follows the upstream route defaults.",
+        "zh": "语义无分类器引导强度。默认跟随上游各路线的默认值。"
+      },
+      "seed": {
+        "en": "Generation seed.",
+        "zh": "生成随机种子。"
+      },
+      "num_inference_steps": {
+        "en": "NAR midpoint ODE steps.",
+        "zh": "NAR 中点 ODE 步数。"
+      }
+    }
+  }
+}

@@ -1,0 +1,556 @@
+{
+  "schema_version": 1,
+  "family": "fireredtts3",
+  "display_name": "FireRedTTS3",
+  "description": "FireRedTTS3 family for Base zero-shot voice cloning and Instruct instruction-conditioned TTS, voice design, semantic edit, and acoustic edit with Qwen3 autoregressive hidden-state generation, FireRed DiT latent patch flow, and RedAE waveform decoding.",
+  "category": "tts",
+  "status": "experimental",
+  "tasks": [
+    "tts",
+    "clone",
+    "design"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "Chinese",
+    "English",
+    "Cantonese",
+    "Japanese",
+    "Korean",
+    "Spanish",
+    "French",
+    "Russian",
+    "Arabic",
+    "Turkish",
+    "Indonesian",
+    "Portuguese",
+    "Italian",
+    "Dutch",
+    "Vietnamese",
+    "German",
+    "Ukrainian",
+    "Thai",
+    "Polish",
+    "Romanian",
+    "Greek",
+    "Czech",
+    "Finnish",
+    "Hindi",
+    "ZH_Anhui",
+    "ZH_Fujian",
+    "ZH_Gansu",
+    "ZH_Guizhou",
+    "ZH_Hebei",
+    "ZH_Henan",
+    "ZH_Hubei",
+    "ZH_Hunan",
+    "ZH_Jiangxi",
+    "ZH_Liaoning",
+    "ZH_Minnan",
+    "ZH_Ningxia",
+    "ZH_Shaanxi",
+    "ZH_Shandong",
+    "ZH_Shanghai",
+    "ZH_Shanxi",
+    "ZH_Sichuan",
+    "ZH_Tianjin",
+    "ZH_Wenzhou",
+    "ZH_Wu",
+    "ZH_Yunnan"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "dependencies": [],
+  "capabilities": {
+    "tts": [
+      "speaker_reference",
+      "style_control"
+    ],
+    "clone": [
+      "speaker_reference",
+      "style_control"
+    ],
+    "design": [
+      "voice_design"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "template_name",
+        "type": "enum",
+        "description": "FireRedTTS3 Instruct request template: instruct_tts, voice_design, semantic_edit, or acoustic_edit.",
+        "required": false,
+        "values": [
+          "instruct_tts",
+          "voice_design",
+          "semantic_edit",
+          "acoustic_edit"
+        ],
+        "default": "instruct_tts"
+      },
+      {
+        "name": "reference_text",
+        "type": "string",
+        "description": "Transcript for the prompt audio.",
+        "required": false
+      },
+      {
+        "name": "instruction",
+        "type": "string",
+        "description": "FireRedTTS3 instruction for voice design or edit tasks.",
+        "required": false
+      },
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Language tag used by FireRedTTS3.",
+        "required": false,
+        "default": "Chinese"
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "FireRed DiT flow steps per generated latent patch.",
+        "required": false,
+        "min": 1,
+        "default": 10
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "FireRed DiT classifier-free guidance scale.",
+        "required": false,
+        "min": 0.0,
+        "default": 2.0
+      },
+      {
+        "name": "stop_threshold",
+        "type": "float",
+        "description": "Stop probability threshold for AR patch generation.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 0.5
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed.",
+        "required": false,
+        "min": 0,
+        "default": 1234
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "FireRedTTS3 weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "graph_arena_mb",
+        "type": "int",
+        "description": "Main runtime graph arena size in MiB; default 1024.",
+        "required": false,
+        "min": 1,
+        "default": 1024
+      },
+      {
+        "name": "helper_graph_arena_mb",
+        "type": "int",
+        "description": "Helper graph arena size in MiB; default 256.",
+        "required": false,
+        "min": 1,
+        "default": 256
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight loading context size in MiB; default 512.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      },
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "description": "Prepared reference-audio cache slots; set 0 to disable reuse.",
+        "required": false,
+        "min": 0,
+        "default": 4
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release cached runtime graphs after each request to reduce peak VRAM; default false.",
+        "required": false,
+        "default": false
+      }
+    ],
+    "load": []
+  },
+  "ui": {
+    "recommended_package": "fireredtts3_instruct_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "Design",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/fireredtts3.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "redae_config": "model:redae/config.json",
+        "tokenizer_json": "model:text_tokenizer/tokenizer.json",
+        "tokenizer_config": "model:text_tokenizer/tokenizer_config.json",
+        "vocab_json": "model:text_tokenizer/vocab.json"
+      },
+      "optional_files": {
+        "base_config": "model:fireredtts3_base/config.json",
+        "instruct_config": "model:fireredtts3_instruct/config.json"
+      },
+      "tensors": {
+        "redae_weights": {
+          "source": "weights:",
+          "prefix": "redae"
+        }
+      },
+      "optional_tensors": {
+        "base_weights": {
+          "source": "weights:",
+          "prefix": "base"
+        },
+        "campplus_weights": {
+          "source": "weights:",
+          "prefix": "campplus"
+        },
+        "instruct_weights": {
+          "source": "weights:",
+          "prefix": "instruct"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "fireredtts3_instruct_orig",
+      "display_name": "FireRedTTS3 Instruct Orig GGUF",
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "FireRedTTS3-Instruct-GGUF",
+      "files": [
+        "FireRedTTS3-Instruct-GGUF/fireredtts3-instruct-orig.gguf"
+      ],
+      "strip_prefix": "FireRedTTS3-Instruct-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf",
+        "revision": "main",
+        "gated": false
+      },
+      "i18n": {
+        "description": {
+          "en": "FireRedTTS3 Instruct: reference cloning plus voice design, semantic editing, and acoustic editing.",
+          "zh": "FireRedTTS3 Instruct：参考克隆，并支持声音设计、语义编辑与声学编辑。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 12264720864,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 12264720864,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 12264720864,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 12264720864,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 12280922112,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "fireredtts3_instruct_q8_0",
+      "display_name": "FireRedTTS3 Instruct Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "FireRedTTS3-Instruct-GGUF",
+      "files": [
+        "FireRedTTS3-Instruct-GGUF/fireredtts3-instruct-q8_0.gguf"
+      ],
+      "strip_prefix": "FireRedTTS3-Instruct-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf",
+        "revision": "main",
+        "gated": false
+      },
+      "i18n": {
+        "description": {
+          "en": "FireRedTTS3 Instruct: reference cloning plus voice design, semantic editing, and acoustic editing.",
+          "zh": "FireRedTTS3 Instruct：参考克隆，并支持声音设计、语义编辑与声学编辑。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4149192928,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4149192928,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4149192928,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4149192928,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4160749568,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "fireredtts3_base_orig",
+      "display_name": "FireRedTTS3 Base Orig GGUF",
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "FireRedTTS3-Base-GGUF",
+      "files": [
+        "FireRedTTS3-Base-GGUF/fireredtts3-base-orig.gguf"
+      ],
+      "strip_prefix": "FireRedTTS3-Base-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf",
+        "revision": "main",
+        "gated": false
+      },
+      "i18n": {
+        "description": {
+          "en": "FireRedTTS3 Base: zero-shot voice cloning from a reference clip.",
+          "zh": "FireRedTTS3 Base：基于参考音频零样本克隆音色。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 12301253120,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 12301253120,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 12301253120,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 12301253120,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 12280922112,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "fireredtts3_base_q8_0",
+      "display_name": "FireRedTTS3 Base Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "FireRedTTS3-Base-GGUF",
+      "files": [
+        "FireRedTTS3-Base-GGUF/fireredtts3-base-q8_0.gguf"
+      ],
+      "strip_prefix": "FireRedTTS3-Base-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf",
+        "revision": "main",
+        "gated": false
+      },
+      "i18n": {
+        "description": {
+          "en": "FireRedTTS3 Base: zero-shot voice cloning from a reference clip.",
+          "zh": "FireRedTTS3 Base：基于参考音频零样本克隆音色。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4180334848,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4180334848,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4180334848,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4180334848,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4160749568,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "FireRedTTS3 family for Base zero-shot voice cloning and Instruct instruction-conditioned TTS, voice design, semantic edit, and acoustic edit with Qwen3 autoregressive hidden-state generation, FireRed DiT latent patch flow, and RedAE waveform decoding.",
+      "zh": "FireRedTTS3 家族，含 Base 零样本音色克隆与 Instruct 指令条件 TTS、声音设计、语义编辑与声学编辑，采用 Qwen3 自回归隐状态生成、FireRed DiT 潜块流与 RedAE 波形解码。"
+    },
+    "options": {
+      "template_name": {
+        "en": "FireRedTTS3 Instruct request template: instruct_tts, voice_design, semantic_edit, or acoustic_edit.",
+        "zh": "FireRedTTS3 Instruct 请求模板：instruct_tts、voice_design、semantic_edit 或 acoustic_edit。"
+      },
+      "reference_text": {
+        "en": "Transcript for the prompt audio.",
+        "zh": "提示音频对应的文本。"
+      },
+      "instruction": {
+        "en": "FireRedTTS3 instruction for voice design or edit tasks.",
+        "zh": "用于声音设计或编辑任务的 FireRedTTS3 指令。"
+      },
+      "language": {
+        "en": "Language tag used by FireRedTTS3.",
+        "zh": "FireRedTTS3 使用的语言标记。"
+      },
+      "num_inference_steps": {
+        "en": "FireRed DiT flow steps per generated latent patch.",
+        "zh": "每个生成隐变量 patch 的 FireRed DiT 流步数。"
+      },
+      "guidance_scale": {
+        "en": "FireRed DiT classifier-free guidance scale.",
+        "zh": "FireRed DiT 的无分类器引导强度。"
+      },
+      "stop_threshold": {
+        "en": "Stop probability threshold for AR patch generation.",
+        "zh": "AR patch 生成的停止概率阈值。"
+      },
+      "seed": {
+        "en": "Generation seed.",
+        "zh": "生成随机种子。"
+      }
+    }
+  }
+}

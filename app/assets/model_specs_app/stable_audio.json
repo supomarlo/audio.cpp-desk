@@ -1,0 +1,824 @@
+{
+  "family": "stable_audio",
+  "display_name": "Stable Audio 3",
+  "description": "Stability AI generative audio model family for text-to-music, sound effects, audio-to-audio editing, inpainting, continuation, variable-length generation, and LoRA personalization.",
+  "category": "audio_generation",
+  "status": "supported",
+  "tasks": [
+    "music",
+    "sfx",
+    "edit"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "capabilities": {
+    "music": [
+      "lyrics"
+    ],
+    "sfx": [
+      "prompt_generation"
+    ],
+    "edit": [
+      "prompt_editing"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "duration_seconds",
+        "type": "float",
+        "description": "Target duration per prompt."
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "RF diffusion steps."
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale."
+      },
+      {
+        "name": "sampler",
+        "type": "enum",
+        "description": "Diffusion sampler.",
+        "values": [
+          "pingpong",
+          "euler",
+          "dpmpp-2m",
+          "dpmpp-3m-sde"
+        ],
+        "default": "pingpong"
+      },
+      {
+        "name": "apg_scale",
+        "type": "float",
+        "description": "Adaptive projected guidance scale.",
+        "default": 1.0
+      },
+      {
+        "name": "negative_prompt",
+        "type": "string",
+        "description": "Negative prompt text."
+      },
+      {
+        "name": "duration_padding_seconds",
+        "type": "float",
+        "description": "Extra generated padding before truncation.",
+        "default": 6.0
+      },
+      {
+        "name": "truncate_output_to_duration",
+        "type": "bool",
+        "description": "Trim decoded audio to requested duration.",
+        "default": true
+      },
+      {
+        "name": "chunked_decode",
+        "type": "bool",
+        "description": "Decode the vocoder in chunks.",
+        "default": true
+      },
+      {
+        "name": "init_noise_level",
+        "type": "float",
+        "description": "Strength for audio-conditioned generation.",
+        "default": 1.0
+      },
+      {
+        "name": "audio_input_kind",
+        "type": "enum",
+        "description": "How to use request audio input.",
+        "values": [
+          "init_audio",
+          "inpaint_audio"
+        ]
+      },
+      {
+        "name": "inpaint_mask_start_seconds",
+        "type": "float",
+        "description": "Inpaint region start times."
+      },
+      {
+        "name": "inpaint_mask_end_seconds",
+        "type": "float",
+        "description": "Inpaint region end times."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Torch RNG seed."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "stable_audio_3_medium_q8_0",
+    "tags": [
+      "Music",
+      "SFX",
+      "Edit",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/stable_audio.md",
+      "docs/music_generation.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "model_config": "model:model_config.json",
+        "t5_config": "model:t5gemma-b-b-ul2/config.json",
+        "t5_tokenizer_json": "model:t5gemma-b-b-ul2/tokenizer.json",
+        "t5_tokenizer_model": "model:t5gemma-b-b-ul2/tokenizer.model",
+        "t5_tokenizer_config": "model:t5gemma-b-b-ul2/tokenizer_config.json"
+      },
+      "tensors": {
+        "model_weights": {
+          "source": "weights:",
+          "prefix": "model_weights"
+        },
+        "t5_weights": {
+          "source": "weights:",
+          "prefix": "t5_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": ".",
+        "t5": "t5gemma-b-b-ul2"
+      },
+      "files": {
+        "model_config": "model:model_config.json",
+        "t5_config": "t5:config.json",
+        "t5_tokenizer_json": "t5:tokenizer.json",
+        "t5_tokenizer_model": "t5:tokenizer.model",
+        "t5_tokenizer_config": "t5:tokenizer_config.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors",
+        "t5_weights": "t5:model.safetensors"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": ".",
+        "t5": "../t5-base"
+      },
+      "files": {
+        "model_config": "model:model_config.json",
+        "t5_config": "t5:config.json",
+        "t5_tokenizer_json": "t5:tokenizer.json",
+        "t5_tokenizer_model": "t5:spiece.model",
+        "t5_tokenizer_config": "t5:config.json"
+      },
+      "tensors": {
+        "model_weights": "model:Foundation_1.safetensors",
+        "t5_weights": "t5:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "stable_audio_3_medium_q8_0",
+      "display_name": "Stable Audio 3 Medium Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Stable-Audio-3-Medium-GGUF",
+      "files": [
+        "Stable-Audio-3-Medium-GGUF/stable-audio-3-medium-q8_0.gguf"
+      ],
+      "strip_prefix": "Stable-Audio-3-Medium-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Medium: the larger Stable Audio 3 music model, with the same user-facing controls as the music path.",
+          "zh": "Stable Audio 3 Medium：更大的 Stable Audio 3 音乐模型，用户侧控制与音乐路径一致。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3582595584,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3582595584,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3582595584,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3582595584,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 10804527104,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "stable_audio_3_medium_f16",
+      "display_name": "Stable Audio 3 Medium F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Stable-Audio-3-Medium-GGUF",
+      "files": [
+        "Stable-Audio-3-Medium-GGUF/stable-audio-3-medium-f16.gguf"
+      ],
+      "strip_prefix": "Stable-Audio-3-Medium-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Medium: the larger Stable Audio 3 music model, with the same user-facing controls as the music path.",
+          "zh": "Stable Audio 3 Medium：更大的 Stable Audio 3 音乐模型，用户侧控制与音乐路径一致。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5834360000,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5834360000,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 5834360000,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 5834360000,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 10938744832,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "stable_audio_3_small_music_q8_0",
+      "display_name": "Stable Audio 3 Small Music Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Stable-Audio-3-Small-Music-GGUF",
+      "files": [
+        "Stable-Audio-3-Small-Music-GGUF/stable-audio-3-small-music-q8_0.gguf"
+      ],
+      "strip_prefix": "Stable-Audio-3-Small-Music-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Small Music: the default music package for text-to-music, init-audio, and inpainting.",
+          "zh": "Stable Audio 3 Small Music：默认音乐包，用于文本生音乐、init-audio 与音频修复。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1683570752,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1683570752,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1683570752,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1683570752,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3221225472,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "stable_audio_3_small_music_f16",
+      "display_name": "Stable Audio 3 Small Music F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Stable-Audio-3-Small-Music-GGUF",
+      "files": [
+        "Stable-Audio-3-Small-Music-GGUF/stable-audio-3-small-music-f16.gguf"
+      ],
+      "strip_prefix": "Stable-Audio-3-Small-Music-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Small Music: the default music package for text-to-music, init-audio, and inpainting.",
+          "zh": "Stable Audio 3 Small Music：默认音乐包，用于文本生音乐、init-audio 与音频修复。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2358467232,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2358467232,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2358467232,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2358467232,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3825205248,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "stable_audio_3_small_sfx_q8_0",
+      "display_name": "Stable Audio 3 Small SFX Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Stable-Audio-3-Small-SFX-GGUF",
+      "files": [
+        "Stable-Audio-3-Small-SFX-GGUF/stable-audio-3-small-sfx-q8_0.gguf"
+      ],
+      "strip_prefix": "Stable-Audio-3-Small-SFX-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Small SFX: package for short sound effects from text prompts.",
+          "zh": "Stable Audio 3 Small SFX：由文本提示生成短音效的包。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1683570688,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1683570688,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1683570688,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1683570688,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3154116608,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "stable_audio_3_small_sfx_f16",
+      "display_name": "Stable Audio 3 Small SFX F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Stable-Audio-3-Small-SFX-GGUF",
+      "files": [
+        "Stable-Audio-3-Small-SFX-GGUF/stable-audio-3-small-sfx-f16.gguf"
+      ],
+      "strip_prefix": "Stable-Audio-3-Small-SFX-GGUF",
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Small SFX: package for short sound effects from text prompts.",
+          "zh": "Stable Audio 3 Small SFX：由文本提示生成短音效的包。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2358467168,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2358467168,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2358467168,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2358467168,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3825205248,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "stable_audio_3_medium_safetensors",
+      "display_name": "Stable Audio 3 Medium Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "stable-audio-3-medium",
+      "files": [
+        "model_config.json",
+        "model.safetensors"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "stabilityai/stable-audio-3-medium",
+        "gated": true
+      },
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Medium: the larger Stable Audio 3 music model, with the same user-facing controls as the music path.",
+          "zh": "Stable Audio 3 Medium：更大的 Stable Audio 3 音乐模型，用户侧控制与音乐路径一致。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "stabilityai/stable-audio-3-medium",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": true,
+          "available": true,
+          "size_bytes": 9222127020,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/stabilityai/stable-audio-3-medium"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "stabilityai/stable-audio-3-medium",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 9222127020,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": true,
+          "license": "other",
+          "license_url": "https://huggingface.co/stabilityai/stable-audio-3-medium"
+        },
+        {
+          "source": "modelscope",
+          "repo": "stabilityai/stable-audio-3-medium",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 9222127020,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "stable-audio-community",
+          "license_url": "https://www.modelscope.cn/models/stabilityai/stable-audio-3-medium"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 9222127020,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 16441671680,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "stable_audio_3_small_music_safetensors",
+      "display_name": "Stable Audio 3 Small Music Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "stable-audio-3-small-music",
+      "files": [
+        "model_config.json",
+        "model.safetensors"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "stabilityai/stable-audio-3-small-music",
+        "gated": true
+      },
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Small Music: the default music package for text-to-music, init-audio, and inpainting.",
+          "zh": "Stable Audio 3 Small Music：默认音乐包，用于文本生音乐、init-audio 与音频修复。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "stabilityai/stable-audio-3-small-music",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": true,
+          "available": true,
+          "size_bytes": 2270395281,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/stabilityai/stable-audio-3-small-music"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "stabilityai/stable-audio-3-small-music",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2270395281,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": true,
+          "license": "other",
+          "license_url": "https://huggingface.co/stabilityai/stable-audio-3-small-music"
+        },
+        {
+          "source": "modelscope",
+          "repo": "stabilityai/stable-audio-3-small-music",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2270395281,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://www.modelscope.cn/models/stabilityai/stable-audio-3-small-music"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2270395281,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 9529458688,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "stable_audio_3_small_sfx_safetensors",
+      "display_name": "Stable Audio 3 Small SFX Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "stable-audio-3-small-sfx",
+      "files": [
+        "model_config.json",
+        "model.safetensors"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "stabilityai/stable-audio-3-small-sfx",
+        "gated": true
+      },
+      "i18n": {
+        "description": {
+          "en": "Stable Audio 3 Small SFX: package for short sound effects from text prompts.",
+          "zh": "Stable Audio 3 Small SFX：由文本提示生成短音效的包。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "stabilityai/stable-audio-3-small-sfx",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": true,
+          "available": true,
+          "size_bytes": 2270395394,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/stabilityai/stable-audio-3-small-sfx"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "stabilityai/stable-audio-3-small-sfx",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2270395394,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": true,
+          "license": "other",
+          "license_url": "https://huggingface.co/stabilityai/stable-audio-3-small-sfx"
+        },
+        {
+          "source": "modelscope",
+          "repo": "stabilityai/stable-audio-3-small-sfx",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2270395394,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://www.modelscope.cn/models/stabilityai/stable-audio-3-small-sfx"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2270395394,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 9529458688,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Stability AI generative audio model family for text-to-music, sound effects, audio-to-audio editing, inpainting, continuation, variable-length generation, and LoRA personalization.",
+      "zh": "Stability AI 生成式音频模型家族，用于文本生音乐、音效、音频到音频编辑、音频修复、续写、可变长度生成与 LoRA 个性化。"
+    },
+    "options": {
+      "duration_seconds": {
+        "en": "Target duration per prompt.",
+        "zh": "每个提示的目标时长。"
+      },
+      "num_inference_steps": {
+        "en": "RF diffusion steps.",
+        "zh": "RF 扩散步数。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale.",
+        "zh": "无分类器引导强度。"
+      },
+      "sampler": {
+        "en": "Diffusion sampler.",
+        "zh": "扩散采样器。"
+      },
+      "apg_scale": {
+        "en": "Adaptive projected guidance scale.",
+        "zh": "自适应投影引导（APG）强度。"
+      },
+      "negative_prompt": {
+        "en": "Negative prompt text.",
+        "zh": "负向提示文本。"
+      },
+      "duration_padding_seconds": {
+        "en": "Extra generated padding before truncation.",
+        "zh": "截断前额外生成的补边时长。"
+      },
+      "truncate_output_to_duration": {
+        "en": "Trim decoded audio to requested duration.",
+        "zh": "把解码音频裁剪到请求时长。"
+      },
+      "chunked_decode": {
+        "en": "Decode the vocoder in chunks.",
+        "zh": "分块解码声码器。"
+      },
+      "init_noise_level": {
+        "en": "Strength for audio-conditioned generation.",
+        "zh": "音频条件生成的强度。"
+      },
+      "audio_input_kind": {
+        "en": "How to use request audio input.",
+        "zh": "请求音频输入的用法。"
+      },
+      "inpaint_mask_start_seconds": {
+        "en": "Inpaint region start times.",
+        "zh": "inpaint 区域起始时间。"
+      },
+      "inpaint_mask_end_seconds": {
+        "en": "Inpaint region end times.",
+        "zh": "inpaint 区域结束时间。"
+      },
+      "seed": {
+        "en": "Torch RNG seed.",
+        "zh": "Torch RNG 随机种子。"
+      }
+    }
+  }
+}

@@ -1,0 +1,235 @@
+{
+  "family": "vietneu_tts",
+  "display_name": "VieNeu-TTS v3 Turbo",
+  "description": "On-device Vietnamese TTS model with instant voice cloning from 3-5 seconds of reference audio, English-Vietnamese code-switching, streaming playback, batched generation, and conversation mode.",
+  "category": "tts",
+  "status": "community",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "vi",
+    "en"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "reference_text",
+        "type": "string",
+        "description": "Transcript of the reference speaker WAV."
+      },
+      {
+        "name": "speaker_embedding_file",
+        "type": "path",
+        "description": "Path to the speaker embedding .emb.txt file."
+      },
+      {
+        "name": "speaker_embedding",
+        "type": "string",
+        "description": "Comma-separated list of 192 speaker embedding float values."
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Sampling temperature."
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling limit."
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Nucleus sampling probability."
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "Repetition penalty."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed; random if omitted."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated tokens."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "vietneu_tts_v3_turbo_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/community_models/vietneu_tts.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "speech_tokenizer_config": "model:speech_tokenizer/config.json"
+      },
+      "optional_files": {
+        "generation_config": "model:generation_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt",
+        "tokenizer_json": "model:tokenizer.json",
+        "special_tokens_map": "model:special_tokens_map.json"
+      },
+      "tensors": {
+        "model_weights": {
+          "source": "weights:",
+          "prefix": "model_weights"
+        },
+        "speech_tokenizer_weights": {
+          "source": "weights:",
+          "prefix": "speech_tokenizer_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "speech_tokenizer_config": "model:speech_tokenizer/config.json"
+      },
+      "optional_files": {
+        "generation_config": "model:generation_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt",
+        "tokenizer_json": "model:tokenizer.json",
+        "special_tokens_map": "model:special_tokens_map.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors",
+        "speech_tokenizer_weights": "model:speech_tokenizer/model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "vietneu_tts_v3_turbo_q8_0",
+      "display_name": "VieNeu-TTS v3 Turbo GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "VieNeu-TTS-v3-Turbo-GGUF",
+      "files": [
+        "model.gguf"
+      ],
+      "strip_prefix": ".",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 170482368,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 170482368,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 170482368,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 201326592,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "On-device Vietnamese TTS model with instant voice cloning from 3-5 seconds of reference audio, English-Vietnamese code-switching, streaming playback, batched generation, and conversation mode.",
+      "zh": "端侧越南语 TTS 模型，可从 3-5 秒参考音频即时克隆音色，支持英越语码混用、流式播放、批量生成与会话模式。"
+    },
+    "options": {
+      "reference_text": {
+        "en": "Transcript of the reference speaker WAV.",
+        "zh": "参考说话人 WAV 的转写文本。"
+      },
+      "speaker_embedding_file": {
+        "en": "Path to the speaker embedding .emb.txt file.",
+        "zh": "说话人嵌入 .emb.txt 文件路径。"
+      },
+      "speaker_embedding": {
+        "en": "Comma-separated list of 192 speaker embedding float values.",
+        "zh": "192 个说话人嵌入浮点值（逗号分隔）。"
+      },
+      "temperature": {
+        "en": "Sampling temperature.",
+        "zh": "采样温度。"
+      },
+      "top_k": {
+        "en": "Top-k sampling limit.",
+        "zh": "top-k 采样上限。"
+      },
+      "top_p": {
+        "en": "Nucleus sampling probability.",
+        "zh": "核采样概率。"
+      },
+      "repetition_penalty": {
+        "en": "Repetition penalty.",
+        "zh": "重复惩罚。"
+      },
+      "seed": {
+        "en": "Sampling seed; random if omitted.",
+        "zh": "采样随机种子；省略时随机。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated tokens.",
+        "zh": "最多生成的 token 数。"
+      }
+    }
+  }
+}

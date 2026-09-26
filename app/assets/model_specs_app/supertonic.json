@@ -1,0 +1,431 @@
+{
+  "family": "supertonic",
+  "display_name": "Supertonic 3",
+  "description": "Supertone on-device TTS model designed for fast local speech synthesis across 31 languages, with preset voices and compact deployment for browser, mobile, and desktop applications.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "en",
+    "ko",
+    "ja",
+    "ar",
+    "bg",
+    "cs",
+    "da",
+    "de",
+    "el",
+    "es",
+    "et",
+    "fi",
+    "fr",
+    "hi",
+    "hr",
+    "hu",
+    "id",
+    "it",
+    "lt",
+    "lv",
+    "nl",
+    "pl",
+    "pt",
+    "ro",
+    "ru",
+    "sk",
+    "sl",
+    "sv",
+    "tr",
+    "uk",
+    "vi"
+  ],
+  "capabilities": {
+    "tts": [
+      "built_in_voices",
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "voice_id",
+        "type": "enum",
+        "description": "Preset voice style id, default M1; also exposed as --voice-id.",
+        "values": [
+          "M1",
+          "M2",
+          "M3",
+          "M4",
+          "M5",
+          "F1",
+          "F2",
+          "F3",
+          "F4",
+          "F5"
+        ]
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Flow denoising steps, default 8."
+      },
+      {
+        "name": "speed",
+        "type": "float",
+        "description": "Speech speed multiplier, default 1.05."
+      },
+      {
+        "name": "speaking_rate",
+        "type": "float",
+        "description": "Alias for speed."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Noise seed, default 1234."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "ui": {
+    "recommended_package": "supertonic_3_orig",
+    "tags": [
+      "TTS",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "tts_config": "model:config/tts.json",
+        "unicode_indexer": "model:config/unicode_indexer.json",
+        "voice_style_F1": "model:voice_styles/F1.json",
+        "voice_style_F2": "model:voice_styles/F2.json",
+        "voice_style_F3": "model:voice_styles/F3.json",
+        "voice_style_F4": "model:voice_styles/F4.json",
+        "voice_style_F5": "model:voice_styles/F5.json",
+        "voice_style_M1": "model:voice_styles/M1.json",
+        "voice_style_M2": "model:voice_styles/M2.json",
+        "voice_style_M3": "model:voice_styles/M3.json",
+        "voice_style_M4": "model:voice_styles/M4.json",
+        "voice_style_M5": "model:voice_styles/M5.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "tts_config": "model:config/tts.json",
+        "unicode_indexer": "model:config/unicode_indexer.json",
+        "voice_style_F1": "model:voice_styles/F1.json",
+        "voice_style_F2": "model:voice_styles/F2.json",
+        "voice_style_F3": "model:voice_styles/F3.json",
+        "voice_style_F4": "model:voice_styles/F4.json",
+        "voice_style_F5": "model:voice_styles/F5.json",
+        "voice_style_M1": "model:voice_styles/M1.json",
+        "voice_style_M2": "model:voice_styles/M2.json",
+        "voice_style_M3": "model:voice_styles/M3.json",
+        "voice_style_M4": "model:voice_styles/M4.json",
+        "voice_style_M5": "model:voice_styles/M5.json"
+      },
+      "tensors": {
+        "weights": "model:ggml/supertonic.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "supertonic_3_q8_0",
+      "display_name": "Supertonic 3 Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Supertonic-3-GGUF",
+      "files": [
+        "Supertonic-3-GGUF/supertonic-3-q8_0.gguf"
+      ],
+      "strip_prefix": "Supertonic-3-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 454072836,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 454072836,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 454072836,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 454072836,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 469762048,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "supertonic_3_f16",
+      "display_name": "Supertonic 3 F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Supertonic-3-GGUF",
+      "files": [
+        "Supertonic-3-GGUF/supertonic-3-f16.gguf"
+      ],
+      "strip_prefix": "Supertonic-3-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 312784196,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 312784196,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 312784196,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 312784196,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 335544320,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "supertonic_3_orig",
+      "display_name": "Supertonic 3 Original-Dtype GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Supertonic-3-GGUF",
+      "files": [
+        "Supertonic-3-GGUF/supertonic-3-orig.gguf"
+      ],
+      "strip_prefix": "Supertonic-3-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 454072836,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 454072836,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 454072836,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 454072836,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 469762048,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "supertonic_3_safetensors",
+      "display_name": "Supertonic 3 Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "supertonic-3",
+      "files": [
+        "config/tts.json",
+        "config/unicode_indexer.json",
+        "ggml/supertonic.safetensors",
+        "voice_styles/F1.json",
+        "voice_styles/F2.json",
+        "voice_styles/F3.json",
+        "voice_styles/F4.json",
+        "voice_styles/F5.json",
+        "voice_styles/M1.json",
+        "voice_styles/M2.json",
+        "voice_styles/M3.json",
+        "voice_styles/M4.json",
+        "voice_styles/M5.json"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "mlx-community/supertonic-3-mlx"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "mlx-community/supertonic-3-mlx",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 400195119,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "openrail",
+          "license_url": "https://huggingface.co/mlx-community/supertonic-3-mlx"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "mlx-community/supertonic-3-mlx",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 400195119,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "openrail",
+          "license_url": "https://huggingface.co/mlx-community/supertonic-3-mlx"
+        },
+        {
+          "source": "modelscope",
+          "repo": "mlx-community/supertonic-3-mlx",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 400195119,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "openrail",
+          "license_url": "https://www.modelscope.cn/models/mlx-community/supertonic-3-mlx"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 400195119,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 402653184,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Supertone on-device TTS model designed for fast local speech synthesis across 31 languages, with preset voices and compact deployment for browser, mobile, and desktop applications.",
+      "zh": "Supertone 端侧 TTS 模型，面向 31 种语言的快速本地语音合成，具备预设音色，适合浏览器、移动端与桌面端的紧凑部署。"
+    },
+    "options": {
+      "voice_id": {
+        "en": "Preset voice style id, default M1; also exposed as --voice-id.",
+        "zh": "预置音色风格 id，默认 M1；也可用 --voice-id 指定。"
+      },
+      "num_inference_steps": {
+        "en": "Flow denoising steps, default 8.",
+        "zh": "流去噪步数，默认 8。"
+      },
+      "speed": {
+        "en": "Speech speed multiplier, default 1.05.",
+        "zh": "语速倍率，默认 1.05。"
+      },
+      "speaking_rate": {
+        "en": "Alias for speed.",
+        "zh": "speed 的别名。"
+      },
+      "seed": {
+        "en": "Noise seed, default 1234.",
+        "zh": "噪声随机种子，默认 1234。"
+      }
+    }
+  }
+}

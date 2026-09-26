@@ -1,0 +1,181 @@
+{
+  "family": "chatterbox_turbo",
+  "display_name": "Chatterbox Turbo",
+  "description": "Resemble AI's distilled 350M Chatterbox Turbo: GPT2 T3 backbone, GPT2 BPE tokenizer, and a 2-step meanflow S3Gen decoder for fast English TTS with a built-in voice.",
+  "category": "tts",
+  "status": "testing",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "capabilities": {},
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "chatterbox_turbo_q8_0",
+    "tags": [
+      "TTS",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "tokenizer_vocab": "model:chatterbox_turbo_vocab.json",
+        "tokenizer_merges": "model:chatterbox_turbo_merges.txt",
+        "tokenizer_special_tokens": "model:chatterbox_turbo_special_tokens.json"
+      },
+      "tensors": {
+        "t3_turbo_weights": {
+          "source": "weights:",
+          "prefix": "t3"
+        },
+        "builtin_conditionals_turbo": {
+          "source": "weights:",
+          "prefix": "conds"
+        },
+        "s3gen_weights": {
+          "source": "weights:",
+          "prefix": "s3gen"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "chatterbox_turbo_q8_0",
+      "display_name": "Chatterbox Turbo Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Chatterbox-Turbo-GGUF",
+      "files": [
+        "Chatterbox-Turbo-GGUF/chatterbox-turbo-q8_0.gguf"
+      ],
+      "strip_prefix": "Chatterbox-Turbo-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 699101408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 699101408,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 699101408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 699101408,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 671088640,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "chatterbox_turbo_f16",
+      "display_name": "Chatterbox Turbo F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Chatterbox-Turbo-GGUF",
+      "files": [
+        "Chatterbox-Turbo-GGUF/chatterbox-turbo-f16.gguf"
+      ],
+      "strip_prefix": "Chatterbox-Turbo-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": false,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": null,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; memory/vram=n/a"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Resemble AI's distilled 350M Chatterbox Turbo: GPT2 T3 backbone, GPT2 BPE tokenizer, and a 2-step meanflow S3Gen decoder for fast English TTS with a built-in voice.",
+      "zh": "Resemble AI 蒸馏的 350M Chatterbox Turbo：GPT2 T3 主干、GPT2 BPE 分词器与 2 步 meanflow S3Gen 解码器，用于带内置音色的快速英语 TTS。"
+    }
+  }
+}

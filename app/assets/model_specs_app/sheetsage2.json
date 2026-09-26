@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "family": "sheetsage2",
+  "display_name": "SheetSage2",
+  "description": "SheetSage2 audio-to-symbolic transcription. This native path consumes an input recording from a self-contained GGUF and emits an ABC score artifact.",
+  "category": "audio_tools",
+  "status": "supported",
+  "tasks": [
+    "midi"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "music"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf",
+      "cuda"
+    ]
+  },
+  "capabilities": {
+    "midi": [
+      "midi_artifact"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum total decoder sequence length; default follows the embedded model context.",
+        "required": false,
+        "min": 1,
+        "default": 5120
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Decoder weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight context arena size in MiB; default 1024.",
+        "required": false,
+        "min": 1,
+        "default": 1024
+      },
+      {
+        "name": "decoder_graph_arena_mb",
+        "type": "int",
+        "description": "Encoder/decoder graph arena size in MiB; default 1536.",
+        "required": false,
+        "min": 1,
+        "default": 1536
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/SheetSage2-GGUF",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "sheetsage2_orig",
+    "tags": [
+      "Music",
+      "MIDI",
+      "GGUF"
+    ],
+    "docs": []
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "sheetsage2_orig",
+      "display_name": "SheetSage2 Original-Dtype GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "SheetSage2-GGUF",
+      "files": [
+        "sheetsage2-orig.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/SheetSage2-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2708224512,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/SheetSage2-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/SheetSage2-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2708224512,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/audio-cpp/SheetSage2-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/SheetSage2-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2708224512,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/SheetSage2-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2708224512,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2684354560,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "SheetSage2 audio-to-symbolic transcription. This native path consumes an input recording from a self-contained GGUF and emits an ABC score artifact.",
+      "zh": "SheetSage2 音频转符号转写。该原生路径从自包含 GGUF 读取输入录音并输出 ABC 乐谱产物。"
+    },
+    "options": {
+      "max_tokens": {
+        "en": "Maximum total decoder sequence length; default follows the embedded model context.",
+        "zh": "解码器序列总长度上限；默认跟随内嵌模型的上下文。"
+      }
+    }
+  }
+}

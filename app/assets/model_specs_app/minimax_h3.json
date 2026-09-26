@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "family": "minimax_h3",
+  "display_name": "MiniMax-H3",
+  "description": "MiniMax-H3 text-to-audio/video generation through the official T2VA pipeline: Qwen3-VL text conditioning, joint audio/video DiT denoising, and MiniMax-H3 audio/video VAE decode.",
+  "category": "audio_generation",
+  "status": "experimental",
+  "tasks": [
+    "tts",
+    "music",
+    "sfx"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "auto"
+  ],
+  "capabilities": {
+    "tts": [
+      "style_control",
+      "multi_speaker"
+    ],
+    "music": [
+      "instrumental",
+      "style_control"
+    ],
+    "sfx": [
+      "prompt_generation"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "cuda",
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "minimax_h3_q4_k",
+    "tags": [
+      "TTS",
+      "Music",
+      "SFX",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/community_models/minimax_h3.md",
+      "docs/reports/minimax_h3_performance.md"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Joint DiT denoising steps.",
+        "required": false,
+        "min": 1,
+        "default": 50
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed for deterministic initial latents.",
+        "required": false,
+        "min": 0,
+        "default": 42
+      },
+      {
+        "name": "height",
+        "type": "int",
+        "description": "Target video canvas height used by the joint T2VA latent layout.",
+        "required": false,
+        "min": 32,
+        "default": 768
+      },
+      {
+        "name": "width",
+        "type": "int",
+        "description": "Target video canvas width used by the joint T2VA latent layout.",
+        "required": false,
+        "min": 32,
+        "default": 1344
+      },
+      {
+        "name": "num_frames",
+        "type": "int",
+        "description": "Target video frame count before H3 alignment. MiniMax-H3 video is 24 fps.",
+        "required": false,
+        "min": 5,
+        "default": 124
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale; 1.0 matches the baseline T2VA audio run.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.0
+      },
+      {
+        "name": "sampler",
+        "type": "enum",
+        "description": "Joint DiT sampler: euler, res_multistep, dpmpp_2m, or unipc.",
+        "values": [
+          "euler",
+          "res_multistep",
+          "dpmpp_2m",
+          "unipc"
+        ],
+        "required": false,
+        "default": "euler"
+      },
+      {
+        "name": "negative_prompt",
+        "type": "string",
+        "description": "Negative prompt used by classifier-free guidance when guidance_scale is not 1.0.",
+        "required": false,
+        "default": " "
+      },
+      {
+        "name": "flow_shift",
+        "type": "float",
+        "description": "Video FlowMatch scheduler shift.",
+        "required": false,
+        "default": 12.0
+      },
+      {
+        "name": "audio_flow_shift",
+        "type": "float",
+        "description": "Audio FlowMatch scheduler shift.",
+        "required": false,
+        "default": 3.0
+      },
+      {
+        "name": "return_video",
+        "type": "bool",
+        "description": "Decode and return RGB24 video frames as an output artifact.",
+        "required": false,
+        "default": false
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "MiniMax-H3 staged weight context size in MiB.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release staged DiT, audio VAE, and video VAE weights after their request phase instead of keeping them resident for the session. Prompt encoder weights are always request-scoped.",
+        "required": false,
+        "default": true
+      }
+    ],
+    "load": []
+  },
+  "dependencies": [],
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "configuration": "model:configuration.json",
+        "tokenizer_config": "model:FL2VA/processor/tokenizer_config.json",
+        "tokenizer_json": "model:FL2VA/processor/tokenizer.json",
+        "vocab": "model:FL2VA/processor/vocab.json",
+        "merges": "model:FL2VA/processor/merges.txt",
+        "preprocessor_config": "model:FL2VA/processor/preprocessor_config.json"
+      },
+      "tensors": {
+        "text_encoder_weights": "model:text_encoder_q4_k.gguf",
+        "dit_weights": "model:dit.gguf",
+        "audio_vae_weights": "model:audio_vae_folded_f16.gguf",
+        "video_vae_weights": "model:video_vae.gguf"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "minimax_h3_q4_k",
+      "display_name": "MiniMax-H3 Q4_K GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q4_k",
+      "target_directory": "MiniMax-H3-Q4-GGUF",
+      "files": [
+        "MiniMax-H3-Q4-GGUF/configuration.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/chat_template.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/merges.txt",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/preprocessor_config.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/tokenizer.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/tokenizer_config.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/video_preprocessor_config.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/vocab.json",
+        "MiniMax-H3-Q4-GGUF/text_encoder_q4_k.gguf",
+        "MiniMax-H3-Q4-GGUF/dit.gguf",
+        "MiniMax-H3-Q4-GGUF/audio_vae_folded_f16.gguf",
+        "MiniMax-H3-Q4-GGUF/video_vae.gguf"
+      ],
+      "strip_prefix": "MiniMax-H3-Q4-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 32443213394,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 32443213394,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 32443213362,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 32443213394,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 18253611008,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "minimax_h3_q4_k_int8_dit",
+      "display_name": "MiniMax-H3 Q4_K GGUF + INT8 ConvRot DiT",
+      "default": false,
+      "format": "gguf",
+      "precision": "q4_k",
+      "target_directory": "MiniMax-H3-Q4-GGUF",
+      "files": [
+        "MiniMax-H3-Q4-GGUF/configuration.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/chat_template.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/merges.txt",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/preprocessor_config.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/tokenizer.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/tokenizer_config.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/video_preprocessor_config.json",
+        "MiniMax-H3-Q4-GGUF/FL2VA/processor/vocab.json",
+        "MiniMax-H3-Q4-GGUF/text_encoder_q4_k.gguf",
+        "MiniMax-H3-Q4-GGUF/dit_int8.gguf",
+        "MiniMax-H3-Q4-GGUF/audio_vae_folded_f16.gguf",
+        "MiniMax-H3-Q4-GGUF/video_vae.gguf"
+      ],
+      "strip_prefix": "MiniMax-H3-Q4-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 34363425650,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 34363425650,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 34363425650,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 20199768064,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "MiniMax-H3 text-to-audio/video generation through the official T2VA pipeline: Qwen3-VL text conditioning, joint audio/video DiT denoising, and MiniMax-H3 audio/video VAE decode.",
+      "zh": "MiniMax-H3 通过官方 T2VA 管线实现文本转音频/视频：Qwen3-VL 文本条件、音视频联合 DiT 去噪与 MiniMax-H3 音视频 VAE 解码。"
+    },
+    "options": {
+      "num_inference_steps": {
+        "en": "Joint DiT denoising steps.",
+        "zh": "联合 DiT 去噪步数。"
+      },
+      "seed": {
+        "en": "Generation seed for deterministic initial latents.",
+        "zh": "用于确定性初始隐变量的生成随机种子。"
+      },
+      "height": {
+        "en": "Target video canvas height used by the joint T2VA latent layout.",
+        "zh": "联合 T2VA 隐变量布局使用的目标视频画布高度。"
+      },
+      "width": {
+        "en": "Target video canvas width used by the joint T2VA latent layout.",
+        "zh": "联合 T2VA 隐变量布局使用的目标视频画布宽度。"
+      },
+      "num_frames": {
+        "en": "Target video frame count before H3 alignment. MiniMax-H3 video is 24 fps.",
+        "zh": "H3 对齐前的目标视频帧数。MiniMax-H3 视频为 24 fps。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale; 1.0 matches the baseline T2VA audio run.",
+        "zh": "无分类器引导强度；1.0 与基线 T2VA 音频运行一致。"
+      },
+      "sampler": {
+        "en": "Joint DiT sampler: euler, res_multistep, dpmpp_2m, or unipc.",
+        "zh": "联合 DiT 采样器：euler、res_multistep、dpmpp_2m 或 unipc。"
+      },
+      "negative_prompt": {
+        "en": "Negative prompt used by classifier-free guidance when guidance_scale is not 1.0.",
+        "zh": "guidance_scale 不为 1.0 时，无分类器引导使用的负向提示。"
+      },
+      "flow_shift": {
+        "en": "Video FlowMatch scheduler shift.",
+        "zh": "视频 FlowMatch 调度器的 shift。"
+      },
+      "audio_flow_shift": {
+        "en": "Audio FlowMatch scheduler shift.",
+        "zh": "音频 FlowMatch 调度器的 shift。"
+      },
+      "return_video": {
+        "en": "Decode and return RGB24 video frames as an output artifact.",
+        "zh": "解码并以 RGB24 视频帧输出。"
+      }
+    }
+  }
+}

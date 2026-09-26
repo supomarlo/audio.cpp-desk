@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "family": "mira_tts",
+  "display_name": "MiraTTS",
+  "description": "MiraTTS is a community voice-cloning TTS model with a Qwen2 autoregressive speech-token generator, ECAPA/Perceiver speaker tokenizer, conditional acoustic processor, and DAC decoder.",
+  "category": "tts",
+  "status": "experimental",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "en"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "speaker_reference"
+    ],
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum autoregressive speech tokens; default 1024.",
+        "required": false,
+        "min": 1,
+        "default": 1024
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Sampling temperature; default 0.8.",
+        "required": false,
+        "min": 1e-06,
+        "default": 0.8
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling cutoff; default 50.",
+        "required": false,
+        "min": 1,
+        "default": 50
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Nucleus sampling probability; default 0.95.",
+        "required": false,
+        "min": 1e-06,
+        "max": 1.0,
+        "default": 0.95
+      },
+      {
+        "name": "min_p",
+        "type": "float",
+        "description": "Minimum probability relative to the most likely token; default 0.05.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 0.05
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "Autoregressive repetition penalty; default 1.2.",
+        "required": false,
+        "min": 1.0,
+        "default": 1.2
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed; omitted requests choose a random seed.",
+        "required": false,
+        "min": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "description": "Encoded reference-voice cache slots; default 1. Set to 0 to disable reuse.",
+        "required": false,
+        "min": 0,
+        "default": 1
+      }
+    ],
+    "load": [
+      {
+        "name": "backbone_weight_type",
+        "type": "enum",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native",
+        "description": "Storage type for the Qwen2 language-model weights."
+      },
+      {
+        "name": "linear_weight_type",
+        "type": "enum",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native",
+        "description": "Storage type for non-convolutional speaker, processor, and decoder weights."
+      },
+      {
+        "name": "conv_weight_type",
+        "type": "enum",
+        "preset": "weight_type_conv",
+        "required": false,
+        "default": "f32",
+        "description": "Storage type for speaker and processor convolution weights. The DAC transposed-convolution decoder remains F32 for CUDA compatibility."
+      }
+    ]
+  },
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "TTS",
+      "Clone"
+    ],
+    "docs": [
+      "docs/community_models/mira_tts.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "language_model": {
+          "source": "weights:",
+          "prefix": "language_model"
+        },
+        "speaker_encoder": {
+          "source": "weights:",
+          "prefix": "speaker_encoder"
+        },
+        "processor": {
+          "source": "weights:",
+          "prefix": "processor"
+        },
+        "decoder": {
+          "source": "weights:",
+          "prefix": "decoder"
+        },
+        "upsampler": {
+          "source": "weights:",
+          "prefix": "upsampler"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "language_model": "model:language_model.safetensors",
+        "speaker_encoder": "model:speaker_encoder.safetensors",
+        "processor": "model:processor.safetensors",
+        "decoder": "model:decoder.safetensors",
+        "upsampler": "model:upsampler.safetensors"
+      }
+    }
+  ],
+  "packages": [],
+  "i18n": {
+    "description": {
+      "en": "MiraTTS is a community voice-cloning TTS model with a Qwen2 autoregressive speech-token generator, ECAPA/Perceiver speaker tokenizer, conditional acoustic processor, and DAC decoder.",
+      "zh": "MiraTTS 是社区音色克隆 TTS 模型，含 Qwen2 自回归语音 token 生成器、ECAPA/Perceiver 说话人分词器、条件声学处理器与 DAC 解码器。"
+    },
+    "options": {
+      "max_tokens": {
+        "en": "Maximum autoregressive speech tokens; default 1024.",
+        "zh": "自回归语音 token 上限；默认 1024。"
+      },
+      "temperature": {
+        "en": "Sampling temperature; default 0.8.",
+        "zh": "采样温度；默认 0.8。"
+      },
+      "top_k": {
+        "en": "Top-k sampling cutoff; default 50.",
+        "zh": "Top-k 采样截断；默认 50。"
+      },
+      "top_p": {
+        "en": "Nucleus sampling probability; default 0.95.",
+        "zh": "核采样概率；默认 0.95。"
+      },
+      "min_p": {
+        "en": "Minimum probability relative to the most likely token; default 0.05.",
+        "zh": "相对于最可能 token 的最小概率；默认 0.05。"
+      },
+      "repetition_penalty": {
+        "en": "Autoregressive repetition penalty; default 1.2.",
+        "zh": "自回归重复惩罚；默认 1.2。"
+      },
+      "seed": {
+        "en": "Sampling seed; omitted requests choose a random seed.",
+        "zh": "采样随机种子；省略时随机。"
+      }
+    }
+  }
+}

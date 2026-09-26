@@ -1,0 +1,3 @@
+{
+  "qwen3_asr": {"language":"optional","languageDefault":"auto","languageValues":["Chinese","English","Cantonese","Arabic","German","French","Spanish","Portuguese","Indonesian","Italian","Korean","Russian","Thai","Vietnamese","Japanese","Turkish","Hindi","Malay","Dutch","Swedish","Danish","Finnish","Polish","Czech","Filipino","Persian","Greek","Romanian","Hungarian","Macedonian"],"hiddenOptions":["return_timestamps"],"source":"docs/models/qwen3.md + qwen3_asr/assets.cpp supported_languages"}
+}

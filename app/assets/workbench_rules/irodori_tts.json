@@ -1,0 +1,4 @@
+{
+  "irodori_tts": { "reference": "optional", "referenceText": "hidden", "instruction": "optional", "instructionKey": "instruction", "language": "optional", "languageDefault": "ja", "source": "docs/models/irodori_tts.md" },
+  "irodori_tts_500m_v3": { "reference": "optional", "referenceText": "hidden", "instruction": "hidden", "language": "optional", "languageDefault": "ja", "source": "docs/models/irodori_tts.md" }
+}

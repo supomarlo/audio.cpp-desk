@@ -1,0 +1,306 @@
+{
+  "family": "chatterbox",
+  "display_name": "Chatterbox",
+  "description": "Open-source Chatterbox family for expressive TTS and voice conversion, with emotion exaggeration control, fast generation, zero-shot voice cloning, and an integrated multilingual TTS path.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone",
+    "vc"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "ar",
+    "da",
+    "de",
+    "el",
+    "en",
+    "es",
+    "fi",
+    "fr",
+    "hi",
+    "it",
+    "ko",
+    "ms",
+    "nl",
+    "no",
+    "pl",
+    "pt",
+    "sv",
+    "sw",
+    "tr"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ],
+    "vc": [
+      "speaker_reference"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "chatterbox_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "VC",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "english_tokenizer": "model:tokenizer.json",
+        "multilingual_tokenizer": "model:grapheme_mtl_merged_expanded_v1.json",
+        "cangjie_mapping": "model:Cangjie5_TC.json",
+        "builtin_conditionals": "model:conds.pt"
+      },
+      "tensors": {
+        "voice_encoder_weights": {
+          "source": "weights:",
+          "prefix": "voice_encoder"
+        },
+        "s3gen_weights": {
+          "source": "weights:",
+          "prefix": "s3gen"
+        },
+        "t3_english_weights": {
+          "source": "weights:",
+          "prefix": "t3_english"
+        },
+        "t3_multilingual_v2_weights": {
+          "source": "weights:",
+          "prefix": "t3_multilingual_v2"
+        },
+        "t3_multilingual_v3_weights": {
+          "source": "weights:",
+          "prefix": "t3_multilingual_v3"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "english_tokenizer": "model:tokenizer.json",
+        "multilingual_tokenizer": "model:grapheme_mtl_merged_expanded_v1.json",
+        "cangjie_mapping": "model:Cangjie5_TC.json",
+        "builtin_conditionals": "model:conds.pt"
+      },
+      "tensors": {
+        "voice_encoder_weights": "model:ve.safetensors",
+        "s3gen_weights": "model:s3gen.safetensors",
+        "t3_english_weights": "model:t3_cfg.safetensors",
+        "t3_multilingual_v2_weights": "model:t3_mtl23ls_v2.safetensors",
+        "t3_multilingual_v3_weights": "model:t3_mtl23ls_v3.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "chatterbox_q8_0",
+      "display_name": "Chatterbox Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Chatterbox-GGUF",
+      "files": [
+        "Chatterbox-GGUF/chatterbox-q8_0.gguf"
+      ],
+      "strip_prefix": "Chatterbox-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2088393668,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2088393668,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2088393668,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2088393668,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4496293888,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "chatterbox_f16",
+      "display_name": "Chatterbox F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Chatterbox-GGUF",
+      "files": [
+        "Chatterbox-GGUF/chatterbox-f16.gguf"
+      ],
+      "strip_prefix": "Chatterbox-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3744360386,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3744360386,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3744360386,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3744360386,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4563402752,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "chatterbox_safetensors",
+      "display_name": "Chatterbox Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "chatterbox",
+      "files": [
+        "ve.safetensors",
+        "t3_cfg.safetensors",
+        "s3gen.safetensors",
+        "tokenizer.json",
+        "grapheme_mtl_merged_expanded_v1.json",
+        "Cangjie5_TC.json",
+        "conds.pt",
+        "t3_mtl23ls_v2.safetensors",
+        "t3_mtl23ls_v3.safetensors"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "ResembleAI/chatterbox"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ResembleAI/chatterbox",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 7481936824,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/ResembleAI/chatterbox"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ResembleAI/chatterbox",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 7481936824,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/ResembleAI/chatterbox"
+        },
+        {
+          "source": "modelscope",
+          "repo": "ResembleAI/chatterbox",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 7481936824,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://www.modelscope.cn/models/ResembleAI/chatterbox"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 7481936824,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 9932111872,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Open-source Chatterbox family for expressive TTS and voice conversion, with emotion exaggeration control, fast generation, zero-shot voice cloning, and an integrated multilingual TTS path.",
+      "zh": "开源 Chatterbox 家族，用于富有表现力的 TTS 与音色转换，具备情绪夸张控制、快速生成、零样本音色克隆与集成的多语言 TTS 路径。"
+    }
+  }
+}

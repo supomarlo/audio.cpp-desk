@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "family": "audio8_tts",
+  "display_name": "Audio8 TTS Preview 0.6B",
+  "description": "Audio8 TTS Preview 0.6B DualAR text-to-speech model with expressive multilingual speech across yue, zh, nl, en, fr, de, it, ja, ko, pl, and es, automatic language handling, and rapid voice cloning from short reference samples.",
+  "category": "tts",
+  "status": "community",
+  "dependencies": [],
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "auto",
+    "yue",
+    "zh",
+    "nl",
+    "en",
+    "fr",
+    "de",
+    "it",
+    "ja",
+    "ko",
+    "pl",
+    "es"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "reference_text",
+        "type": "string",
+        "description": "Reference transcript used with speaker reference audio.",
+        "required": false
+      },
+      {
+        "name": "multi_reference_cond",
+        "type": "string",
+        "description": "Ordered Audio8 TTS reference conditioning pairs as a JSON array: [{\"audio\":\"ref.wav\",\"text\":\"transcript\"}, ...].",
+        "required": false
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum semantic tokens to generate; default 1024.",
+        "required": false,
+        "min": 1,
+        "default": 1024
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Top-p sampling value in (0, 1]; default 0.9.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 0.9
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling value; default 50.",
+        "required": false,
+        "min": 1,
+        "default": 50
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Semantic-token sampling temperature in (0, 2); default 0.7.",
+        "required": false,
+        "min": 0.0,
+        "max": 2.0,
+        "default": 0.7
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed for reproducible output; omitted uses a random seed.",
+        "required": false,
+        "min": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release cached AR runtime graphs after each request; default false.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "description": "Prepared reference-audio cache slots; default 1.",
+        "required": false,
+        "min": 0,
+        "default": 1
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "AR matmul weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "codec_weight_type",
+        "type": "enum",
+        "description": "Codec conv/matmul weight storage type; default native.",
+        "preset": "weight_type_codec_q8",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "ar_graph_arena_mb",
+        "type": "int",
+        "description": "AR runtime graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 0,
+        "default": 512
+      },
+      {
+        "name": "ar_weight_context_mb",
+        "type": "int",
+        "description": "AR weight context size in MiB; default 512.",
+        "required": false,
+        "min": 0,
+        "default": 512
+      },
+      {
+        "name": "codec_graph_arena_mb",
+        "type": "int",
+        "description": "Codec encode/decode graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 0,
+        "default": 512
+      },
+      {
+        "name": "codec_weight_context_mb",
+        "type": "int",
+        "description": "Codec weight context size in MiB; default 512.",
+        "required": false,
+        "min": 0,
+        "default": 512
+      }
+    ],
+    "load": []
+  },
+  "ui": {
+    "recommended_package": "audio8_tts_preview_0_6b_q8_0",
+    "tags": [
+      "TTS",
+      "Clone"
+    ],
+    "docs": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "js-byte/Audio8-TTS-Preview-0.6b-GGUF",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "model_weights": {
+          "source": "weights:",
+          "prefix": "model_weights"
+        },
+        "codec_weights": {
+          "source": "weights:",
+          "prefix": "codec_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors",
+        "codec_weights": "model:codec.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "audio8_tts_preview_0_6b_q8_0",
+      "display_name": "Audio8 TTS Preview 0.6B Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Audio8-TTS-Preview-0.6B-GGUF",
+      "files": [
+        "audio8-tts-preview-0.6b-q8_0.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "js-byte/Audio8-TTS-Preview-0.6b-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1429545312,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/js-byte/Audio8-TTS-Preview-0.6b-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "js-byte/Audio8-TTS-Preview-0.6b-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1429545312,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/js-byte/Audio8-TTS-Preview-0.6b-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1429545312,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Audio8 TTS Preview 0.6B DualAR text-to-speech model with expressive multilingual speech across yue, zh, nl, en, fr, de, it, ja, ko, pl, and es, automatic language handling, and rapid voice cloning from short reference samples.",
+      "zh": "Audio8 TTS Preview 0.6B DualAR 文本转语音模型，支持粤语、中文、荷兰语、英语、法语、德语、意大利语、日语、韩语、波兰语、西班牙语的富有表现力多语言语音，自动处理语言，并可从短参考样本快速克隆音色。"
+    },
+    "options": {
+      "reference_text": {
+        "en": "Reference transcript used with speaker reference audio.",
+        "zh": "配合说话人参考音频使用的参考文本。"
+      },
+      "multi_reference_cond": {
+        "en": "Ordered Audio8 TTS reference conditioning pairs as a JSON array: [{\"audio\":\"ref.wav\",\"text\":\"transcript\"}, ...].",
+        "zh": "有序的 Audio8 TTS 参考条件对，JSON 数组：[{\"audio\":\"ref.wav\",\"text\":\"transcript\"}, ...]。"
+      },
+      "max_tokens": {
+        "en": "Maximum semantic tokens to generate; default 1024.",
+        "zh": "最多生成的语义 token 数；默认 1024。"
+      },
+      "top_p": {
+        "en": "Top-p sampling value in (0, 1]; default 0.9.",
+        "zh": "Top-p 采样值，取值 (0, 1]；默认 0.9。"
+      },
+      "top_k": {
+        "en": "Top-k sampling value; default 50.",
+        "zh": "Top-k 采样值；默认 50。"
+      },
+      "temperature": {
+        "en": "Semantic-token sampling temperature in (0, 2); default 0.7.",
+        "zh": "语义 token 采样温度，取值 (0, 2)；默认 0.7。"
+      },
+      "seed": {
+        "en": "Sampling seed for reproducible output; omitted uses a random seed.",
+        "zh": "用于可复现输出的采样随机种子；省略时随机。"
+      }
+    }
+  }
+}

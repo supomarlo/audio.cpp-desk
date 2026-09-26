@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "family": "kokoro_tts",
+  "display_name": "Kokoro 82M",
+  "description": "Kokoro 82M multilingual text-to-speech with 54 preset voices, optimized native CPU inference, and shared eSpeak-ng phonemization.",
+  "category": "tts",
+  "status": "community",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en-us",
+    "en-gb",
+    "es",
+    "fr-fr",
+    "hi",
+    "it",
+    "ja",
+    "pt-br",
+    "zh"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "built_in_voices",
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Text language code; defaults to the selected voice prefix.",
+        "required": false
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Decoder noise seed; omitted requests choose a random seed.",
+        "required": false,
+        "min": 0
+      },
+      {
+        "name": "speed",
+        "type": "float",
+        "description": "Speech speed multiplier; default 1.0.",
+        "required": false,
+        "min": 0.01,
+        "default": 1.0
+      },
+      {
+        "name": "phonemes",
+        "type": "string_list",
+        "description": "Kokoro-vocabulary phonemes to synthesize directly, bypassing the built-in eSpeak-ng G2P. One entry per chunk: entries are rendered in order and merged into one result, so the caller chooses the split points that only its own G2P knows. Each entry must be at most 510 symbols and must not be empty -- an entry is a chunk to speak, so drop it rather than leaving it blank. Text is still required and its language must still match the voice.",
+        "required": false
+      },
+      {
+        "name": "return_timestamps",
+        "type": "bool",
+        "description": "Report where each phoneme group lands in the output, from the durations the model predicts before vocoding. Entries are phoneme groups in Kokoro's own alphabet, not written words, and do not map one-to-one onto the input text: see docs/models/kokoro_tts.md. Default false.",
+        "required": false,
+        "default": false
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native",
+        "description": "Storage type for matrix multiplication weights."
+      },
+      {
+        "name": "conv_weight_type",
+        "type": "enum",
+        "preset": "weight_type_conv",
+        "required": false,
+        "default": "native",
+        "description": "Storage type for convolution weights."
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight loading context size in MiB; default 512.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      },
+      {
+        "name": "predictor_duration_graph_mb",
+        "type": "int",
+        "description": "Predictor duration graph arena size in MiB; default 384.",
+        "required": false,
+        "min": 1,
+        "default": 384
+      },
+      {
+        "name": "predictor_text_graph_mb",
+        "type": "int",
+        "description": "Predictor text graph arena size in MiB; default 256.",
+        "required": false,
+        "min": 1,
+        "default": 256
+      },
+      {
+        "name": "predictor_tail_graph_mb",
+        "type": "int",
+        "description": "Predictor tail graph arena size in MiB; default 640.",
+        "required": false,
+        "min": 1,
+        "default": 640
+      },
+      {
+        "name": "graph_capacity_mode",
+        "type": "enum",
+        "description": "Offline graph capacity policy; default fixed.",
+        "values": [
+          "fixed",
+          "tiered",
+          "grow",
+          "double"
+        ],
+        "required": false,
+        "default": "fixed"
+      },
+      {
+        "name": "max_input_tokens",
+        "type": "int",
+        "description": "Predictor graph input token capacity; default min(512, model context length).",
+        "required": false,
+        "min": 1
+      },
+      {
+        "name": "pre_tail_tokens",
+        "type": "int",
+        "description": "Optional prebuilt predictor tail token capacity; default 0.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "kokoro_82m_q8_0",
+    "tags": [
+      "TTS",
+      "GGUF"
+    ],
+    "builtin_voices": [
+      "af_alloy",
+      "af_aoede",
+      "af_bella",
+      "af_heart",
+      "af_jessica",
+      "af_kore",
+      "af_nicole",
+      "af_nova",
+      "af_river",
+      "af_sarah",
+      "af_sky",
+      "am_adam",
+      "am_echo",
+      "am_eric",
+      "am_fenrir",
+      "am_liam",
+      "am_michael",
+      "am_onyx",
+      "am_puck",
+      "am_santa",
+      "bf_alice",
+      "bf_emma",
+      "bf_isabella",
+      "bf_lily",
+      "bm_daniel",
+      "bm_fable",
+      "bm_george",
+      "bm_lewis",
+      "ef_dora",
+      "em_alex",
+      "em_santa",
+      "ff_siwis",
+      "hf_alpha",
+      "hf_beta",
+      "hm_omega",
+      "hm_psi",
+      "if_sara",
+      "im_nicola",
+      "jf_alpha",
+      "jf_gongitsune",
+      "jf_nezumi",
+      "jf_tebukuro",
+      "jm_kumo",
+      "pf_dora",
+      "pm_alex",
+      "pm_santa",
+      "zf_xiaobei",
+      "zf_xiaoni",
+      "zf_xiaoxiao",
+      "zf_xiaoyi",
+      "zm_yunjian",
+      "zm_yunxi",
+      "zm_yunxia",
+      "zm_yunyang"
+    ],
+    "default_voice": "af_heart",
+    "docs": [
+      "tests/kokoro_tts/MULTILINGUAL_GGUF.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "voices": "model:voices.json",
+        "vocabulary": "model:vocab.tsv"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "kokoro"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "kokoro_82m_q8_0",
+      "display_name": "Kokoro 82M Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Kokoro-82M-GGUF",
+      "files": [
+        "Kokoro-82M-GGUF/kokoro-82m-q8_0.gguf"
+      ],
+      "strip_prefix": "Kokoro-82M-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 189549408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 189549408,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 189549408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 189549408,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 201326592,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "kokoro_82m_bf16",
+      "display_name": "Kokoro 82M BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "Kokoro-82M-GGUF",
+      "files": [
+        "Kokoro-82M-GGUF/kokoro-82m-bf16.gguf"
+      ],
+      "strip_prefix": "Kokoro-82M-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 211954816,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 211954816,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 211954816,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 211954816,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 201326592,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Kokoro 82M multilingual text-to-speech with 54 preset voices, optimized native CPU inference, and shared eSpeak-ng phonemization.",
+      "zh": "Kokoro 82M 多语言文本转语音，含 54 个预设音色、优化的原生 CPU 推理与共享的 eSpeak-ng 音素化。"
+    },
+    "options": {
+      "language": {
+        "en": "Text language code; defaults to the selected voice prefix.",
+        "zh": "文本语言代码；默认取所选音色的前缀。"
+      },
+      "seed": {
+        "en": "Decoder noise seed; omitted requests choose a random seed.",
+        "zh": "解码器噪声种子；省略时随机。"
+      },
+      "speed": {
+        "en": "Speech speed multiplier; default 1.0.",
+        "zh": "语速倍率；默认 1.0。"
+      },
+      "phonemes": {
+        "en": "Kokoro-vocabulary phonemes to synthesize directly, bypassing the built-in eSpeak-ng G2P. One entry per chunk: entries are rendered in order and merged into one result, so the caller chooses the split points that only its own G2P knows. Each entry must be at most 510 symbols and must not be empty -- an entry is a chunk to speak, so drop it rather than leaving it blank. Text is still required and its language must still match the voice.",
+        "zh": "Kokoro 词表的音素，直接用于合成、绕过内置的 eSpeak-ng 文本转音素。每个分块一项：各项按顺序合成并合并为一个结果，因此切分点由调用方（只有它自己的 G2P 才知道）决定。每项最多 510 个符号且不能为空——一项即一个待朗读分块，不想读就删掉而不是留空。文本仍为必填，其语言也须与音色一致。"
+      },
+      "return_timestamps": {
+        "en": "Report where each phoneme group lands in the output, from the durations the model predicts before vocoding. Entries are phoneme groups in Kokoro's own alphabet, not written words, and do not map one-to-one onto the input text: see docs/models/kokoro_tts.md. Default false.",
+        "zh": "报告每个音素组在输出中的位置，来源是模型在声码化前预测的时长。条目是 Kokoro 自有字母表的音素组，而非书面词，也不与输入文本一一对应；详见 docs/models/kokoro_tts.md。默认 false。"
+      }
+    }
+  }
+}

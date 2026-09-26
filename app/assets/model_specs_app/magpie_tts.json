@@ -1,0 +1,370 @@
+{
+  "schema_version": 1,
+  "family": "magpie_tts",
+  "display_name": "MagpieTTS Multilingual 357M",
+  "description": "NVIDIA MagpieTTS is a multilingual neural text-to-speech model that generates NanoCodec audio tokens from text using baked speaker context embeddings, a decoder-only transformer, and an autoregressive local transformer before decoding the tokens to waveform audio.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "ar-AE",
+    "ar-MSA",
+    "ar-SA",
+    "de",
+    "en",
+    "es",
+    "fr",
+    "hi",
+    "it",
+    "ko",
+    "pt-BR",
+    "vi",
+    "zh"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Target synthesis language code used by the Magpie text frontend; default en.",
+        "required": false,
+        "default": "en"
+      },
+      {
+        "name": "voice_id",
+        "type": "enum",
+        "description": "Packaged MagpieTTS voice name; default Aria.",
+        "values": [
+          "Aria",
+          "Jason",
+          "John",
+          "Leo",
+          "Sofia"
+        ],
+        "required": false,
+        "default": "Aria"
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Autoregressive audio-token sampling temperature; default 0.6 from the v2607 model config.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.6
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Autoregressive audio-token top-k sampling limit; default 80.",
+        "required": false,
+        "min": 1,
+        "default": 80
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale for Magpie decoder logits; default 2.5.",
+        "required": false,
+        "min": 0.0,
+        "default": 2.5
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum Magpie decoder frames per text segment; default 500 from the v2607 model config.",
+        "required": false,
+        "min": 1,
+        "default": 500
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Seed for audio-token sampling; default 0.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "graph_arena_mb",
+        "type": "int",
+        "description": "Reusable ggml graph arena size in MiB for Magpie stages; default 1024.",
+        "required": false,
+        "min": 1,
+        "default": 1024
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight loading context size in MiB; default 2048.",
+        "required": false,
+        "min": 1,
+        "default": 2048
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Matmul weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "conv_weight_type",
+        "type": "enum",
+        "description": "Convolution weight storage type; default native.",
+        "preset": "weight_type_conv",
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "magpie_tts_q8_0",
+    "tags": [
+      "TTS",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/magpie_tts.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "codec_config": "model:codec_config.json",
+        "speakers": "model:speakers.json"
+      },
+      "optional_files": {
+        "ipa_dict": "model:ipa_dict.txt",
+        "cmu_dict": "model:cmu_dict.txt",
+        "german_dict": "model:german.dict",
+        "german_heteronyms": "model:german.heteronym",
+        "spanish_dict": "model:spanish.dict",
+        "portuguese_dict": "model:portuguese.dict",
+        "hindi_dict": "model:hindi.dict",
+        "heteronyms": "model:heteronyms",
+        "mandarin_chars": "model:mandarin_data/pinyin_chars.tsv",
+        "mandarin_phrases": "model:mandarin_data/pinyin_phrases.tsv",
+        "mandarin_jieba_dict": "model:mandarin_data/jieba.dict.utf8",
+        "mandarin_hmm": "model:mandarin_data/hmm_model.utf8"
+      },
+      "tensors": {
+        "model": {
+          "source": "weights:",
+          "prefix": "model"
+        },
+        "codec": {
+          "source": "weights:",
+          "prefix": "codec"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": ".",
+        "codec": "../nemo_nano_codec_22khz_1_89kbps_safetensors"
+      },
+      "files": {
+        "config": "model:config.json",
+        "codec_config": "codec:config.json",
+        "speakers": "model:41913ebaa70342058574da74293b7630_magpie_tts_multilingual_357m.nemo.speakers.json"
+      },
+      "optional_files": {
+        "ipa_dict": "model:74b3e832fe914a569fcd42b51d06b2f1_ipa_dict_nv23.05.txt",
+        "cmu_dict": "model:dc7d60d6b15a4651b21c9ca2932b62c6_ipa_cmudict-0.7b_nv23.01.txt",
+        "german_dict": "model:cf01ab5c48c84f3282ef7888263361e5_de_nv230119.dict",
+        "german_heteronyms": "model:c5e4ec2af5a14ce294f4b9edcc936535_de_nv230119.heteronym",
+        "spanish_dict": "model:7dbc31751f224f2486090d59dc95b9f7_es_ES_nv230301.dict",
+        "portuguese_dict": "model:05adc40366e149b69319acd4b28a4919_pt_br_prondict-v1.0.dict",
+        "hindi_dict": "model:339da71c54b046f98cbcf38ef6d4ff67_hindi_phoneme_merged_phoneme_dict.dict",
+        "heteronyms": "model:61d57a4ccb064d1e8e3d9f871c571932_heteronyms-052722"
+      },
+      "tensors": {
+        "model": "model:model.safetensors",
+        "codec": "codec:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "magpie_tts_orig",
+      "display_name": "MagpieTTS Multilingual 357M Original-Dtype GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "MagpieTTS-Multilingual-357M-GGUF",
+      "files": [
+        "MagpieTTS-Multilingual-357M-GGUF/magpie-tts-multilingual-357m-orig.gguf"
+      ],
+      "strip_prefix": "MagpieTTS-Multilingual-357M-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1912137280,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1912137280,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1912137280,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1912137280,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1879048192,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "magpie_tts_q8_0",
+      "display_name": "MagpieTTS Multilingual 357M Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "MagpieTTS-Multilingual-357M-GGUF",
+      "files": [
+        "MagpieTTS-Multilingual-357M-GGUF/magpie-tts-multilingual-357m-q8_0.gguf"
+      ],
+      "strip_prefix": "MagpieTTS-Multilingual-357M-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1562142912,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1562142912,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1562142912,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1562142912,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1543503872,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "NVIDIA MagpieTTS is a multilingual neural text-to-speech model that generates NanoCodec audio tokens from text using baked speaker context embeddings, a decoder-only transformer, and an autoregressive local transformer before decoding the tokens to waveform audio.",
+      "zh": "NVIDIA MagpieTTS 是多语言神经文本转语音模型，使用烘焙的说话人上下文嵌入、仅解码器 Transformer 与自回归局部 Transformer 从文本生成 NanoCodec 音频 token，再解码为波形。"
+    },
+    "options": {
+      "language": {
+        "en": "Target synthesis language code used by the Magpie text frontend; default en.",
+        "zh": "Magpie 文本前端使用的目标合成语言代码；默认 en。"
+      },
+      "voice_id": {
+        "en": "Packaged MagpieTTS voice name; default Aria.",
+        "zh": "打包的 MagpieTTS 音色名称；默认 Aria。"
+      },
+      "temperature": {
+        "en": "Autoregressive audio-token sampling temperature; default 0.6 from the v2607 model config.",
+        "zh": "自回归音频 token 采样温度；默认 0.6，取自 v2607 模型配置。"
+      },
+      "top_k": {
+        "en": "Autoregressive audio-token top-k sampling limit; default 80.",
+        "zh": "自回归音频 token 的 top-k 采样上限；默认 80。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale for Magpie decoder logits; default 2.5.",
+        "zh": "作用于 Magpie 解码器 logits 的无分类器引导强度；默认 2.5。"
+      },
+      "max_tokens": {
+        "en": "Maximum Magpie decoder frames per text segment; default 500 from the v2607 model config.",
+        "zh": "每个文本分段最多生成的 Magpie 解码器帧数；默认 500，取自 v2607 模型配置。"
+      },
+      "seed": {
+        "en": "Seed for audio-token sampling; default 0.",
+        "zh": "音频 token 采样的随机种子；默认 0。"
+      }
+    }
+  }
+}

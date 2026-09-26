@@ -1,0 +1,354 @@
+{
+  "family": "fish_audio",
+  "display_name": "Fish Audio S2 Pro",
+  "description": "Fish Audio S2 Pro text-to-speech model for expressive speech across 80+ languages, with automatic language handling, inline prosody/emotion controls, and rapid voice cloning from short reference samples.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "80+ languages"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "reference_text",
+        "type": "string",
+        "description": "Reference transcript used with speaker reference audio.",
+        "required": false
+      },
+      {
+        "name": "multi_reference_cond",
+        "type": "string",
+        "description": "Fish Audio ordered JSON array of reference conditioning pairs for one generated speaker: [{\"audio\":\"ref1.wav\",\"text\":\"Transcript one.\"},{\"audio\":\"ref2.wav\",\"text\":\"Transcript two.\"}]. This is not a multi-speaker dialogue routing option.",
+        "required": false
+      },
+      {
+        "name": "max_new_tokens",
+        "type": "int",
+        "description": "Maximum Fish Audio semantic tokens to generate; default 1024.",
+        "required": false,
+        "min": 1,
+        "default": 1024
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Top-p sampling value in (0, 1]; default 0.8.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 0.8
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling value; default 30.",
+        "required": false,
+        "min": 1,
+        "default": 30
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Semantic-token sampling temperature in (0, 2); default 0.8.",
+        "required": false,
+        "min": 0.0,
+        "max": 2.0,
+        "default": 0.8
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed for reproducible output; omitted uses a random seed.",
+        "required": false,
+        "min": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release cached AR runtime graphs after each request; default false.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "description": "Prepared reference-audio cache slots; default 1.",
+        "required": false,
+        "min": 0,
+        "default": 1
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "AR matmul weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "codec_weight_type",
+        "type": "enum",
+        "description": "Codec conv/matmul weight storage type; default native.",
+        "preset": "weight_type_codec_q8",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "ar_graph_arena_mb",
+        "type": "int",
+        "description": "AR runtime graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 0,
+        "default": 512
+      },
+      {
+        "name": "ar_weight_context_mb",
+        "type": "int",
+        "description": "AR weight context size in MiB; default 32.",
+        "required": false,
+        "min": 0,
+        "default": 32
+      },
+      {
+        "name": "codec_graph_arena_mb",
+        "type": "int",
+        "description": "Codec encode/decode graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 0,
+        "default": 512
+      },
+      {
+        "name": "codec_weight_context_mb",
+        "type": "int",
+        "description": "Codec weight context size in MiB; default 32.",
+        "required": false,
+        "min": 0,
+        "default": 32
+      }
+    ],
+    "load": []
+  },
+  "ui": {
+    "recommended_package": "fish_audio_s2_pro_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "model_weights": {
+          "source": "weights:",
+          "prefix": "model_weights"
+        },
+        "codec_weights": {
+          "source": "weights:",
+          "prefix": "codec_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "model_weights": "model:model_audio_cpp.safetensors.index.json",
+        "codec_weights": "model:codec.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "fish_audio_s2_pro_q8_0",
+      "display_name": "Fish Audio S2 Pro Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Fish-Audio-S2-Pro-GGUF",
+      "files": [
+        "Fish-Audio-S2-Pro-GGUF/fish-audio-s2-pro-q8_0.gguf"
+      ],
+      "strip_prefix": "Fish-Audio-S2-Pro-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6317911232,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6317911232,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 6317911232,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6317911232,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 8053063680,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "fish_audio_s2_pro_bf16",
+      "display_name": "Fish Audio S2 Pro BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "Fish-Audio-S2-Pro-GGUF",
+      "files": [
+        "Fish-Audio-S2-Pro-GGUF/fish-audio-s2-pro-bf16.gguf"
+      ],
+      "strip_prefix": "Fish-Audio-S2-Pro-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 10229278080,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 10229278080,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 10229278080,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 10229278080,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 12683575296,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Fish Audio S2 Pro text-to-speech model for expressive speech across 80+ languages, with automatic language handling, inline prosody/emotion controls, and rapid voice cloning from short reference samples.",
+      "zh": "Fish Audio S2 Pro 文本转语音模型，覆盖 80+ 语言的富有表现力语音，自动处理语言，支持行内韵律/情绪控制，并可从短参考样本快速克隆音色。"
+    },
+    "options": {
+      "reference_text": {
+        "en": "Reference transcript used with speaker reference audio.",
+        "zh": "配合说话人参考音频使用的参考文本。"
+      },
+      "multi_reference_cond": {
+        "en": "Fish Audio ordered JSON array of reference conditioning pairs for one generated speaker: [{\"audio\":\"ref1.wav\",\"text\":\"Transcript one.\"},{\"audio\":\"ref2.wav\",\"text\":\"Transcript two.\"}]. This is not a multi-speaker dialogue routing option.",
+        "zh": "Fish Audio 针对单个生成说话人的有序参考条件对 JSON 数组：[{\"audio\":\"ref1.wav\",\"text\":\"Transcript one.\"},{\"audio\":\"ref2.wav\",\"text\":\"Transcript two.\"}]。注意这不是多说话人对话路由选项。"
+      },
+      "max_new_tokens": {
+        "en": "Maximum Fish Audio semantic tokens to generate; default 1024.",
+        "zh": "最多生成的 Fish Audio 语义 token 数；默认 1024。"
+      },
+      "top_p": {
+        "en": "Top-p sampling value in (0, 1]; default 0.8.",
+        "zh": "Top-p 采样值，取值 (0, 1]；默认 0.8。"
+      },
+      "top_k": {
+        "en": "Top-k sampling value; default 30.",
+        "zh": "Top-k 采样值；默认 30。"
+      },
+      "temperature": {
+        "en": "Semantic-token sampling temperature in (0, 2); default 0.8.",
+        "zh": "语义 token 采样温度，取值 (0, 2)；默认 0.8。"
+      },
+      "seed": {
+        "en": "Sampling seed for reproducible output; omitted uses a random seed.",
+        "zh": "用于可复现输出的采样随机种子；省略时随机。"
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+{
+  "controlfoley": {"inputs":[{"option":"video","type":"path","extensions":["mp4","mov","mkv","webm","avi"],"label":{"en":"Video","zh":"视频"}}],"source":"docs/models/controlfoley.md"}
+}

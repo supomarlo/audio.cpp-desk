@@ -1,0 +1,14 @@
+{
+  "rvc": {
+    "reference": "hidden",
+    "referenceText": "hidden",
+    "voiceId": { "values": ["default","manthos","chocola","fraise"], "default": "default", "option": "voice_id" },
+    "inputs": [
+      { "option": "voice_model_path", "type": "path", "extensions": ["pth", "pt"], "label": { "en": "Voice model (.pth/.pt)", "zh": "音色模型(.pth/.pt)" } }
+    ],
+    "instruction": "hidden",
+    "language": "hidden",
+    "requiredInputs": ["--audio"],
+    "source": "docs/audio_tools.md"
+  }
+}

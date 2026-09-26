@@ -1,0 +1,740 @@
+{
+  "family": "index_tts2",
+  "display_name": "IndexTTS2",
+  "description": "Zero-shot TTS system with voice cloning, emotion-speaker decoupling, text or audio emotion control, and explicit duration control. Variant v2 covers Chinese and English; variant v2.5 (config version 2.5) adds multilingual tiktoken tokenization with Japanese, Spanish and Arabic support.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "zh",
+    "en",
+    "ja",
+    "es",
+    "ar"
+  ],
+  "capabilities": {
+    "tts": [
+      "emotion_control"
+    ],
+    "clone": [
+      "speaker_reference",
+      "emotion_control"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "emotion_alpha",
+        "type": "float",
+        "description": "Blend strength for explicit emotion conditioning.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 1.0
+      },
+      {
+        "name": "emotion_vector",
+        "type": "string",
+        "description": "Eight-value explicit emotion vector.",
+        "required": false
+      },
+      {
+        "name": "emotion_text",
+        "type": "string",
+        "description": "Text used when emotion-text conditioning is enabled.",
+        "required": false
+      },
+      {
+        "name": "interval_silence_ms",
+        "type": "int",
+        "description": "Silence inserted between generated text chunks.",
+        "required": false,
+        "min": 0,
+        "default": 200
+      },
+      {
+        "name": "duration_factor",
+        "type": "float",
+        "description": "Output duration multiplier for speech-rate control; >1 slower, <1 faster. Matches official IndexTTS2.5 duration_factor.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.0
+      },
+      {
+        "name": "language",
+        "type": "enum",
+        "description": "Text language hint; auto infers zh when the text contains Han characters, otherwise en.",
+        "values": [
+          "auto",
+          "zh",
+          "en",
+          "ja",
+          "es",
+          "ar"
+        ],
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Sampling temperature.",
+        "default": 0.8
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling limit.",
+        "default": 30
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Nucleus sampling probability.",
+        "default": 0.8
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "Repetition penalty.",
+        "default": 10.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed; random if omitted."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated tokens.",
+        "default": 1500
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "index_tts2_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.yaml",
+        "wav2vec2bert_config": "model:w2v-bert-2.0/config.json",
+        "wav2vec2bert_preprocessor_config": "model:w2v-bert-2.0/preprocessor_config.json",
+        "bigvgan_config": "model:bigvgan/config.json",
+        "qwen_emotion_config": "model:qwen0.6bemo4-merge/config.json",
+        "qwen_emotion_generation_config": "model:qwen0.6bemo4-merge/generation_config.json",
+        "qwen_emotion_tokenizer": "model:qwen0.6bemo4-merge/tokenizer.json",
+        "qwen_emotion_tokenizer_config": "model:qwen0.6bemo4-merge/tokenizer_config.json",
+        "qwen_emotion_vocab": "model:qwen0.6bemo4-merge/vocab.json",
+        "qwen_emotion_merges": "model:qwen0.6bemo4-merge/merges.txt"
+      },
+      "optional_files": {
+        "bpe": "model:bpe.model",
+        "tiktoken": "model:multilingual_zh_ja_yue_char_del.tiktoken"
+      },
+      "tensors": {
+        "gpt": {
+          "source": "weights:",
+          "prefix": "gpt"
+        },
+        "s2mel": {
+          "source": "weights:",
+          "prefix": "s2mel"
+        },
+        "speaker_matrix": {
+          "source": "weights:",
+          "prefix": "speaker_matrix"
+        },
+        "emotion_matrix": {
+          "source": "weights:",
+          "prefix": "emotion_matrix"
+        },
+        "wav2vec2bert_stats": {
+          "source": "weights:",
+          "prefix": "wav2vec2bert_stats"
+        },
+        "wav2vec2bert": {
+          "source": "weights:",
+          "prefix": "wav2vec2bert"
+        },
+        "semantic_codec": {
+          "source": "weights:",
+          "prefix": "semantic_codec"
+        },
+        "campplus": {
+          "source": "weights:",
+          "prefix": "campplus"
+        },
+        "bigvgan": {
+          "source": "weights:",
+          "prefix": "bigvgan"
+        },
+        "qwen_emotion": {
+          "source": "weights:",
+          "prefix": "qwen_emotion"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.yaml",
+        "wav2vec2bert_config": "model:w2v-bert-2.0/config.json",
+        "wav2vec2bert_preprocessor_config": "model:w2v-bert-2.0/preprocessor_config.json",
+        "bigvgan_config": "model:bigvgan/config.json",
+        "qwen_emotion_config": "model:qwen0.6bemo4-merge/config.json",
+        "qwen_emotion_generation_config": "model:qwen0.6bemo4-merge/generation_config.json",
+        "qwen_emotion_tokenizer": "model:qwen0.6bemo4-merge/tokenizer.json",
+        "qwen_emotion_tokenizer_config": "model:qwen0.6bemo4-merge/tokenizer_config.json",
+        "qwen_emotion_vocab": "model:qwen0.6bemo4-merge/vocab.json",
+        "qwen_emotion_merges": "model:qwen0.6bemo4-merge/merges.txt"
+      },
+      "optional_files": {
+        "bpe": "model:bpe.model",
+        "tiktoken": "model:multilingual_zh_ja_yue_char_del.tiktoken"
+      },
+      "tensors": {
+        "gpt": "model:gpt.safetensors",
+        "s2mel": "model:s2mel.safetensors",
+        "speaker_matrix": "model:feat1.safetensors",
+        "emotion_matrix": "model:feat2.safetensors",
+        "wav2vec2bert_stats": "model:wav2vec2bert_stats.safetensors",
+        "wav2vec2bert": "model:w2v-bert-2.0/model.safetensors",
+        "semantic_codec": "model:semantic_codec_model.safetensors",
+        "campplus": "model:campplus.safetensors",
+        "bigvgan": "model:bigvgan/model.safetensors",
+        "qwen_emotion": "model:qwen0.6bemo4-merge/model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "index_tts2_q8_0",
+      "display_name": "IndexTTS2 Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "IndexTTS2-GGUF",
+      "files": [
+        "IndexTTS2-GGUF/index-tts2-q8_0.gguf"
+      ],
+      "strip_prefix": "IndexTTS2-GGUF",
+      "i18n": {
+        "description": {
+          "en": "IndexTTS2: Chinese and English TTS with voice cloning and emotion-text control; requires a speaker reference WAV.",
+          "zh": "IndexTTS2：中英语音合成，支持声音克隆与情绪文本控制，需提供参考音频。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3633888608,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3633888608,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3633888608,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3633888608,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3623878656,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "index_tts2_f16",
+      "display_name": "IndexTTS2 F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "IndexTTS2-GGUF",
+      "files": [
+        "IndexTTS2-GGUF/index-tts2-f16.gguf"
+      ],
+      "strip_prefix": "IndexTTS2-GGUF",
+      "i18n": {
+        "description": {
+          "en": "IndexTTS2: Chinese and English TTS with voice cloning and emotion-text control; requires a speaker reference WAV.",
+          "zh": "IndexTTS2：中英语音合成，支持声音克隆与情绪文本控制，需提供参考音频。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4646898304,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4646898304,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4646898304,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4646898304,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4630511616,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "index_tts2_orig",
+      "display_name": "IndexTTS2 Original-Dtype GGUF",
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "IndexTTS2-GGUF",
+      "files": [
+        "IndexTTS2-GGUF/index-tts2-orig.gguf"
+      ],
+      "strip_prefix": "IndexTTS2-GGUF",
+      "i18n": {
+        "description": {
+          "en": "IndexTTS2: Chinese and English TTS with voice cloning and emotion-text control; requires a speaker reference WAV.",
+          "zh": "IndexTTS2：中英语音合成，支持声音克隆与情绪文本控制，需提供参考音频。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 8084552000,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 8084552000,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 8084552000,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 8084552000,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 8053063680,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "index_tts2_safetensors",
+      "display_name": "IndexTTS2 Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "IndexTTS-2",
+      "files": [
+        "config.yaml",
+        "bpe.model",
+        "gpt.safetensors",
+        "w2v-bert-2.0/config.json",
+        "w2v-bert-2.0/preprocessor_config.json",
+        "bigvgan/config.json",
+        "qwen0.6bemo4-merge/config.json",
+        "qwen0.6bemo4-merge/generation_config.json",
+        "qwen0.6bemo4-merge/tokenizer.json",
+        "qwen0.6bemo4-merge/tokenizer_config.json",
+        "qwen0.6bemo4-merge/vocab.json",
+        "qwen0.6bemo4-merge/merges.txt",
+        "s2mel.safetensors",
+        "feat1.safetensors",
+        "feat2.safetensors",
+        "wav2vec2bert_stats.safetensors",
+        "w2v-bert-2.0/model.safetensors",
+        "semantic_codec_model.safetensors",
+        "campplus.safetensors",
+        "bigvgan/model.safetensors",
+        "qwen0.6bemo4-merge/model.safetensors"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "mlx-community/index-tts2-mlx"
+      },
+      "i18n": {
+        "description": {
+          "en": "IndexTTS2: Chinese and English TTS with voice cloning and emotion-text control; requires a speaker reference WAV.",
+          "zh": "IndexTTS2：中英语音合成，支持声音克隆与情绪文本控制，需提供参考音频。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "mlx-community/index-tts2-mlx",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 8084367138,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/mlx-community/index-tts2-mlx"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "mlx-community/index-tts2-mlx",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 8084367138,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/mlx-community/index-tts2-mlx"
+        },
+        {
+          "source": "modelscope",
+          "repo": "mlx-community/index-tts2-mlx",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 8084367138,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/mlx-community/index-tts2-mlx"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 8084367138,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 8053063680,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "index_tts2_5_q8_0",
+      "display_name": "IndexTTS2.5 Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "IndexTTS2.5-GGUF",
+      "files": [
+        "IndexTTS2.5-GGUF/index-tts2_5-q8_0.gguf"
+      ],
+      "strip_prefix": "IndexTTS2.5-GGUF",
+      "i18n": {
+        "description": {
+          "en": "IndexTTS2.5: multilingual zero-shot TTS (zh/en/ja/es/ar) built on a 0.8B GPT + DiT CFM + BigVGAN stack, with inline pronunciation overrides; requires a speaker reference WAV.",
+          "zh": "IndexTTS2.5：多语言零样本语音合成（zh/en/ja/es/ar），基于 0.8B GPT + DiT CFM + BigVGAN，支持行内发音覆盖，需提供参考音频。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3502955328,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3502955328,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3502955328,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3502955328,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3489660928,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "index_tts2_5_f16",
+      "display_name": "IndexTTS2.5 F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "IndexTTS2.5-GGUF",
+      "files": [
+        "IndexTTS2.5-GGUF/index-tts2_5-f16.gguf"
+      ],
+      "strip_prefix": "IndexTTS2.5-GGUF",
+      "i18n": {
+        "description": {
+          "en": "IndexTTS2.5: multilingual zero-shot TTS (zh/en/ja/es/ar) built on a 0.8B GPT + DiT CFM + BigVGAN stack, with inline pronunciation overrides; requires a speaker reference WAV.",
+          "zh": "IndexTTS2.5：多语言零样本语音合成（zh/en/ja/es/ar），基于 0.8B GPT + DiT CFM + BigVGAN，支持行内发音覆盖，需提供参考音频。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4547355072,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4547355072,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4547355072,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4547355072,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4563402752,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "index_tts2_5_orig",
+      "display_name": "IndexTTS2.5 Original-Dtype GGUF",
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "IndexTTS2.5-GGUF",
+      "files": [
+        "IndexTTS2.5-GGUF/index-tts2_5-orig.gguf"
+      ],
+      "strip_prefix": "IndexTTS2.5-GGUF",
+      "i18n": {
+        "description": {
+          "en": "IndexTTS2.5: multilingual zero-shot TTS (zh/en/ja/es/ar) built on a 0.8B GPT + DiT CFM + BigVGAN stack, with inline pronunciation overrides; requires a speaker reference WAV.",
+          "zh": "IndexTTS2.5：多语言零样本语音合成（zh/en/ja/es/ar），基于 0.8B GPT + DiT CFM + BigVGAN，支持行内发音覆盖，需提供参考音频。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 7885093440,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 7885093440,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 7885093440,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 7885093440,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 7851737088,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Zero-shot TTS system with voice cloning, emotion-speaker decoupling, text or audio emotion control, and explicit duration control. Variant v2 covers Chinese and English; variant v2.5 (config version 2.5) adds multilingual tiktoken tokenization with Japanese, Spanish and Arabic support.",
+      "zh": "零样本 TTS 系统，支持音色克隆、情绪-说话人解耦、文本或音频情绪控制与显式时长控制。v2 变体覆盖中英；v2.5 变体（config version 2.5）增加基于 tiktoken 的多语言分词，支持日语、西班牙语与阿拉伯语。"
+    },
+    "options": {
+      "emotion_alpha": {
+        "en": "Blend strength for explicit emotion conditioning.",
+        "zh": "显式情绪条件的混合强度。"
+      },
+      "emotion_vector": {
+        "en": "Eight-value explicit emotion vector.",
+        "zh": "八维显式情绪向量。"
+      },
+      "emotion_text": {
+        "en": "Text used when emotion-text conditioning is enabled.",
+        "zh": "启用情绪文本条件时使用的文本。"
+      },
+      "interval_silence_ms": {
+        "en": "Silence inserted between generated text chunks.",
+        "zh": "在生成的文本分块之间插入的静音时长（毫秒）。"
+      },
+      "duration_factor": {
+        "en": "Output duration multiplier for speech-rate control; >1 slower, <1 faster. Matches official IndexTTS2.5 duration_factor.",
+        "zh": "语速控制的输出时长倍率；>1 更慢，<1 更快。与官方 IndexTTS2.5 的 duration_factor 一致。"
+      },
+      "language": {
+        "en": "Text language hint; auto infers zh when the text contains Han characters, otherwise en.",
+        "zh": "文本语言提示；auto 在文本含汉字时推断为 zh，否则为 en。"
+      },
+      "temperature": {
+        "en": "Sampling temperature.",
+        "zh": "采样温度。"
+      },
+      "top_k": {
+        "en": "Top-k sampling limit.",
+        "zh": "top-k 采样上限。"
+      },
+      "top_p": {
+        "en": "Nucleus sampling probability.",
+        "zh": "核采样概率。"
+      },
+      "repetition_penalty": {
+        "en": "Repetition penalty.",
+        "zh": "重复惩罚。"
+      },
+      "seed": {
+        "en": "Sampling seed; random if omitted.",
+        "zh": "采样随机种子；省略时随机。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated tokens.",
+        "zh": "最多生成的 token 数。"
+      }
+    }
+  }
+}

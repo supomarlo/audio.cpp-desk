@@ -1,0 +1,577 @@
+{
+  "family": "seed_vc",
+  "schema_version": 1,
+  "display_name": "Seed-VC",
+  "description": "Zero-shot voice conversion and singing voice conversion model for transferring timbre and style from reference audio, with low-latency realtime conversion and optional lightweight fine-tuning.",
+  "category": "voice_conversion",
+  "status": "supported",
+  "tasks": [
+    "vc",
+    "svc"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "vc": [
+      "speaker_reference"
+    ],
+    "svc": [
+      "speaker_reference",
+      "singing"
+    ]
+  },
+  "dependencies": [],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "seed_vc_mlx_q8_0",
+    "tags": [
+      "VC",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/seed_vc.md",
+      "docs/audio_tools.md",
+      "docs/gguf.md"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "route",
+        "type": "enum",
+        "description": "Select the Seed-VC conversion route. Defaults to v2_vc for VC and v1_svc for SVC.",
+        "values": [
+          "v2_vc",
+          "v1_svc",
+          "v1_whisper_bigvgan_vc",
+          "v1_xlsr_hift_vc"
+        ],
+        "required": false
+      },
+      {
+        "name": "length_adjust",
+        "type": "float",
+        "description": "Output duration multiplier; must be positive, default 1.0.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.0
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Diffusion steps; default 30.",
+        "required": false,
+        "min": 1,
+        "default": 30
+      },
+      {
+        "name": "inference_guidance_scale",
+        "type": "float",
+        "description": "V1 classifier-free guidance scale; default 0.7.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.7
+      },
+      {
+        "name": "intelligibility_guidance_scale",
+        "type": "float",
+        "description": "V2 classifier-free guidance scale for source-content intelligibility; default 0.7.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.7
+      },
+      {
+        "name": "similarity_guidance_scale",
+        "type": "float",
+        "description": "V2 classifier-free guidance scale for target-speaker similarity; default 0.7.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.7
+      },
+      {
+        "name": "voice_anonymization",
+        "type": "bool",
+        "description": "Use randomized average-voice conditioning instead of target-speaker conditioning for V2 anonymization; default false.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Seed for V1/V2 diffusion noise and HiFT stochastic source excitation; omitted requests choose a random seed.",
+        "required": false,
+        "min": 0
+      },
+      {
+        "name": "f0_condition",
+        "type": "bool",
+        "description": "Enable V1 F0 conditioning for singing voice conversion; default false.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "auto_f0_adjust",
+        "type": "bool",
+        "description": "Automatically adjust V1 source pitch toward the target pitch level; default false.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "semitone_shift",
+        "type": "int",
+        "description": "V1 pitch shift in semitones for singing voice conversion; default 0.",
+        "required": false,
+        "default": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Shared Seed-VC component weight storage type; default native, except RMVPE uses f32 unless overridden.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "manifest": "model:seed_vc_manifest.json",
+        "v2_wrapper_config": "model:v2/vc_wrapper.json",
+        "astral_bsq32_config": "model:astral/bsq32.json",
+        "astral_bsq2048_config": "model:astral/bsq2048.json",
+        "v1_svc_config": "model:v1/svc.json",
+        "v1_whisper_bigvgan_config": "model:v1/whisper_bigvgan.json",
+        "v1_xlsr_hift_config": "model:v1/xlsr_hift.json",
+        "hift_config": "model:hift/config.json",
+        "bigvgan_22k_config": "model:bigvgan/v2_22khz_80band_256x/config.json",
+        "bigvgan_44k_config": "model:bigvgan/v2_44khz_128band_512x/config.json",
+        "whisper_small_config": "model:whisper-small/config.json",
+        "hubert_large_config": "model:hubert-large-ll60k/config.json",
+        "wav2vec2_xlsr_config": "model:wav2vec2-xls-r-300m/config.json"
+      },
+      "tensors": {
+        "v2_ar_weights": {
+          "source": "weights:",
+          "prefix": "v2_ar_weights"
+        },
+        "v2_cfm_weights": {
+          "source": "weights:",
+          "prefix": "v2_cfm_weights"
+        },
+        "v1_svc_weights": {
+          "source": "weights:",
+          "prefix": "v1_svc_weights"
+        },
+        "v1_whisper_bigvgan_weights": {
+          "source": "weights:",
+          "prefix": "v1_whisper_bigvgan_weights"
+        },
+        "v1_xlsr_hift_weights": {
+          "source": "weights:",
+          "prefix": "v1_xlsr_hift_weights"
+        },
+        "astral_bsq32_weights": {
+          "source": "weights:",
+          "prefix": "astral_bsq32_weights"
+        },
+        "astral_bsq2048_weights": {
+          "source": "weights:",
+          "prefix": "astral_bsq2048_weights"
+        },
+        "campplus_weights": {
+          "source": "weights:",
+          "prefix": "campplus_weights"
+        },
+        "rmvpe_weights": {
+          "source": "weights:",
+          "prefix": "rmvpe_weights"
+        },
+        "hift_weights": {
+          "source": "weights:",
+          "prefix": "hift_weights"
+        },
+        "bigvgan_22k_weights": {
+          "source": "weights:",
+          "prefix": "bigvgan_22k_weights"
+        },
+        "bigvgan_44k_weights": {
+          "source": "weights:",
+          "prefix": "bigvgan_44k_weights"
+        },
+        "whisper_small_weights": {
+          "source": "weights:",
+          "prefix": "whisper_small_weights"
+        },
+        "hubert_large_weights": {
+          "source": "weights:",
+          "prefix": "hubert_large_weights"
+        },
+        "wav2vec2_xlsr_weights": {
+          "source": "weights:",
+          "prefix": "wav2vec2_xlsr_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "manifest": "model:seed_vc_manifest.json",
+        "v2_wrapper_config": "model:v2/vc_wrapper.json",
+        "astral_bsq32_config": "model:astral/bsq32.json",
+        "astral_bsq2048_config": "model:astral/bsq2048.json",
+        "v1_svc_config": "model:v1/svc.json",
+        "v1_whisper_bigvgan_config": "model:v1/whisper_bigvgan.json",
+        "v1_xlsr_hift_config": "model:v1/xlsr_hift.json",
+        "hift_config": "model:hift/config.json",
+        "bigvgan_22k_config": "model:bigvgan/v2_22khz_80band_256x/config.json",
+        "bigvgan_44k_config": "model:bigvgan/v2_44khz_128band_512x/config.json",
+        "whisper_small_config": "model:whisper-small/config.json",
+        "hubert_large_config": "model:hubert-large-ll60k/config.json",
+        "wav2vec2_xlsr_config": "model:wav2vec2-xls-r-300m/config.json"
+      },
+      "tensors": {
+        "v2_ar_weights": "model:v2/ar.safetensors",
+        "v2_cfm_weights": "model:v2/cfm.safetensors",
+        "v1_svc_weights": "model:v1/svc.safetensors",
+        "v1_whisper_bigvgan_weights": "model:v1/whisper_bigvgan.safetensors",
+        "v1_xlsr_hift_weights": "model:v1/xlsr_hift.safetensors",
+        "astral_bsq32_weights": "model:astral/bsq32.safetensors",
+        "astral_bsq2048_weights": "model:astral/bsq2048.safetensors",
+        "campplus_weights": "model:campplus/model.safetensors",
+        "rmvpe_weights": "model:rmvpe/model.safetensors",
+        "hift_weights": "model:hift/model.safetensors",
+        "bigvgan_22k_weights": "model:bigvgan/v2_22khz_80band_256x/model.safetensors",
+        "bigvgan_44k_weights": "model:bigvgan/v2_44khz_128band_512x/model.safetensors",
+        "whisper_small_weights": "model:whisper-small/model.safetensors",
+        "hubert_large_weights": "model:hubert-large-ll60k/model.safetensors",
+        "wav2vec2_xlsr_weights": "model:wav2vec2-xls-r-300m/model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "seed_vc_mlx_q8_0",
+      "display_name": "SeedVC-MLX Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "SeedVC-MLX-GGUF",
+      "files": [
+        "SeedVC-MLX-GGUF/seed-vc-mlx-q8_0.gguf"
+      ],
+      "strip_prefix": "SeedVC-MLX-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3120809248,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3120809248,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3120809248,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3120809248,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3154116608,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "seed_vc_mlx_f16",
+      "display_name": "SeedVC-MLX F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "SeedVC-MLX-GGUF",
+      "files": [
+        "SeedVC-MLX-GGUF/seed-vc-mlx-f16.gguf"
+      ],
+      "strip_prefix": "SeedVC-MLX-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3629186560,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3629186560,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3629186560,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3629186560,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3623878656,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "seed_vc_mlx_orig",
+      "display_name": "SeedVC-MLX Original-Dtype GGUF",
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "SeedVC-MLX-GGUF",
+      "files": [
+        "SeedVC-MLX-GGUF/seed-vc-mlx-orig.gguf"
+      ],
+      "strip_prefix": "SeedVC-MLX-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 7003311936,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 7003311936,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 7003311936,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 7003311936,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6979321856,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "seed_vc_mlx_safetensors",
+      "display_name": "SeedVC-MLX Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "SeedVC-MLX",
+      "files": [
+        "seed_vc_manifest.json",
+        "v2/ar.safetensors",
+        "v2/cfm.safetensors",
+        "v2/vc_wrapper.json",
+        "astral/bsq32.json",
+        "astral/bsq2048.json",
+        "v1/svc.json",
+        "v1/whisper_bigvgan.json",
+        "v1/xlsr_hift.json",
+        "hift/config.json",
+        "bigvgan/v2_22khz_80band_256x/config.json",
+        "bigvgan/v2_44khz_128band_512x/config.json",
+        "whisper-small/config.json",
+        "hubert-large-ll60k/config.json",
+        "wav2vec2-xls-r-300m/config.json",
+        "v1/svc.safetensors",
+        "v1/whisper_bigvgan.safetensors",
+        "v1/xlsr_hift.safetensors",
+        "astral/bsq32.safetensors",
+        "astral/bsq2048.safetensors",
+        "campplus/model.safetensors",
+        "rmvpe/model.safetensors",
+        "hift/model.safetensors",
+        "bigvgan/v2_22khz_80band_256x/model.safetensors",
+        "bigvgan/v2_44khz_128band_512x/model.safetensors",
+        "whisper-small/model.safetensors",
+        "hubert-large-ll60k/model.safetensors",
+        "wav2vec2-xls-r-300m/model.safetensors"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "mlx-community/SeedVC-MLX"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "mlx-community/SeedVC-MLX",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6998583571,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/mlx-community/SeedVC-MLX"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "mlx-community/SeedVC-MLX",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6998583571,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "gpl-3.0",
+          "license_url": "https://huggingface.co/mlx-community/SeedVC-MLX"
+        },
+        {
+          "source": "modelscope",
+          "repo": "mlx-community/SeedVC-MLX",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 6998583571,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "gpl-3.0",
+          "license_url": "https://www.modelscope.cn/models/mlx-community/SeedVC-MLX"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6998583571,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6979321856,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Zero-shot voice conversion and singing voice conversion model for transferring timbre and style from reference audio, with low-latency realtime conversion and optional lightweight fine-tuning.",
+      "zh": "零样本音色转换与歌声转换模型，可从参考音频迁移音色与风格，支持低延迟实时转换与可选的轻量微调。"
+    },
+    "options": {
+      "route": {
+        "en": "Select the Seed-VC conversion route. Defaults to v2_vc for VC and v1_svc for SVC.",
+        "zh": "选择 Seed-VC 的转换路线。VC 默认 v2_vc，SVC 默认 v1_svc。"
+      },
+      "length_adjust": {
+        "en": "Output duration multiplier; must be positive, default 1.0.",
+        "zh": "输出时长倍率；须为正数，默认 1.0。"
+      },
+      "num_inference_steps": {
+        "en": "Diffusion steps; default 30.",
+        "zh": "扩散步数；默认 30。"
+      },
+      "inference_guidance_scale": {
+        "en": "V1 classifier-free guidance scale; default 0.7.",
+        "zh": "V1 的无分类器引导强度；默认 0.7。"
+      },
+      "intelligibility_guidance_scale": {
+        "en": "V2 classifier-free guidance scale for source-content intelligibility; default 0.7.",
+        "zh": "V2 中用于源内容清晰度的无分类器引导强度；默认 0.7。"
+      },
+      "similarity_guidance_scale": {
+        "en": "V2 classifier-free guidance scale for target-speaker similarity; default 0.7.",
+        "zh": "V2 中用于目标说话人相似度的无分类器引导强度；默认 0.7。"
+      },
+      "voice_anonymization": {
+        "en": "Use randomized average-voice conditioning instead of target-speaker conditioning for V2 anonymization; default false.",
+        "zh": "V2 匿名化时使用随机平均音色条件而非目标说话人条件；默认 false。"
+      },
+      "seed": {
+        "en": "Seed for V1/V2 diffusion noise and HiFT stochastic source excitation; omitted requests choose a random seed.",
+        "zh": "V1/V2 扩散噪声与 HiFT 随机源激励的随机种子；省略时随机。"
+      },
+      "f0_condition": {
+        "en": "Enable V1 F0 conditioning for singing voice conversion; default false.",
+        "zh": "为歌声转换启用 V1 F0 条件；默认 false。"
+      },
+      "auto_f0_adjust": {
+        "en": "Automatically adjust V1 source pitch toward the target pitch level; default false.",
+        "zh": "自动把 V1 源音高调整到目标音高水平；默认 false。"
+      },
+      "semitone_shift": {
+        "en": "V1 pitch shift in semitones for singing voice conversion; default 0.",
+        "zh": "歌声转换中 V1 的半音移调；默认 0。"
+      }
+    }
+  }
+}

@@ -1,0 +1,310 @@
+{
+  "family": "moss_tts_nano",
+  "display_name": "MOSS-TTS-Nano",
+  "description": "Compact deployment-first MOSS-TTS model for real-time multilingual speech generation, lightweight integration, and zero-shot voice cloning.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "ar",
+    "cs",
+    "da",
+    "de",
+    "el",
+    "en",
+    "es",
+    "fa",
+    "fr",
+    "hu",
+    "it",
+    "ja",
+    "ko",
+    "pl",
+    "pt",
+    "ru",
+    "sv",
+    "tr",
+    "zh"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated audio frames."
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Audio-token sampling temperature."
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Audio-token nucleus sampling limit."
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Audio-token top-k sampling limit."
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "Audio-token repetition penalty."
+      },
+      {
+        "name": "text_temperature",
+        "type": "float",
+        "description": "Text-gate sampling temperature."
+      },
+      {
+        "name": "text_top_p",
+        "type": "float",
+        "description": "Text-gate nucleus sampling limit."
+      },
+      {
+        "name": "text_top_k",
+        "type": "int",
+        "description": "Text-gate top-k sampling limit."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed; random if omitted."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "moss_tts_nano_100m_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/moss_tts.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_model": "model:tokenizer.model",
+        "audio_tokenizer_config": "model:audio_tokenizer/config.json"
+      },
+      "tensors": {
+        "model_weights": {
+          "source": "weights:",
+          "prefix": "model_weights"
+        },
+        "audio_tokenizer_weights": {
+          "source": "weights:",
+          "prefix": "audio_tokenizer_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": ".",
+        "audio_tokenizer": "audio_tokenizer"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_model": "model:tokenizer.model",
+        "audio_tokenizer_config": "audio_tokenizer:config.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors",
+        "audio_tokenizer_weights": "audio_tokenizer:model.safetensors.index.json"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "moss_tts_nano_100m_q8_0",
+      "display_name": "MOSS-TTS-Nano 100M Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "MOSS-TTS-Nano-100M-GGUF",
+      "files": [
+        "MOSS-TTS-Nano-100M-GGUF/moss-tts-nano-100m-q8_0.gguf"
+      ],
+      "strip_prefix": "MOSS-TTS-Nano-100M-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 193337984,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 193337984,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 193337984,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 193337984,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 201326592,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "moss_tts_nano_100m_bf16",
+      "display_name": "MOSS-TTS-Nano 100M BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "MOSS-TTS-Nano-100M-GGUF",
+      "files": [
+        "MOSS-TTS-Nano-100M-GGUF/moss-tts-nano-100m-bf16.gguf"
+      ],
+      "strip_prefix": "MOSS-TTS-Nano-100M-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 332423040,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 332423040,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 332423040,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 332423040,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 335544320,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Compact deployment-first MOSS-TTS model for real-time multilingual speech generation, lightweight integration, and zero-shot voice cloning.",
+      "zh": "紧凑、部署优先的 MOSS-TTS 模型，面向实时多语言语音生成、轻量集成与零样本音色克隆。"
+    },
+    "options": {
+      "max_tokens": {
+        "en": "Maximum generated audio frames.",
+        "zh": "最多生成的音频帧数。"
+      },
+      "temperature": {
+        "en": "Audio-token sampling temperature.",
+        "zh": "音频 token 采样温度。"
+      },
+      "top_p": {
+        "en": "Audio-token nucleus sampling limit.",
+        "zh": "音频 token 核采样上限。"
+      },
+      "top_k": {
+        "en": "Audio-token top-k sampling limit.",
+        "zh": "音频 token 的 top-k 采样上限。"
+      },
+      "repetition_penalty": {
+        "en": "Audio-token repetition penalty.",
+        "zh": "音频 token 重复惩罚。"
+      },
+      "text_temperature": {
+        "en": "Text-gate sampling temperature.",
+        "zh": "文本门控采样温度。"
+      },
+      "text_top_p": {
+        "en": "Text-gate nucleus sampling limit.",
+        "zh": "文本门控核采样上限。"
+      },
+      "text_top_k": {
+        "en": "Text-gate top-k sampling limit.",
+        "zh": "文本门控 top-k 采样上限。"
+      },
+      "seed": {
+        "en": "Sampling seed; random if omitted.",
+        "zh": "采样随机种子；省略时随机。"
+      }
+    }
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "family": "inflect_v2",
+  "display_name": "Inflect Micro v2",
+  "description": "Compact English VITS text-to-speech models with a native GGML inference path and an external eSpeak-ng phonemizer.",
+  "category": "tts",
+  "status": "community",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "speaking_rate",
+        "type": "float",
+        "description": "Speech speed multiplier mapped directly to Inflect speed; default 1.0.",
+        "required": false,
+        "min": 0.5,
+        "max": 2.0,
+        "default": 1.0
+      },
+      {
+        "name": "variation",
+        "type": "float",
+        "description": "Latent Gaussian variation; default 0.667.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 0.667
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Non-negative latent noise seed; default 0.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "espeak_library_path",
+        "type": "path",
+        "description": "Optional explicit path to the eSpeak-ng shared library.",
+        "required": false
+      },
+      {
+        "name": "espeak_data_path",
+        "type": "path",
+        "description": "Optional explicit path to the directory containing espeak-ng-data.",
+        "required": false
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "inflect_micro_v2_orig",
+    "tags": [
+      "TTS",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/community_models/inflect_v2.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "inflect_micro_v2_orig",
+      "display_name": "Inflect Micro v2 Original-Dtype GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Inflect-Micro-v2-GGUF",
+      "files": [
+        "Inflect-Micro-v2-GGUF/inflect-micro-v2-orig.gguf"
+      ],
+      "strip_prefix": "Inflect-Micro-v2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 72082176,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 72082176,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 72082176,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 72082176,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 402653184,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Compact English VITS text-to-speech models with a native GGML inference path and an external eSpeak-ng phonemizer.",
+      "zh": "紧凑型英语 VITS 文本转语音模型，采用原生 GGML 推理路径与外部 eSpeak-ng 音素器。"
+    },
+    "options": {
+      "speaking_rate": {
+        "en": "Speech speed multiplier mapped directly to Inflect speed; default 1.0.",
+        "zh": "直接映射到 Inflect speed 的语速倍率；默认 1.0。"
+      },
+      "variation": {
+        "en": "Latent Gaussian variation; default 0.667.",
+        "zh": "隐变量高斯变化量；默认 0.667。"
+      },
+      "seed": {
+        "en": "Non-negative latent noise seed; default 0.",
+        "zh": "非负隐变量噪声种子；默认 0。"
+      }
+    }
+  }
+}

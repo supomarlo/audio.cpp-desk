@@ -1,0 +1,257 @@
+{
+  "family": "higgs_audio_tts",
+  "display_name": "Higgs Audio v3 TTS",
+  "description": "Boson AI conversational TTS model for expressive speech across 100+ languages, zero-shot voice cloning, and inline control over emotion, style, prosody, pauses, and sound effects.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "100+ languages"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated AR tokens; default 2048, 0 uses the default."
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "AR sampling temperature.",
+        "default": 0.8
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "AR top-k sampling limit."
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "AR nucleus sampling probability."
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "Accepted for Python API compatibility; Higgs audio sampling does not consume it."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Torch RNG seed."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "higgs_audio_tts_4b_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/higgs_audio_tts.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "chat_template": "model:chat_template.jinja"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "chat_template": "model:chat_template.jinja"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors.index.json"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "higgs_audio_tts_4b_q8_0",
+      "display_name": "Higgs Audio v3 TTS 4B Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Higgs-Audio-v3-TTS-4B-GGUF",
+      "files": [
+        "Higgs-Audio-v3-TTS-4B-GGUF/higgs-audio-v3-tts-4b-q8_0.gguf"
+      ],
+      "strip_prefix": "Higgs-Audio-v3-TTS-4B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5095354048,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5095354048,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 5095354048,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 5095354048,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6308233216,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    },
+    {
+      "id": "higgs_audio_tts_4b_bf16",
+      "display_name": "Higgs Audio v3 TTS 4B BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "Higgs-Audio-v3-TTS-4B-GGUF",
+      "files": [
+        "Higgs-Audio-v3-TTS-4B-GGUF/higgs-audio-v3-tts-4b-bf16.gguf"
+      ],
+      "strip_prefix": "Higgs-Audio-v3-TTS-4B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 8501587648,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 8501587648,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 8501587648,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 8501587648,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 9797894144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Boson AI conversational TTS model for expressive speech across 100+ languages, zero-shot voice cloning, and inline control over emotion, style, prosody, pauses, and sound effects.",
+      "zh": "Boson AI 对话式 TTS 模型，覆盖 100+ 语言的富有表现力语音、零样本音色克隆，以及情绪、风格、韵律、停顿与音效的行内控制。"
+    },
+    "options": {
+      "max_tokens": {
+        "en": "Maximum generated AR tokens; default 2048, 0 uses the default.",
+        "zh": "最多生成的自回归 token 数；默认 2048，0 表示使用默认值。"
+      },
+      "temperature": {
+        "en": "AR sampling temperature.",
+        "zh": "自回归采样温度。"
+      },
+      "top_k": {
+        "en": "AR top-k sampling limit.",
+        "zh": "自回归 top-k 采样上限。"
+      },
+      "top_p": {
+        "en": "AR nucleus sampling probability.",
+        "zh": "自回归核采样概率。"
+      },
+      "repetition_penalty": {
+        "en": "Accepted for Python API compatibility; Higgs audio sampling does not consume it.",
+        "zh": "为兼容 Python API 而接受；Higgs 音频采样并不使用它。"
+      },
+      "seed": {
+        "en": "Torch RNG seed.",
+        "zh": "Torch RNG 随机种子。"
+      }
+    }
+  }
+}

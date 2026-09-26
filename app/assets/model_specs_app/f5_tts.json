@@ -1,0 +1,615 @@
+{
+  "schema_version": 1,
+  "family": "f5_tts",
+  "display_name": "F5-TTS",
+  "description": "Community F5-TTS flow-matching diffusion transformer for zero-shot voice cloning, including Arabic via the Habibi-TTS finetune (SWivid). Text conv conditioner, RoPE DiT, CFM sampler, Vocos vocoder.",
+  "category": "tts",
+  "status": "community",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en",
+    "ar"
+  ],
+  "runtime": {
+    "tags": [
+      "server"
+    ]
+  },
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "reference_text",
+        "type": "string",
+        "description": "Transcript matching the reference voice audio; required by F5-TTS zero-shot cloning.",
+        "required": true
+      },
+      {
+        "name": "dialect",
+        "type": "string",
+        "description": "Habibi dialect token: UNK MSA SAU UAE ALG IRQ EGY MAR OMN TUN LEV SDN LBY; default UNK.",
+        "required": false,
+        "default": "UNK"
+      },
+      {
+        "name": "cfg_strength",
+        "type": "float",
+        "description": "Classifier-free guidance strength; default 2.0.",
+        "required": false,
+        "min": 0.0,
+        "max": 10.0,
+        "default": 2.0
+      },
+      {
+        "name": "speed",
+        "type": "float",
+        "description": "Speech speed multiplier applied via the F5 fix_duration parameter; default 1.0.",
+        "required": false,
+        "min": 0.5,
+        "max": 2.0,
+        "default": 1.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Non-negative noise seed; default 0.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "CFM Euler steps (NFE); default 32.",
+        "required": false,
+        "min": 1,
+        "default": 32
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance strength; default 2.0.",
+        "required": false,
+        "min": 0.0,
+        "max": 10.0,
+        "default": 2.0
+      },
+      {
+        "name": "strip_diacritics",
+        "type": "bool",
+        "description": "Strip Arabic combining marks (harakat/tanwin/shadda/tatweel) before synthesis; Habibi is trained on undiacritized ASR transcripts and garbles diacritized input. Default true.",
+        "required": false,
+        "default": true
+      }
+    ],
+    "session": [
+      {
+        "name": "vocos_path",
+        "type": "string",
+        "description": "Path to the Vocos vocoder checkpoint (vocos.safetensors); required unless placed next to the DiT checkpoint.",
+        "required": false
+      },
+      {
+        "name": "dialect",
+        "type": "string",
+        "description": "Default Habibi dialect token for requests that do not set it; default UNK.",
+        "required": false,
+        "default": "UNK"
+      },
+      {
+        "name": "frame_budget",
+        "type": "int",
+        "description": "Total mel frames per CFM pass (ref + generated); larger budgets allow sentence-scale chunks at higher VRAM. 0 = default 2048.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "trklou/audio.cpp",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "habibi_unified",
+    "tags": [
+      "TTS",
+      "Clone"
+    ],
+    "docs": [
+      "docs/community_models/f5_tts.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "vocab": "model:vocab.txt"
+      },
+      "tensors": {
+        "transformer": {
+          "source": "weights:",
+          "prefix": "transformer"
+        }
+      },
+      "optional_tensors": {
+        "vocos_vocoder": {
+          "source": "weights:",
+          "prefix": "vocos"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "vocab": "model:vocab.txt"
+      },
+      "tensors": {
+        "transformer": {
+          "source": "model:model_200000.safetensors",
+          "prefix": "ema_model.transformer"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "habibi_unified",
+      "display_name": "Habibi-TTS Unified (Arabic, multi-dialect)",
+      "description": "Unified multi-dialect Arabic checkpoint from SWivid/Habibi-TTS, converted to GGUF (DiT transformer + Vocos vocoder namespaces, f32).",
+      "default": true,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Habibi-TTS/Unified",
+      "files": [
+        "habibi-unified/habibi-unified-orig.gguf",
+        "habibi-unified/vocab.txt"
+      ],
+      "strip_prefix": "habibi-unified",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1403201712,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1403201712,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1403201712,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "vocos_mel_24khz",
+      "display_name": "Vocos mel 24kHz vocoder (GGUF)",
+      "description": "Standalone Vocos vocoder GGUF for use with the original safetensors checkpoints.",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "vocos-mel-24khz",
+      "files": [
+        "vocos-mel-24khz/vocos-mel-24khz-orig.gguf"
+      ],
+      "strip_prefix": "vocos-mel-24khz",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 54351520,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 54351520,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 54351520,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 54525952,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "habibi_alg",
+      "display_name": "Habibi-TTS ALG specialized checkpoint (GGUF)",
+      "description": "Single-dialect ALG checkpoint from SWivid/Habibi-TTS, converted to GGUF (DiT transformer + Vocos vocoder namespaces, f32). Stronger ALG accent than the unified model.",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Habibi-TTS/Specialized/ALG",
+      "files": [
+        "habibi-alg/habibi-alg-orig.gguf",
+        "habibi-alg/vocab.txt"
+      ],
+      "strip_prefix": "habibi-alg",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1403138544,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1403138544,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1403138544,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "habibi_egy",
+      "display_name": "Habibi-TTS EGY specialized checkpoint (GGUF)",
+      "description": "Single-dialect EGY checkpoint from SWivid/Habibi-TTS, converted to GGUF (DiT transformer + Vocos vocoder namespaces, f32). Stronger EGY accent than the unified model.",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Habibi-TTS/Specialized/EGY",
+      "files": [
+        "habibi-egy/habibi-egy-orig.gguf",
+        "habibi-egy/vocab.txt"
+      ],
+      "strip_prefix": "habibi-egy",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1403243375,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1403243375,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1403243375,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "habibi_irq",
+      "display_name": "Habibi-TTS IRQ specialized checkpoint (GGUF)",
+      "description": "Single-dialect IRQ checkpoint from SWivid/Habibi-TTS, converted to GGUF (DiT transformer + Vocos vocoder namespaces, f32). Stronger IRQ accent than the unified model.",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Habibi-TTS/Specialized/IRQ",
+      "files": [
+        "habibi-irq/habibi-irq-orig.gguf",
+        "habibi-irq/vocab.txt"
+      ],
+      "strip_prefix": "habibi-irq",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1403162613,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1403162613,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1403162613,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "habibi_mar",
+      "display_name": "Habibi-TTS MAR specialized checkpoint (GGUF)",
+      "description": "Single-dialect MAR checkpoint from SWivid/Habibi-TTS, converted to GGUF (DiT transformer + Vocos vocoder namespaces, f32). Stronger MAR accent than the unified model.",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Habibi-TTS/Specialized/MAR",
+      "files": [
+        "habibi-mar/habibi-mar-orig.gguf",
+        "habibi-mar/vocab.txt"
+      ],
+      "strip_prefix": "habibi-mar",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1403152933,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1403152933,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1403152933,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "habibi_msa",
+      "display_name": "Habibi-TTS MSA specialized checkpoint (GGUF)",
+      "description": "Single-dialect MSA checkpoint from SWivid/Habibi-TTS, converted to GGUF (DiT transformer + Vocos vocoder namespaces, f32). Stronger MSA accent than the unified model.",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Habibi-TTS/Specialized/MSA",
+      "files": [
+        "habibi-msa/habibi-msa-orig.gguf",
+        "habibi-msa/vocab.txt"
+      ],
+      "strip_prefix": "habibi-msa",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1403070770,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1403070770,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1403070770,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "habibi_sau",
+      "display_name": "Habibi-TTS SAU specialized checkpoint (GGUF)",
+      "description": "Single-dialect SAU checkpoint from SWivid/Habibi-TTS, converted to GGUF (DiT transformer + Vocos vocoder namespaces, f32). Stronger SAU accent than the unified model.",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Habibi-TTS/Specialized/SAU",
+      "files": [
+        "habibi-sau/habibi-sau-orig.gguf",
+        "habibi-sau/vocab.txt"
+      ],
+      "strip_prefix": "habibi-sau",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1403148831,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1403148831,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1403148831,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "habibi_uae",
+      "display_name": "Habibi-TTS UAE specialized checkpoint (GGUF)",
+      "description": "Single-dialect UAE checkpoint from SWivid/Habibi-TTS, converted to GGUF (DiT transformer + Vocos vocoder namespaces, f32). Stronger UAE accent than the unified model.",
+      "default": false,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Habibi-TTS/Specialized/UAE",
+      "files": [
+        "habibi-uae/habibi-uae-orig.gguf",
+        "habibi-uae/vocab.txt"
+      ],
+      "strip_prefix": "habibi-uae",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1403159087,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "trklou/audio.cpp",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1403159087,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/trklou/audio.cpp"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1403159087,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Community F5-TTS flow-matching diffusion transformer for zero-shot voice cloning, including Arabic via the Habibi-TTS finetune (SWivid). Text conv conditioner, RoPE DiT, CFM sampler, Vocos vocoder.",
+      "zh": "社区 F5-TTS 流匹配扩散 Transformer，用于零样本音色克隆，含 Habibi-TTS 微调带来的阿拉伯语支持（SWivid）。文本卷积条件器、RoPE DiT、CFM 采样器、Vocos 声码器。"
+    },
+    "options": {
+      "reference_text": {
+        "en": "Transcript matching the reference voice audio; required by F5-TTS zero-shot cloning.",
+        "zh": "与参考语音音频对应的文本；F5-TTS 零样本克隆必填。"
+      },
+      "dialect": {
+        "en": "Habibi dialect token: UNK MSA SAU UAE ALG IRQ EGY MAR OMN TUN LEV SDN LBY; default UNK.",
+        "zh": "Habibi 方言标记：UNK MSA SAU UAE ALG IRQ EGY MAR OMN TUN LEV SDN LBY；默认 UNK。"
+      },
+      "cfg_strength": {
+        "en": "Classifier-free guidance strength; default 2.0.",
+        "zh": "无分类器引导强度；默认 2.0。"
+      },
+      "speed": {
+        "en": "Speech speed multiplier applied via the F5 fix_duration parameter; default 1.0.",
+        "zh": "通过 F5 的 fix_duration 参数施加的语速倍率；默认 1.0。"
+      },
+      "seed": {
+        "en": "Non-negative noise seed; default 0.",
+        "zh": "非负噪声随机种子；默认 0。"
+      },
+      "num_inference_steps": {
+        "en": "CFM Euler steps (NFE); default 32.",
+        "zh": "CFM Euler 步数（NFE）；默认 32。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance strength; default 2.0.",
+        "zh": "无分类器引导强度；默认 2.0。"
+      },
+      "strip_diacritics": {
+        "en": "Strip Arabic combining marks (harakat/tanwin/shadda/tatweel) before synthesis; Habibi is trained on undiacritized ASR transcripts and garbles diacritized input. Default true.",
+        "zh": "合成前去除阿拉伯语的组合符号（harakat/tanwin/shadda/tatweel）；Habibi 基于无附加符号的 ASR 转写训练，带有附加符号的输入会被读错。默认 true。"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "pocket_tts": {
+    "reference": "optional",
+    "referenceText": "hidden",
+    "voiceId": {
+      "values": ["alba","giovanni","lola","juergen","rafael","estelle","anna","azelma","bill_boerst","caro_davy","charles","cosette","eponine","eve","fantine","george","jane","jean","javert","marius","mary","michael","paul","peter_yearsley","stuart_bell","vera"],
+      "default": "alba",
+      "voiceLanguage": {"alba":"en","giovanni":"it","lola":"es","juergen":"de","rafael":"pt","estelle":"fr","anna":"en","azelma":"en","bill_boerst":"en","caro_davy":"en","charles":"en","cosette":"en","eponine":"en","eve":"en","fantine":"en","george":"en","jane":"en","jean":"en","javert":"en","marius":"en","mary":"en","michael":"en","paul":"en","peter_yearsley":"en","stuart_bell":"en","vera":"en"}
+    },
+    "instruction": "hidden",
+    "language": "hidden",
+    "source": "上游 kyutai/pocket-tts 模型卡（魔搭）",
+    "note": "语言是加载选项（--load-option language=english）"
+  }
+}

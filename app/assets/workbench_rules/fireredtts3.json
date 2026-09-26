@@ -1,0 +1,4 @@
+{
+  "fireredtts3": { "reference": "optional", "referenceText": "optional", "instruction": "optional", "instructionKey": "instruction", "language": "optional", "languageDefault": "Chinese", "source": "docs/models/fireredtts3.md" },
+  "fireredtts3_base": { "reference": "required", "referenceText": "optional", "instruction": "hidden", "language": "optional", "languageDefault": "Chinese", "source": "docs/models/fireredtts3.md" }
+}

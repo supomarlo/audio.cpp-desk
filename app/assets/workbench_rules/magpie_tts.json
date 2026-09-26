@@ -1,0 +1,3 @@
+{
+  "magpie_tts": {"reference":"hidden","referenceText":"hidden","voiceId":{"values":["Aria","Jason","John","Leo","Sofia"],"default":"Aria","option":"voice_id"},"instruction":"hidden","language":"optional","languageDefault":"en","source":"docs/models/magpie_tts.md"}
+}

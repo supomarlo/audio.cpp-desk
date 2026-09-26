@@ -1,0 +1,3 @@
+{
+  "neutts": {"reference":"hidden","referenceText":"hidden","voiceId":{"values":["dave","emily","greta","jo","juliette","mateo","paul","sophie","steven"],"default":"emily"},"instruction":"optional","instructionKey":"emotion","instructionType":"enum","instructionValues":["angry","disgusted","sad","happy","fearful","neutral","surprised"],"language":"hidden","source":"docs/models/neutts.md"}
+}

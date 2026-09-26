@@ -1,0 +1,19 @@
+# runtime / user data
+/test-run/
+/data/
+/models/
+/audio.cpp/
+/dist/
+
+# downloaded binary archives
+/audio-v0.8.1-bin-windows-x64-vulkan/
+
+# source font files
+/fonts/
+
+# local editor config
+.vscode/
+
+# OS
+Thumbs.db
+Desktop.ini

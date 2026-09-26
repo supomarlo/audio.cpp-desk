@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "family": "mms_forced_aligner",
+  "display_name": "Meta MMS-300M Forced Aligner",
+  "description": "Meta MMS-300M multilingual CTC forced aligner (Wav2Vec2ForCTC) that aligns an exact transcript to mono/stereo audio and returns word timestamps. The checkpoint covers 1,130 languages, but this port's native text normalization supports Dutch (nl/nld) and English (en/eng) Latin script only; text_normalization=pre_romanized accepts caller-supplied ASCII romanization, and unsupported non-Latin input is rejected. Checkpoint license: CC-BY-NC-4.0; GGUF conversion is local-only, no public redistribution is approved.",
+  "category": "speech_analysis",
+  "status": "community",
+  "tasks": [
+    "align"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "multilingual"
+  ],
+  "capabilities": {
+    "align": [
+      "word_timestamps"
+    ]
+  },
+  "dependencies": [],
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Transcript language; accepts nl/nld and en/eng, canonicalized internally to ISO 639-3 (nld/eng). Required for alignment.",
+        "required": true
+      },
+      {
+        "name": "text_normalization",
+        "type": "enum",
+        "description": "Transcript normalization mode; latin handles Dutch/English Latin script natively, pre_romanized trusts caller-supplied ASCII romanization.",
+        "values": [
+          "latin",
+          "pre_romanized"
+        ],
+        "required": false,
+        "default": "latin"
+      },
+      {
+        "name": "return_timestamps",
+        "type": "bool",
+        "description": "Request word timestamps in the result; set automatically by --words-out.",
+        "required": false,
+        "default": true
+      }
+    ],
+    "session": [
+      {
+        "name": "emission_window_sec",
+        "type": "float",
+        "description": "Center emission window length in seconds used to split long waveforms; default 30.",
+        "required": false,
+        "min": 0.02,
+        "default": 30.0
+      },
+      {
+        "name": "emission_context_sec",
+        "type": "float",
+        "description": "Left/right context appended to each emission window in seconds; must be below emission_window_sec; default 2.",
+        "required": false,
+        "min": 0.0,
+        "default": 2.0
+      },
+      {
+        "name": "max_alignment_cells",
+        "type": "int",
+        "description": "Hard cap on CTC DP cells (frames x states) allocated per request; alignment fails before allocation when exceeded; default 50000000.",
+        "required": false,
+        "min": 1,
+        "default": 50000000
+      },
+      {
+        "name": "max_target_tokens",
+        "type": "int",
+        "description": "Hard cap on flattened CTC target tokens per request; default 8192.",
+        "required": false,
+        "min": 1,
+        "default": 8192
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Weight storage type; default native (tensors kept as stored in the checkpoint).",
+        "preset": "weight_type_conv",
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "mms_forced_aligner_300m_f16",
+    "tags": [
+      "Align",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/community_models/mms_forced_aligner.md",
+      "docs/speech_analysis.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "unsupported",
+      "reason": "CC-BY-NC-4.0 checkpoint: convert locally with audiocpp_gguf; no public audio.cpp GGUF distribution is approved."
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "vocab": "model:vocab.json"
+      },
+      "optional_files": {
+        "special_tokens_map": "model:special_tokens_map.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "preprocessor_config": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "vocab": "model:vocab.json"
+      },
+      "optional_files": {
+        "special_tokens_map": "model:special_tokens_map.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "preprocessor_config": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "mms_forced_aligner_300m_f16",
+      "display_name": "Meta MMS-300M Forced Aligner F16 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "MMS-Forced-Aligner-GGUF",
+      "files": [
+        "MMS-Forced-Aligner-GGUF/mms-forced-aligner-f16.gguf"
+      ],
+      "strip_prefix": "MMS-Forced-Aligner-GGUF"
+    },
+    {
+      "id": "mms_forced_aligner_300m_safetensors",
+      "display_name": "Meta MMS-300M Forced Aligner Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "mms-300m-1130-forced-aligner",
+      "files": [
+        "config.json",
+        "model.safetensors",
+        "special_tokens_map.json",
+        "tokenizer_config.json",
+        "vocab.json"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "MahmoudAshraf/mms-300m-1130-forced-aligner",
+        "revision": "49402e9577b1158620820667c218cd494cc44486",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "MahmoudAshraf/mms-300m-1130-forced-aligner",
+          "revision": "49402e9577b1158620820667c218cd494cc44486",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1261933871,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/MahmoudAshraf/mms-300m-1130-forced-aligner"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "MahmoudAshraf/mms-300m-1130-forced-aligner",
+          "revision": "49402e9577b1158620820667c218cd494cc44486",
+          "available": true,
+          "size_bytes": 1261933871,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "cc-by-nc-4.0",
+          "license_url": "https://huggingface.co/MahmoudAshraf/mms-300m-1130-forced-aligner"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1261933871,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1275068416,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "mms_forced_aligner_300m_q8_0",
+      "display_name": "Meta MMS-300M Forced Aligner Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "MMS-Forced-Aligner-GGUF",
+      "files": [
+        "MMS-Forced-Aligner-GGUF/mms-forced-aligner-q8_0.gguf"
+      ],
+      "strip_prefix": "MMS-Forced-Aligner-GGUF"
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Meta MMS-300M multilingual CTC forced aligner (Wav2Vec2ForCTC) that aligns an exact transcript to mono/stereo audio and returns word timestamps. The checkpoint covers 1,130 languages, but this port's native text normalization supports Dutch (nl/nld) and English (en/eng) Latin script only; text_normalization=pre_romanized accepts caller-supplied ASCII romanization, and unsupported non-Latin input is rejected. Checkpoint license: CC-BY-NC-4.0; GGUF conversion is local-only, no public redistribution is approved.",
+      "zh": "Meta MMS-300M 多语言 CTC 强制对齐器（Wav2Vec2ForCTC），将精确文本对齐到单/双声道音频并返回词级时间戳。检查点覆盖 1130 种语言，但本移植的原生文本归一化仅支持荷兰语（nl/nld）与英语（en/eng）拉丁字母；text_normalization=pre_romanized 可接受调用方提供的 ASCII 罗马化，不支持的非拉丁输入会被拒绝。检查点许可：CC-BY-NC-4.0；GGUF 转换仅限本地，未获准公开再分发。"
+    },
+    "options": {
+      "language": {
+        "en": "Transcript language; accepts nl/nld and en/eng, canonicalized internally to ISO 639-3 (nld/eng). Required for alignment.",
+        "zh": "转写语言；接受 nl/nld 与 en/eng，内部规范化为 ISO 639-3（nld/eng）。对齐必填。"
+      },
+      "text_normalization": {
+        "en": "Transcript normalization mode; latin handles Dutch/English Latin script natively, pre_romanized trusts caller-supplied ASCII romanization.",
+        "zh": "转写归一化模式；latin 原生处理荷兰语/英语拉丁字母，pre_romanized 直接采用调用方提供的 ASCII 罗马化。"
+      },
+      "return_timestamps": {
+        "en": "Request word timestamps in the result; set automatically by --words-out.",
+        "zh": "在结果中请求词级时间戳；由 --words-out 自动设置。"
+      }
+    }
+  }
+}

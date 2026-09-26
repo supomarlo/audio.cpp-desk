@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "family": "confucius4_tts",
+  "display_name": "Confucius4-TTS",
+  "description": "Confucius4-TTS is a multilingual voice-cloning TTS model packaged for audio.cpp with offline and streaming generation. It uses reference speech, language-aware text normalization, T2S semantic generation, S2A flow matching, style encoding, semantic audio features, and BigVGAN vocoding.",
+  "category": "tts",
+  "status": "experimental",
+  "tasks": [
+    "clone"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "zh",
+    "en",
+    "ja",
+    "ko",
+    "de",
+    "fr",
+    "es",
+    "id",
+    "it",
+    "th",
+    "pt",
+    "ru",
+    "ms",
+    "vi"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "capabilities": {
+    "clone": [
+      "speaker_reference",
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Target synthesis language code used by the text frontend; default zh when no request transcript language or style language is provided.",
+        "required": false,
+        "default": "zh"
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "T2S sampling temperature; must be positive, default 0.8.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.8
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "T2S nucleus sampling probability; must be in (0, 1], default 0.8.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 0.8
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "T2S top-k sampling limit; must be positive, default 30.",
+        "required": false,
+        "min": 1,
+        "default": 30
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "T2S repetition penalty; must be positive, default 10.0.",
+        "required": false,
+        "min": 0.0,
+        "default": 10.0
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum T2S semantic sequence length including prompt tokens; default 1520.",
+        "required": false,
+        "min": 1,
+        "default": 1520
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "S2A flow-matching step count; default 25.",
+        "required": false,
+        "min": 1,
+        "default": 25
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "S2A classifier-free guidance scale; default 0.7.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.7
+      },
+      {
+        "name": "cross_fade_duration_sec",
+        "type": "float",
+        "description": "Cross-fade duration between generated segments in seconds; default 0.3.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.3
+      },
+      {
+        "name": "edge_fade_duration_sec",
+        "type": "float",
+        "description": "Fade duration applied at segment edges in seconds; default 0.1.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.1
+      },
+      {
+        "name": "edge_pad_duration_sec",
+        "type": "float",
+        "description": "Silence padding applied at segment edges in seconds; default 0.1.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.1
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Seed for T2S sampling and S2A noise initialization; default 1234.",
+        "required": false,
+        "min": 0,
+        "default": 1234
+      }
+    ],
+    "session": [
+      {
+        "name": "graph_arena_mb",
+        "type": "int",
+        "description": "Reusable ggml graph arena size in MiB for Confucius stages; default 512.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight loading context size in MiB; default 1024.",
+        "required": false,
+        "min": 1,
+        "default": 1024
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Matmul weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "conv_weight_type",
+        "type": "enum",
+        "description": "Convolution weight storage type; default native.",
+        "preset": "weight_type_conv",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "description": "Prepared reference-audio cache slots; default 1, set 0 to disable caching.",
+        "required": false,
+        "min": 0,
+        "default": 1
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release staged graphs after request phases; default false.",
+        "required": false,
+        "default": false
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "confucius4_tts_orig",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:inference_config.yaml",
+        "tokenizer_model": "model:tokenizer.model",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "special_tokens_map": "model:special_tokens_map.json",
+        "w2v_preprocessor_config": "model:w2v_preprocessor_config.json",
+        "bigvgan_config": "model:bigvgan_config.json"
+      },
+      "tensors": {
+        "t2s": {
+          "source": "weights:",
+          "prefix": "t2s"
+        },
+        "s2a": {
+          "source": "weights:",
+          "prefix": "s2a"
+        },
+        "semantic_encoder": {
+          "source": "weights:",
+          "prefix": "semantic_encoder"
+        },
+        "semantic_encoder_shaw": {
+          "source": "weights:",
+          "prefix": "semantic_encoder_shaw"
+        },
+        "semantic_stats": {
+          "source": "weights:",
+          "prefix": "semantic_stats"
+        },
+        "style_encoder": {
+          "source": "weights:",
+          "prefix": "style_encoder"
+        },
+        "vocoder": {
+          "source": "weights:",
+          "prefix": "vocoder"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:inference_config.yaml",
+        "tokenizer_model": "model:tokenizer.model",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "special_tokens_map": "model:special_tokens_map.json",
+        "w2v_preprocessor_config": "model:w2v_preprocessor_config.json",
+        "bigvgan_config": "model:bigvgan_config.json"
+      },
+      "tensors": {
+        "t2s": "model:t2s.safetensors",
+        "s2a": "model:s2a.safetensors",
+        "semantic_encoder": "model:semantic_encoder.safetensors",
+        "semantic_encoder_shaw": "model:semantic_encoder_shaw.safetensors",
+        "semantic_stats": "model:semantic_stats.safetensors",
+        "style_encoder": "model:style_encoder.safetensors",
+        "vocoder": "model:vocoder.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "confucius4_tts_orig",
+      "display_name": "Confucius4-TTS Original-Dtype GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Confucius4-TTS-GGUF",
+      "files": [
+        "Confucius4-TTS-GGUF/confucius4-tts-orig.gguf"
+      ],
+      "strip_prefix": "Confucius4-TTS-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 8192757760,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 8192757760,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 8192757760,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 8192757760,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 8187281408,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Confucius4-TTS is a multilingual voice-cloning TTS model packaged for audio.cpp with offline and streaming generation. It uses reference speech, language-aware text normalization, T2S semantic generation, S2A flow matching, style encoding, semantic audio features, and BigVGAN vocoding.",
+      "zh": "Confucius4-TTS 是面向 audio.cpp 打包的多语言音色克隆 TTS 模型，支持离线与流式生成。使用参考语音、语言感知文本归一化、T2S 语义生成、S2A 流匹配、风格编码、语义音频特征与 BigVGAN 声码。"
+    },
+    "options": {
+      "language": {
+        "en": "Target synthesis language code used by the text frontend; default zh when no request transcript language or style language is provided.",
+        "zh": "文本前端使用的目标合成语言代码；未提供转写语言或风格语言时默认 zh。"
+      },
+      "temperature": {
+        "en": "T2S sampling temperature; must be positive, default 0.8.",
+        "zh": "T2S 采样温度，须为正数，默认 0.8。"
+      },
+      "top_p": {
+        "en": "T2S nucleus sampling probability; must be in (0, 1], default 0.8.",
+        "zh": "T2S 核采样概率，取值 (0, 1]，默认 0.8。"
+      },
+      "top_k": {
+        "en": "T2S top-k sampling limit; must be positive, default 30.",
+        "zh": "T2S top-k 采样上限，须为正数，默认 30。"
+      },
+      "repetition_penalty": {
+        "en": "T2S repetition penalty; must be positive, default 10.0.",
+        "zh": "T2S 重复惩罚，须为正数，默认 10.0。"
+      },
+      "max_tokens": {
+        "en": "Maximum T2S semantic sequence length including prompt tokens; default 1520.",
+        "zh": "T2S 语义序列最大长度（含提示 token），默认 1520。"
+      },
+      "num_inference_steps": {
+        "en": "S2A flow-matching step count; default 25.",
+        "zh": "S2A 流匹配步数，默认 25。"
+      },
+      "guidance_scale": {
+        "en": "S2A classifier-free guidance scale; default 0.7.",
+        "zh": "S2A 无分类器引导强度，默认 0.7。"
+      },
+      "cross_fade_duration_sec": {
+        "en": "Cross-fade duration between generated segments in seconds; default 0.3.",
+        "zh": "生成分段之间的交叉淡入淡出时长（秒），默认 0.3。"
+      },
+      "edge_fade_duration_sec": {
+        "en": "Fade duration applied at segment edges in seconds; default 0.1.",
+        "zh": "分段边缘的淡入淡出时长（秒），默认 0.1。"
+      },
+      "edge_pad_duration_sec": {
+        "en": "Silence padding applied at segment edges in seconds; default 0.1.",
+        "zh": "分段边缘填充的静音时长（秒），默认 0.1。"
+      },
+      "seed": {
+        "en": "Seed for T2S sampling and S2A noise initialization; default 1234.",
+        "zh": "T2S 采样与 S2A 噪声初始化的随机种子，默认 1234。"
+      }
+    }
+  }
+}

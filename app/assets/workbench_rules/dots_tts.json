@@ -1,0 +1,3 @@
+{
+  "dots_tts": {"reference":"optional","referenceText":"optional","instruction":"optional","instructionKey":"instruction","language":"optional","inputs":[{"option":"source_audio","type":"audio_path","label":{"en":"Source audio","zh":"源音频"}}],"source":"docs/models/dots_tts.md"}
+}

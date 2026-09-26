@@ -1,0 +1,284 @@
+{
+  "family": "granite5asr",
+  "display_name": "Granite Speech 5.0 470M TurboCTC",
+  "description": "IBM Granite Speech 5.0 TurboCTC 470M parameter compact and ultra-fast English ASR model using a Conformer CTC architecture with block self-attention and self-conditioning.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "en"
+  ],
+  "capabilities": {
+    "asr": [
+      "vad_chunking",
+      "partial_results"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Recognition language (currently English).",
+        "required": false,
+        "default": "en"
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Audio chunking mode: auto, fixed, or none.",
+        "values": [
+          "auto",
+          "fixed",
+          "none"
+        ],
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Fixed chunk duration in seconds when not using VAD segmentation.",
+        "required": false,
+        "min": 0.001,
+        "default": 30
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Shared model weight storage type.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "encoder_graph_arena_mb",
+        "type": "int",
+        "description": "Encoder graph arena size in MB.",
+        "required": false,
+        "min": 64,
+        "default": 1024
+      },
+      {
+        "name": "vad_model_path",
+        "type": "string",
+        "description": "Path to the Silero VAD model directory used by automatic audio chunking.",
+        "required": false,
+        "default": "assets/framework/models/silero_vad"
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "server",
+      "stream",
+      "cuda",
+      "metal",
+      "cpu"
+    ]
+  },
+  "ui": {
+    "recommended_package": "granite5asr_q8_0",
+    "tags": [
+      "ASR",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/asr.md",
+      "docs/gguf.md"
+    ],
+    "summary": "IBM Granite Speech 5.0 470M TurboCTC English transcription."
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "ibm-granite/granite-speech-5.0-470m-turboctc",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "optional_files": {
+        "preprocessor_config": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "optional_files": {
+        "preprocessor_config": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "granite5asr_q8_0",
+      "display_name": "Granite Speech 5.0 470M TurboCTC Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Granite-Speech-5.0-470M-TurboCTC-GGUF",
+      "files": [
+        "Granite-Speech-5.0-470M-TurboCTC-GGUF/granite-speech-5.0-470m-turboctc-q8_0.gguf"
+      ],
+      "strip_prefix": "Granite-Speech-5.0-470M-TurboCTC-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf",
+        "revision": "main",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 504717376,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 504717376,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 504717376,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 504717376,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 536870912,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "granite5asr_safetensors",
+      "display_name": "Granite Speech 5.0 470M TurboCTC Native Safetensors",
+      "format": "safetensors",
+      "precision": "bfloat16",
+      "target_directory": "granite5asr",
+      "files": [
+        "config.json",
+        "preprocessor_config.json",
+        "tokenizer.json",
+        "model.safetensors"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "ibm-granite/granite-speech-5.0-470m-turboctc",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 947319449,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/ibm-granite/granite-speech-5.0-470m-turboctc"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "ibm-granite/granite-speech-5.0-470m-turboctc",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 947319449,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/ibm-granite/granite-speech-5.0-470m-turboctc"
+        },
+        {
+          "source": "modelscope",
+          "repo": "ibm-granite/granite-speech-5.0-470m-turboctc",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 947319449,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://www.modelscope.cn/models/ibm-granite/granite-speech-5.0-470m-turboctc"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 947319449,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 939524096,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "IBM Granite Speech 5.0 TurboCTC 470M parameter compact and ultra-fast English ASR model using a Conformer CTC architecture with block self-attention and self-conditioning.",
+      "zh": "IBM Granite Speech 5.0 TurboCTC 470M 参数紧凑、超快英语 ASR 模型，采用 Conformer CTC 架构与块自注意力及自条件。"
+    },
+    "options": {
+      "language": {
+        "en": "Recognition language (currently English).",
+        "zh": "识别语言（当前为英语）。"
+      },
+      "audio_chunk_mode": {
+        "en": "Audio chunking mode: auto, fixed, or none.",
+        "zh": "音频分块模式：auto、fixed 或 none。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Fixed chunk duration in seconds when not using VAD segmentation.",
+        "zh": "未使用 VAD 分段时的固定分块时长（秒）。"
+      }
+    }
+  }
+}

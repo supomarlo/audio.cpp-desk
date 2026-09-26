@@ -1,0 +1,761 @@
+{
+  "schema_version": 1,
+  "family": "dots_tts",
+  "display_name": "DotTTS",
+  "description": "DotTTS is a multilingual zero-shot TTS, voice-cloning, and speech-editing model family packaged for audio.cpp with SOAR and MeanFlow generation, prompt-audio plus prompt-text prefill, speaker-reference conditioning, language tags, multiple synthesis templates, long-form text chunking, and true streaming audio output.",
+  "category": "tts",
+  "status": "supported",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "multilingual"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "speaker_reference",
+      "style_control",
+      "long_form"
+    ],
+    "clone": [
+      "speaker_reference",
+      "style_control",
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "reference_text",
+        "type": "string",
+        "description": "Transcript for the prompt audio. When set with reference audio, DotTTS uses prompt prefill for higher quality voice cloning.",
+        "required": false
+      },
+      {
+        "name": "reference_duration_sec",
+        "type": "float",
+        "description": "Optional prompt-audio trim duration before reference conditioning and prompt prefill.",
+        "required": false,
+        "min": 0.0
+      },
+      {
+        "name": "template_name",
+        "type": "enum",
+        "description": "DotTTS synthesis template. tts is normal text-to-speech; instruction_tts adds instruction conditioning; text_to_audio uses a sound-description template; tts_interleave uses the streaming interleave schedule; edit uses the DotTTS Edit source-audio editing schedule.",
+        "values": [
+          "tts",
+          "instruction_tts",
+          "text_to_audio",
+          "tts_interleave",
+          "edit"
+        ],
+        "required": false,
+        "default": "tts"
+      },
+      {
+        "name": "source_audio",
+        "type": "audio_path",
+        "description": "Source WAV path for DotTTS Edit. Required when template_name=edit unless audio_input is supplied by the caller.",
+        "required": false
+      },
+      {
+        "name": "instruction",
+        "type": "string",
+        "description": "Structured DotTTS Edit instruction. If omitted with template_name=edit, the request text is used as the instruction.",
+        "required": false
+      },
+      {
+        "name": "instruct",
+        "type": "string",
+        "description": "Alias for instruction for CLI compatibility.",
+        "required": false
+      },
+      {
+        "name": "source_text",
+        "type": "string",
+        "description": "Optional source transcript override for DotTTS Edit. If omitted, it is rendered from instruction tags.",
+        "required": false
+      },
+      {
+        "name": "target_text",
+        "type": "string",
+        "description": "Optional target transcript override for DotTTS Edit. If omitted, it is rendered from instruction tags.",
+        "required": false
+      },
+      {
+        "name": "use_xvector",
+        "type": "enum",
+        "description": "DotTTS Edit speaker conditioning mode. auto follows the upstream tag-based behavior; on/off force or disable source-audio speaker conditioning.",
+        "values": [
+          "auto",
+          "on",
+          "off"
+        ],
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Optional target language tag. none disables language tagging; otherwise pass a language code such as en or zh.",
+        "required": false,
+        "default": "none"
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "SOAR flow-matching inference step count; default 10.",
+        "required": false,
+        "min": 1,
+        "default": 10
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale used by SOAR flow matching. Default 1.2.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.2
+      },
+      {
+        "name": "speaker_scale",
+        "type": "float",
+        "description": "Multiplier applied to the prompt speaker embedding; default 1.5.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.5
+      },
+      {
+        "name": "sampler_mode",
+        "type": "enum",
+        "description": "SOAR ODE solver method for flow matching. Fixed-step euler is the default and parity baseline.",
+        "values": [
+          "euler",
+          "midpoint",
+          "rk4"
+        ],
+        "required": false,
+        "default": "euler"
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated audio patch count per generated segment; default 500.",
+        "required": false,
+        "min": 1,
+        "default": 500
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Seed for prompt latent sampling and flow noise initialization; default 42.",
+        "required": false,
+        "min": 0,
+        "default": 42
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Shared matmul weight storage type for DotTTS components; default native. Component-specific weight options override this value.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "speaker_encoder_weight_type",
+        "type": "enum",
+        "description": "Speaker encoder matmul weight storage type; defaults to weight_type.",
+        "preset": "weight_type_full",
+        "required": false
+      },
+      {
+        "name": "codec_weight_type",
+        "type": "enum",
+        "description": "AudioVAE vocoder matmul and recurrent weight storage type; defaults to weight_type.",
+        "preset": "weight_type_full",
+        "required": false
+      },
+      {
+        "name": "patch_encoder_weight_type",
+        "type": "enum",
+        "description": "Patch encoder transformer matmul weight storage type; defaults to weight_type.",
+        "preset": "weight_type_full",
+        "required": false
+      },
+      {
+        "name": "llm_weight_type",
+        "type": "enum",
+        "description": "Autoregressive language model matmul weight storage type; defaults to weight_type.",
+        "preset": "weight_type_full",
+        "required": false
+      },
+      {
+        "name": "flow_weight_type",
+        "type": "enum",
+        "description": "SOAR or MeanFlow DiT flow-matching matmul weight storage type; defaults to weight_type.",
+        "preset": "weight_type_full",
+        "required": false
+      },
+      {
+        "name": "codec_conv_weight_type",
+        "type": "enum",
+        "description": "Convolution weight storage type; default native.",
+        "preset": "weight_type_conv",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "description": "Prepared reference-audio cache slots; set 0 to disable reuse.",
+        "required": false,
+        "min": 0,
+        "default": 4
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Load DotTTS components by request phase and release their weights/graphs after last use while keeping reference cache slots alive.",
+        "required": false,
+        "default": false
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "dots_tts_soar_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "Stream",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "llm_config": "model:llm_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt",
+        "added_tokens": "model:added_tokens.json",
+        "special_tokens_map": "model:special_tokens_map.json"
+      },
+      "tensors": {
+        "core_weights": {
+          "source": "weights:",
+          "prefix": "core"
+        },
+        "vocoder_weights": {
+          "source": "weights:",
+          "prefix": "vocoder"
+        },
+        "speaker_encoder_weights": {
+          "source": "weights:",
+          "prefix": "speaker_encoder"
+        },
+        "latent_stats": {
+          "source": "weights:",
+          "prefix": "latent_stats"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "llm_config": "model:llm_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt",
+        "added_tokens": "model:added_tokens.json",
+        "special_tokens_map": "model:special_tokens_map.json"
+      },
+      "tensors": {
+        "core_weights": {
+          "source": "model:model.safetensors"
+        },
+        "vocoder_weights": {
+          "source": "model:vocoder.safetensors"
+        },
+        "speaker_encoder_weights": {
+          "source": "model:speaker_encoder.safetensors"
+        },
+        "latent_stats": {
+          "source": "model:latent_stats.safetensors"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "dots_tts_soar_q8_0",
+      "display_name": "DotTTS SOAR Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "DotTTS-SOAR-GGUF",
+      "files": [
+        "DotTTS-SOAR-GGUF/dots-tts-soar-q8_0.gguf"
+      ],
+      "strip_prefix": "DotTTS-SOAR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "DotTTS SOAR: the default package for multilingual TTS and voice cloning, using prompt audio with reference text.",
+          "zh": "DotTTS SOAR：默认包，支持多语言语音合成与声音克隆，配合提示音频和参考文本使用。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2962749632,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2962749632,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2962749632,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2962749632,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2952790016,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "dots_tts_soar_bf16",
+      "display_name": "DotTTS SOAR BF16 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "DotTTS-SOAR-GGUF",
+      "files": [
+        "DotTTS-SOAR-GGUF/dots-tts-soar-bf16.gguf"
+      ],
+      "strip_prefix": "DotTTS-SOAR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "DotTTS SOAR: the default package for multilingual TTS and voice cloning, using prompt audio with reference text.",
+          "zh": "DotTTS SOAR：默认包，支持多语言语音合成与声音克隆，配合提示音频和参考文本使用。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4788730464,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4788730464,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4788730464,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4788730464,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4764729344,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "dots_tts_mf_q8_0",
+      "display_name": "DotTTS MeanFlow Q8_0 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "DotTTS-MF-GGUF",
+      "files": [
+        "DotTTS-MF-GGUF/dots-tts-mf-q8_0.gguf"
+      ],
+      "strip_prefix": "DotTTS-MF-GGUF",
+      "i18n": {
+        "description": {
+          "en": "DotTTS MeanFlow (MF): same runtime and request options as SOAR, with MeanFlow generation.",
+          "zh": "DotTTS MeanFlow（MF）：运行时与请求选项同 SOAR，采用 MeanFlow 生成。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2965375840,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2965375840,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2965375840,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2965375840,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2952790016,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "dots_tts_mf_bf16",
+      "display_name": "DotTTS MeanFlow BF16 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "DotTTS-MF-GGUF",
+      "files": [
+        "DotTTS-MF-GGUF/dots-tts-mf-bf16.gguf"
+      ],
+      "strip_prefix": "DotTTS-MF-GGUF",
+      "i18n": {
+        "description": {
+          "en": "DotTTS MeanFlow (MF): same runtime and request options as SOAR, with MeanFlow generation.",
+          "zh": "DotTTS MeanFlow（MF）：运行时与请求选项同 SOAR，采用 MeanFlow 生成。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4791356672,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4791356672,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4791356672,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4791356672,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4764729344,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "dots_tts_edit_q8_0",
+      "display_name": "DotTTS Edit Q8_0 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "DotTTS-Edit-GGUF",
+      "files": [
+        "DotTTS-Edit-GGUF/dots-tts-edit-q8_0.gguf"
+      ],
+      "strip_prefix": "DotTTS-Edit-GGUF",
+      "i18n": {
+        "description": {
+          "en": "DotTTS Edit: speech editing from source audio plus a structured edit instruction (template_name=edit).",
+          "zh": "DotTTS Edit：输入源音频与结构化编辑指令（template_name=edit）进行语音编辑。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2962805408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2962805408,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2962805408,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2962805408,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2952790016,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "dots_tts_edit_bf16",
+      "display_name": "DotTTS Edit BF16 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "DotTTS-Edit-GGUF",
+      "files": [
+        "DotTTS-Edit-GGUF/dots-tts-edit-bf16.gguf"
+      ],
+      "strip_prefix": "DotTTS-Edit-GGUF",
+      "i18n": {
+        "description": {
+          "en": "DotTTS Edit: speech editing from source audio plus a structured edit instruction (template_name=edit).",
+          "zh": "DotTTS Edit：输入源音频与结构化编辑指令（template_name=edit）进行语音编辑。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4788786240,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4788786240,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4788786240,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4788786240,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4764729344,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "DotTTS is a multilingual zero-shot TTS, voice-cloning, and speech-editing model family packaged for audio.cpp with SOAR and MeanFlow generation, prompt-audio plus prompt-text prefill, speaker-reference conditioning, language tags, multiple synthesis templates, long-form text chunking, and true streaming audio output.",
+      "zh": "DotTTS 是面向 audio.cpp 打包的多语言零样本 TTS、音色克隆与语音编辑模型家族，具备 SOAR 与 MeanFlow 生成、提示音频+提示文本预填充、说话人参考条件、语言标签、多合成模板、长文本分块与真流式音频输出。"
+    },
+    "options": {
+      "reference_text": {
+        "en": "Transcript for the prompt audio. When set with reference audio, DotTTS uses prompt prefill for higher quality voice cloning.",
+        "zh": "提示音频对应的文本。与参考音频一起提供时，DotTTS 会用提示预填充，音色克隆质量更好。"
+      },
+      "reference_duration_sec": {
+        "en": "Optional prompt-audio trim duration before reference conditioning and prompt prefill.",
+        "zh": "可选的提示音频截取时长，作用在参考条件与提示预填充之前。"
+      },
+      "template_name": {
+        "en": "DotTTS synthesis template. tts is normal text-to-speech; instruction_tts adds instruction conditioning; text_to_audio uses a sound-description template; tts_interleave uses the streaming interleave schedule; edit uses the DotTTS Edit source-audio editing schedule.",
+        "zh": "DotTTS 合成模板。tts 为普通文本转语音；instruction_tts 增加指令条件；text_to_audio 使用声音描述模板；tts_interleave 使用流式交错调度；edit 使用 DotTTS Edit 的源音频编辑调度。"
+      },
+      "source_audio": {
+        "en": "Source WAV path for DotTTS Edit. Required when template_name=edit unless audio_input is supplied by the caller.",
+        "zh": "DotTTS Edit 的源 WAV 路径。template_name=edit 时必填，除非调用方提供了 audio_input。"
+      },
+      "instruction": {
+        "en": "Structured DotTTS Edit instruction. If omitted with template_name=edit, the request text is used as the instruction.",
+        "zh": "结构化的 DotTTS Edit 指令。template_name=edit 时可省略，此时以请求文本作为指令。"
+      },
+      "instruct": {
+        "en": "Alias for instruction for CLI compatibility.",
+        "zh": "为兼容 CLI 提供的 instruction 别名。"
+      },
+      "source_text": {
+        "en": "Optional source transcript override for DotTTS Edit. If omitted, it is rendered from instruction tags.",
+        "zh": "DotTTS Edit 可选的源文本覆盖。省略时由指令标签生成。"
+      },
+      "target_text": {
+        "en": "Optional target transcript override for DotTTS Edit. If omitted, it is rendered from instruction tags.",
+        "zh": "DotTTS Edit 可选的目标文本覆盖。省略时由指令标签生成。"
+      },
+      "use_xvector": {
+        "en": "DotTTS Edit speaker conditioning mode. auto follows the upstream tag-based behavior; on/off force or disable source-audio speaker conditioning.",
+        "zh": "DotTTS Edit 的说话人条件模式。auto 遵循上游的按标签行为；on/off 强制启用或关闭源音频说话人条件。"
+      },
+      "language": {
+        "en": "Optional target language tag. none disables language tagging; otherwise pass a language code such as en or zh.",
+        "zh": "可选的目标语言标签。none 表示关闭语言标记；否则传入 en、zh 等语言代码。"
+      },
+      "num_inference_steps": {
+        "en": "SOAR flow-matching inference step count; default 10.",
+        "zh": "SOAR 流匹配推理步数；默认 10。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale used by SOAR flow matching. Default 1.2.",
+        "zh": "SOAR 流匹配使用的无分类器引导强度，默认 1.2。"
+      },
+      "speaker_scale": {
+        "en": "Multiplier applied to the prompt speaker embedding; default 1.5.",
+        "zh": "作用于提示说话人嵌入的倍率；默认 1.5。"
+      },
+      "sampler_mode": {
+        "en": "SOAR ODE solver method for flow matching. Fixed-step euler is the default and parity baseline.",
+        "zh": "SOAR 流匹配的 ODE 求解方法。定步长 euler 为默认，也是对齐基线。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated audio patch count per generated segment; default 500.",
+        "zh": "每个生成分段最多生成的音频 patch 数；默认 500。"
+      },
+      "seed": {
+        "en": "Seed for prompt latent sampling and flow noise initialization; default 42.",
+        "zh": "提示隐变量采样与流噪声初始化的随机种子；默认 42。"
+      }
+    }
+  }
+}

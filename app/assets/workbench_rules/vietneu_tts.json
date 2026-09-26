@@ -1,0 +1,3 @@
+{
+  "vietneu_tts": {"reference":"optional","referenceText":"optional","instruction":"hidden","language":"hidden","inputs":[{"option":"speaker_embedding_file","type":"path","extensions":["txt"],"label":{"en":"Speaker embedding file","zh":"说话人嵌入文件"}}],"source":"docs/community_models/vietneu_tts.md"}
+}

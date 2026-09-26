@@ -1,0 +1,522 @@
+{
+  "family": "qwen3_asr",
+  "display_name": "Qwen3-ASR",
+  "description": "Qwen ASR model family for language identification and speech recognition across 30 languages, 22 Chinese dialects, and multiple English accents, with robustness for noisy, long-form, and singing audio.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "zh",
+    "en",
+    "yue",
+    "ar",
+    "de",
+    "fr",
+    "es",
+    "pt",
+    "id",
+    "it",
+    "ko",
+    "ru",
+    "th",
+    "vi",
+    "ja",
+    "tr",
+    "hi",
+    "ms",
+    "nl",
+    "sv",
+    "da",
+    "fi",
+    "pl",
+    "cs",
+    "fil",
+    "fa",
+    "el",
+    "hu",
+    "mk",
+    "ro",
+    "zh dialects"
+  ],
+  "capabilities": {
+    "asr": [
+      "word_timestamps",
+      "vad_chunking",
+      "partial_results"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Recognition language hint."
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum decode tokens."
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Audio chunking mode: auto, fixed, vad, or none.",
+        "values": [
+          "auto",
+          "fixed",
+          "vad",
+          "none"
+        ]
+      },
+      {
+        "name": "return_timestamps",
+        "type": "bool",
+        "description": "Request word timestamps in the result."
+      }
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "ui": {
+    "recommended_package": "qwen3_asr_1_7b_q8_0",
+    "tags": [
+      "ASR",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/models/qwen3.md",
+      "docs/asr.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "tokenizer_config": "model:tokenizer_config.json"
+      },
+      "optional_files": {
+        "preprocessor_config": "model:preprocessor_config.json",
+        "processor_config": "model:processor_config.json",
+        "chat_template": "model:chat_template.json",
+        "chat_template_jinja": "model:chat_template.jinja",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "tokenizer_config": "model:tokenizer_config.json"
+      },
+      "optional_files": {
+        "preprocessor_config": "model:preprocessor_config.json",
+        "processor_config": "model:processor_config.json",
+        "chat_template": "model:chat_template.json",
+        "chat_template_jinja": "model:chat_template.jinja",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "qwen3_asr_1_7b_q8_0",
+      "display_name": "Qwen3-ASR 1.7B Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Qwen3-ASR-1.7B-GGUF",
+      "files": [
+        "Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-q8_0.gguf"
+      ],
+      "strip_prefix": "Qwen3-ASR-1.7B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2473010048,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2473010048,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2473010048,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2473010048,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2483027968,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "qwen3_asr_1_7b_f16",
+      "display_name": "Qwen3-ASR 1.7B F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Qwen3-ASR-1.7B-GGUF",
+      "files": [
+        "Qwen3-ASR-1.7B-GGUF/qwen3-asr-1.7b-f16.gguf"
+      ],
+      "strip_prefix": "Qwen3-ASR-1.7B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4087653248,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4087653248,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4087653248,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4087653248,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4093640704,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "qwen3_asr_0_6b_q8_0",
+      "display_name": "Qwen3-ASR 0.6B Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Qwen3-ASR-0.6B-GGUF",
+      "files": [
+        "Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-q8_0.gguf"
+      ],
+      "strip_prefix": "Qwen3-ASR-0.6B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1151272416,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1151272416,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1151272416,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1151272416,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1140850688,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "qwen3_asr_0_6b_f16",
+      "display_name": "Qwen3-ASR 0.6B F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Qwen3-ASR-0.6B-GGUF",
+      "files": [
+        "Qwen3-ASR-0.6B-GGUF/qwen3-asr-0.6b-f16.gguf"
+      ],
+      "strip_prefix": "Qwen3-ASR-0.6B-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1880642016,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1880642016,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1880642016,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1880642016,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1879048192,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "qwen3_asr_1_7b_safetensors",
+      "display_name": "Qwen3-ASR 1.7B HF Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "Qwen3-ASR-1.7B-hf",
+      "files": [
+        "config.json",
+        "generation_config.json",
+        "model.safetensors",
+        "processor_config.json",
+        "tokenizer_config.json",
+        "tokenizer.json"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "Qwen/Qwen3-ASR-1.7B-hf"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "Qwen/Qwen3-ASR-1.7B-hf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4087626782,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B-hf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "Qwen/Qwen3-ASR-1.7B-hf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4087626782,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B-hf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "Qwen/Qwen3-ASR-1.7B-hf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4087626782,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://www.modelscope.cn/models/Qwen/Qwen3-ASR-1.7B-hf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4087626782,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4093640704,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "qwen3_asr_0_6b_safetensors",
+      "display_name": "Qwen3-ASR 0.6B Safetensors",
+      "format": "safetensors",
+      "precision": "native",
+      "target_directory": "Qwen3-ASR-0.6B",
+      "files": [
+        "config.json",
+        "generation_config.json",
+        "model.safetensors",
+        "preprocessor_config.json",
+        "tokenizer_config.json"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "Qwen/Qwen3-ASR-0.6B"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "Qwen/Qwen3-ASR-0.6B",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1876110856,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "Qwen/Qwen3-ASR-0.6B",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1876110856,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B"
+        },
+        {
+          "source": "modelscope",
+          "repo": "Qwen/Qwen3-ASR-0.6B",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1876110856,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://www.modelscope.cn/models/Qwen/Qwen3-ASR-0.6B"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1876110856,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1879048192,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Qwen ASR model family for language identification and speech recognition across 30 languages, 22 Chinese dialects, and multiple English accents, with robustness for noisy, long-form, and singing audio.",
+      "zh": "Qwen ASR 模型家族，覆盖 30 种语言、22 种中文方言与多种英语口音的语言识别与语音识别，对噪声、长音频与歌唱音频具备稳健性。"
+    },
+    "options": {
+      "language": {
+        "en": "Recognition language hint.",
+        "zh": "识别语言提示。"
+      },
+      "max_tokens": {
+        "en": "Maximum decode tokens.",
+        "zh": "最大解码 token 数。"
+      },
+      "audio_chunk_mode": {
+        "en": "Audio chunking mode: auto, fixed, vad, or none.",
+        "zh": "音频分块模式：auto、fixed、vad 或 none。"
+      },
+      "return_timestamps": {
+        "en": "Request word timestamps in the result.",
+        "zh": "在结果中请求词级时间戳。"
+      }
+    }
+  }
+}

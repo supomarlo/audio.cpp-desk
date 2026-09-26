@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "family": "dramabox",
+  "display_name": "DramaBox",
+  "description": "DramaBox is an English expressive TTS and voice-cloning model packaged for audio.cpp as a standalone GGUF bundle. It combines Gemma text conditioning, diffusion sampling, reference-audio conditioning, long-form chunking, and 48 kHz stereo output.",
+  "category": "tts",
+  "status": "experimental",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "speaker_reference",
+      "style_control",
+      "long_form"
+    ],
+    "clone": [
+      "speaker_reference",
+      "style_control",
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "target_voice",
+        "type": "audio_path",
+        "description": "Reference voice WAV path for voice cloning. If omitted, DramaBox generates from text without reference-audio conditioning.",
+        "required": false
+      },
+      {
+        "name": "negative_prompt",
+        "type": "string",
+        "description": "Negative text conditioning used when guidance_scale enables classifier-free guidance; omitted uses the built-in quality prompt.",
+        "required": false
+      },
+      {
+        "name": "duration_sec",
+        "type": "float",
+        "description": "Explicit target duration in seconds; default 0 uses the prompt-duration estimator.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.0
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Diffusion sampling step count; default comes from config.json, 30 in the current package.",
+        "required": false,
+        "min": 1,
+        "default": 30
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale; default comes from config.json, 2.5 in the current package. Values greater than 1 enable CFG.",
+        "required": false,
+        "min": 0.0,
+        "default": 2.5
+      },
+      {
+        "name": "spatio_temporal_guidance_scale",
+        "type": "float",
+        "description": "Spatio-temporal guidance scale; default comes from config.json, 1.5 in the current package. Values greater than 0 enable STG.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.5
+      },
+      {
+        "name": "duration_scale",
+        "type": "float",
+        "description": "Multiplier applied to the estimated prompt duration when duration_sec is 0; default comes from config.json, 1.1 in the current package.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.1
+      },
+      {
+        "name": "reference_duration_sec",
+        "type": "float",
+        "description": "Reference voice crop/repeat duration in seconds; default comes from config.json, 10.0 in the current package.",
+        "required": false,
+        "min": 0.0,
+        "default": 10.0
+      },
+      {
+        "name": "guidance_rescale",
+        "type": "string",
+        "description": "Guidance rescale value. The default auto mode derives a rescale value from guidance_scale; a numeric string requests an explicit value.",
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "audio_chunk_threshold_sec",
+        "type": "float",
+        "description": "Estimated duration threshold that switches a request to long-form chunking; default 45.0 seconds.",
+        "required": false,
+        "min": 0.0,
+        "default": 45.0
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Target estimated duration for each long-form chunk; default 37.0 seconds.",
+        "required": false,
+        "min": 0.0,
+        "default": 37.0
+      },
+      {
+        "name": "cross_fade_duration_sec",
+        "type": "float",
+        "description": "Equal-power cross-fade between long-form chunks in seconds; default 0.05.",
+        "required": false,
+        "min": 0.0,
+        "default": 0.05
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Torch-compatible CUDA noise seed for diffusion sampling; default 42.",
+        "required": false,
+        "min": 0,
+        "default": 42
+      }
+    ],
+    "session": [
+      {
+        "name": "perf_mode",
+        "type": "enum",
+        "description": "Attention implementation mode. Default off keeps the exact reference-query attention path; flash_attention enables the optimized path.",
+        "values": [
+          "off",
+          "flash_attention"
+        ],
+        "required": false,
+        "default": "off"
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release staged runtime graphs and weights immediately after each request phase to reduce peak and resident VRAM; default false keeps components cached for later reuse.",
+        "required": false,
+        "default": false
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "dramabox_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "audio_components_config": "model:audio_components_config.json",
+        "gemma_config": "model:gemma-3-12b-it-bnb-4bit/config.json",
+        "gemma_tokenizer_model": "model:gemma-3-12b-it-bnb-4bit/tokenizer.model",
+        "gemma_tokenizer_json": "model:gemma-3-12b-it-bnb-4bit/tokenizer.json",
+        "gemma_tokenizer_config": "model:gemma-3-12b-it-bnb-4bit/tokenizer_config.json"
+      },
+      "tensors": {
+        "dit_weights": {
+          "source": "weights:",
+          "prefix": "dit"
+        },
+        "audio_weights": {
+          "source": "weights:",
+          "prefix": "audio"
+        },
+        "gemma_weights": {
+          "source": "weights:",
+          "prefix": "gemma"
+        },
+        "silence_latent": {
+          "source": "weights:",
+          "prefix": "silence"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "dramabox_q8_0",
+      "display_name": "DramaBox Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "DramaBox-GGUF",
+      "files": [
+        "DramaBox-GGUF/dramabox-q8_0.gguf"
+      ],
+      "strip_prefix": "DramaBox-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 18942803808,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 18942803808,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 18942803808,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 18942803808,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 18924699648,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "DramaBox is an English expressive TTS and voice-cloning model packaged for audio.cpp as a standalone GGUF bundle. It combines Gemma text conditioning, diffusion sampling, reference-audio conditioning, long-form chunking, and 48 kHz stereo output.",
+      "zh": "DramaBox 是面向 audio.cpp 以独立 GGUF 包提供的英语表现力 TTS 与音色克隆模型。融合 Gemma 文本条件、扩散采样、参考音频条件、长文本分块与 48 kHz 立体声输出。"
+    },
+    "options": {
+      "target_voice": {
+        "en": "Reference voice WAV path for voice cloning. If omitted, DramaBox generates from text without reference-audio conditioning.",
+        "zh": "音色克隆用的参考 WAV 路径。省略时不带参考音频条件，直接由文本生成。"
+      },
+      "negative_prompt": {
+        "en": "Negative text conditioning used when guidance_scale enables classifier-free guidance; omitted uses the built-in quality prompt.",
+        "zh": "当 guidance_scale 启用无分类器引导时使用的负向文本条件；省略时使用内置质量提示。"
+      },
+      "duration_sec": {
+        "en": "Explicit target duration in seconds; default 0 uses the prompt-duration estimator.",
+        "zh": "显式目标时长（秒）；默认 0 表示使用提示时长估计。"
+      },
+      "num_inference_steps": {
+        "en": "Diffusion sampling step count; default comes from config.json, 30 in the current package.",
+        "zh": "扩散采样步数；默认取自 config.json，当前包为 30。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale; default comes from config.json, 2.5 in the current package. Values greater than 1 enable CFG.",
+        "zh": "无分类器引导强度；默认取自 config.json，当前包为 2.5。大于 1 时启用 CFG。"
+      },
+      "spatio_temporal_guidance_scale": {
+        "en": "Spatio-temporal guidance scale; default comes from config.json, 1.5 in the current package. Values greater than 0 enable STG.",
+        "zh": "时空引导强度；默认取自 config.json，当前包为 1.5。大于 0 时启用 STG。"
+      },
+      "duration_scale": {
+        "en": "Multiplier applied to the estimated prompt duration when duration_sec is 0; default comes from config.json, 1.1 in the current package.",
+        "zh": "duration_sec 为 0 时，作用于估计提示时长的倍率；默认取自 config.json，当前包为 1.1。"
+      },
+      "reference_duration_sec": {
+        "en": "Reference voice crop/repeat duration in seconds; default comes from config.json, 10.0 in the current package.",
+        "zh": "参考语音的裁剪/重复时长（秒）；默认取自 config.json，当前包为 10.0。"
+      },
+      "guidance_rescale": {
+        "en": "Guidance rescale value. The default auto mode derives a rescale value from guidance_scale; a numeric string requests an explicit value.",
+        "zh": "引导重缩放值。默认的 auto 模式根据 guidance_scale 推导；传入数字字符串则使用显式值。"
+      },
+      "audio_chunk_threshold_sec": {
+        "en": "Estimated duration threshold that switches a request to long-form chunking; default 45.0 seconds.",
+        "zh": "切换到长文本分块的估计时长阈值；默认 45.0 秒。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Target estimated duration for each long-form chunk; default 37.0 seconds.",
+        "zh": "每个长文本分块的目标估计时长；默认 37.0 秒。"
+      },
+      "cross_fade_duration_sec": {
+        "en": "Equal-power cross-fade between long-form chunks in seconds; default 0.05.",
+        "zh": "长文本分块间的等功率交叉淡入淡出（秒）；默认 0.05。"
+      },
+      "seed": {
+        "en": "Torch-compatible CUDA noise seed for diffusion sampling; default 42.",
+        "zh": "扩散采样用的 Torch 兼容 CUDA 噪声种子；默认 42。"
+      }
+    }
+  }
+}

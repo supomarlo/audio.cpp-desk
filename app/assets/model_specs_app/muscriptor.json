@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "family": "muscriptor",
+  "display_name": "MuScriptor",
+  "description": "MuScriptor is an audio-to-symbolic model that converts music audio into symbolic note events or MIDI files, with instrument constraints, sampling, beam search, batch chunk decoding, and streaming final-result output.",
+  "category": "audio_tools",
+  "status": "supported",
+  "tasks": [
+    "midi"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "music"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "capabilities": {},
+  "options": {
+    "request": [
+      {
+        "name": "instruments",
+        "type": "string",
+        "description": "Comma-separated instrument group names to constrain generated MIDI events; empty allows all instruments.",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "output_format",
+        "type": "enum",
+        "description": "Primary output serialization written by --out; midi writes a MIDI file, json writes generated note events. Default midi.",
+        "values": [
+          "midi",
+          "json"
+        ],
+        "required": false,
+        "default": "midi"
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated MIDI-event token count per chunk; default 2000.",
+        "required": false,
+        "min": 1,
+        "default": 2000
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Sampling temperature when do_sample=true; 0 is accepted for compatibility and behaves deterministically, default 1.0.",
+        "required": false,
+        "min": 0.0,
+        "default": 1.0
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance coefficient; 1 disables CFG, default 1.0.",
+        "required": false,
+        "default": 1.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed; default 0.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Transformer weight storage type; default native.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "perf_mode",
+        "type": "enum",
+        "description": "Decoder attention mode; flash_attention uses the CUDA fast path, off keeps the exact attention path. Default flash_attention.",
+        "values": [
+          "off",
+          "flash_attention"
+        ],
+        "required": false,
+        "default": "flash_attention"
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight context arena size in MiB; default 512.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      },
+      {
+        "name": "conditioning_graph_arena_mb",
+        "type": "int",
+        "description": "Condition graph arena size in MiB; default 128.",
+        "required": false,
+        "min": 1,
+        "default": 128
+      },
+      {
+        "name": "decoder_prefill_graph_arena_mb",
+        "type": "int",
+        "description": "Decoder prefill graph arena size in MiB; default 768.",
+        "required": false,
+        "min": 1,
+        "default": 768
+      },
+      {
+        "name": "decoder_decode_graph_arena_mb",
+        "type": "int",
+        "description": "Decoder cached-step graph arena size in MiB; default 512.",
+        "required": false,
+        "min": 1,
+        "default": 512
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "muscriptor_small_f32",
+    "tags": [
+      "Music",
+      "MIDI",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/models/muscriptor.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "muscriptor_small_f32",
+      "display_name": "MuScriptor Small F32 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "MuScriptor-Small-GGUF",
+      "files": [
+        "MuScriptor-Small-GGUF/muscriptor-small-f32.gguf"
+      ],
+      "strip_prefix": "MuScriptor-Small-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 411908672,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 411908672,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 411908672,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 411908672,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 402653184,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "MuScriptor is an audio-to-symbolic model that converts music audio into symbolic note events or MIDI files, with instrument constraints, sampling, beam search, batch chunk decoding, and streaming final-result output.",
+      "zh": "MuScriptor 是音频转符号模型，将音乐音频转换为符号音符事件或 MIDI，支持乐器约束、采样、束搜索、分批分块解码与流式最终结果输出。"
+    },
+    "options": {
+      "instruments": {
+        "en": "Comma-separated instrument group names to constrain generated MIDI events; empty allows all instruments.",
+        "zh": "用于约束生成 MIDI 事件的乐器组名称（逗号分隔）；为空则允许所有乐器。"
+      },
+      "output_format": {
+        "en": "Primary output serialization written by --out; midi writes a MIDI file, json writes generated note events. Default midi.",
+        "zh": "--out 写出的主输出格式；midi 写 MIDI 文件，json 写生成的音符事件。默认 midi。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated MIDI-event token count per chunk; default 2000.",
+        "zh": "每个分块最多生成的 MIDI 事件 token 数；默认 2000。"
+      },
+      "temperature": {
+        "en": "Sampling temperature when do_sample=true; 0 is accepted for compatibility and behaves deterministically, default 1.0.",
+        "zh": "do_sample=true 时的采样温度；为兼容性接受 0 并表现为确定性；默认 1.0。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance coefficient; 1 disables CFG, default 1.0.",
+        "zh": "无分类器引导系数；1 表示关闭 CFG，默认 1.0。"
+      },
+      "seed": {
+        "en": "Sampling seed; default 0.",
+        "zh": "采样随机种子；默认 0。"
+      }
+    }
+  }
+}

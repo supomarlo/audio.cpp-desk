@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "family": "kroko_asr",
+  "display_name": "Kroko Community ASR",
+  "description": "Native Zipformer2 RNN-T transcription for the public free Kroko Community single-language packages, with offline and stateful streaming inference, greedy and modified beam decoding, hotwords, endpoint segments, partial results, and word timestamps.",
+  "category": "asr",
+  "status": "community",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "de",
+    "en",
+    "es",
+    "fr",
+    "it",
+    "he",
+    "nl",
+    "pt",
+    "sv",
+    "tr"
+  ],
+  "capabilities": {
+    "asr": [
+      "word_timestamps",
+      "partial_results",
+      "segments"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Language code matching the selected single-language Kroko package; default auto uses the package language.",
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "hotwords",
+        "type": "string",
+        "description": "Slash- or newline-separated natural-text phrases; requires modified beam search.",
+        "required": false
+      }
+    ],
+    "session": [],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokens": "model:tokens.txt"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokens": "model:tokens.txt"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "kroko_asr_community_q8_0",
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/asr.md",
+      "docs/community_models/kroko_asr.md",
+      "docs/gguf.md"
+    ]
+  },
+  "packages": [
+    {
+      "id": "kroko_asr_community_q8_0",
+      "display_name": "Kroko Community ASR Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Kroko-ASR-GGUF",
+      "files": [
+        "Kroko-ASR-GGUF/kroko-en-community-64-l-q8_0.gguf"
+      ],
+      "strip_prefix": "Kroko-ASR-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 167756928,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 167756928,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 167756928,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 167756928,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Native Zipformer2 RNN-T transcription for the public free Kroko Community single-language packages, with offline and stateful streaming inference, greedy and modified beam decoding, hotwords, endpoint segments, partial results, and word timestamps.",
+      "zh": "为公开免费的 Kroko Community 单语言包提供的原生 Zipformer2 RNN-T 转写，支持离线与有状态流式推理、贪心与改进束解码、热词、端点分段、部分结果与词级时间戳。"
+    },
+    "options": {
+      "language": {
+        "en": "Language code matching the selected single-language Kroko package; default auto uses the package language.",
+        "zh": "与所选单语言 Kroko 包匹配的语言代码；默认 auto 使用该包的语言。"
+      },
+      "hotwords": {
+        "en": "Slash- or newline-separated natural-text phrases; requires modified beam search.",
+        "zh": "以斜杠或换行分隔的自然语言短语；需要改进型 beam 搜索。"
+      }
+    }
+  }
+}

@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "family": "piper_tts",
+  "display_name": "Piper TTS",
+  "description": "Native VITS inference for Piper text-to-speech voices using the shared eSpeak-ng frontend.",
+  "category": "tts",
+  "status": "community",
+  "tasks": [
+    "tts"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "tts": [
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "speed",
+        "type": "float",
+        "description": "Speech speed multiplier; larger values produce faster speech.",
+        "required": false,
+        "min": 0.5,
+        "max": 2.0,
+        "default": 1.0
+      },
+      {
+        "name": "variation",
+        "type": "float",
+        "description": "Acoustic latent noise scale.",
+        "required": false,
+        "min": 0.0,
+        "max": 1.0,
+        "default": 0.667
+      },
+      {
+        "name": "duration_variation",
+        "type": "float",
+        "description": "Stochastic duration noise scale.",
+        "required": false,
+        "min": 0.0,
+        "max": 2.0,
+        "default": 0.8
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Non-negative generation seed.",
+        "required": false,
+        "min": 0,
+        "default": 1234
+      }
+    ],
+    "session": [
+      {
+        "name": "espeak_library_path",
+        "type": "path",
+        "description": "Optional explicit path to the eSpeak-ng shared library.",
+        "required": false
+      },
+      {
+        "name": "espeak_data_path",
+        "type": "path",
+        "description": "Optional explicit path to espeak-ng-data.",
+        "required": false
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "piper_lessac_medium_orig",
+    "tags": [
+      "TTS",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/tts.md",
+      "docs/community_models/piper_tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "piper_lessac_medium_orig",
+      "display_name": "Piper Lessac Medium Original-Dtype GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "orig",
+      "target_directory": "Piper-TTS-GGUF",
+      "files": [
+        "Piper-TTS-GGUF/piper-en-us-lessac-medium-orig.gguf"
+      ],
+      "strip_prefix": "Piper-TTS-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 62661248,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 62661248,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 62661248,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 62914560,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Native VITS inference for Piper text-to-speech voices using the shared eSpeak-ng frontend.",
+      "zh": "面向 Piper 文本转语音音色的原生 VITS 推理，使用共享的 eSpeak-ng 前端。"
+    },
+    "options": {
+      "speed": {
+        "en": "Speech speed multiplier; larger values produce faster speech.",
+        "zh": "语速倍率；值越大语速越快。"
+      },
+      "variation": {
+        "en": "Acoustic latent noise scale.",
+        "zh": "声学隐变量噪声尺度。"
+      },
+      "duration_variation": {
+        "en": "Stochastic duration noise scale.",
+        "zh": "随机时长噪声尺度。"
+      },
+      "seed": {
+        "en": "Non-negative generation seed.",
+        "zh": "非负生成随机种子。"
+      }
+    }
+  }
+}

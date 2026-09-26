@@ -1,0 +1,132 @@
+{
+  "family": "citrinet_asr",
+  "display_name": "Citrinet ASR",
+  "description": "NVIDIA CitriNet-family end-to-end English ASR model using a convolutional CTC architecture optimized for transcribing speech segments to text.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "capabilities": {},
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "citrinet_asr_q8_0",
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/asr.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:citrinet_256_config.json",
+        "tokenizer": "model:citrinet_256_tokenizer.model"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:citrinet_256_config.json",
+        "tokenizer": "model:citrinet_256_tokenizer.model"
+      },
+      "tensors": {
+        "weights": "model:citrinet_256.safetensors"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "citrinet_asr_q8_0",
+      "display_name": "Citrinet ASR Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Citrinet-ASR-GGUF",
+      "files": [
+        "Citrinet-ASR-GGUF/citrinet-asr-q8_0.gguf"
+      ],
+      "strip_prefix": "Citrinet-ASR-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 40574432,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 40574432,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 40574432,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 40574432,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 40894464,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "NVIDIA CitriNet-family end-to-end English ASR model using a convolutional CTC architecture optimized for transcribing speech segments to text.",
+      "zh": "NVIDIA CitriNet 系列端到端英语 ASR 模型，采用卷积 CTC 架构，针对语音片段转文本优化。"
+    }
+  }
+}

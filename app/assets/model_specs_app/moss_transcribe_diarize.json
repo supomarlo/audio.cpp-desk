@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "family": "moss_transcribe_diarize",
+  "display_name": "MOSS-Transcribe-Diarize",
+  "description": "Joint transcription, speaker diarization, and timestamps across 50+ languages with a Whisper encoder and Qwen3 decoder.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "auto",
+    "50+ languages"
+  ],
+  "capabilities": {
+    "asr": [
+      "segments",
+      "speaker_turns"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "min": 1,
+        "default": 5120,
+        "required": false,
+        "description": "Maximum generated transcript tokens."
+      },
+      {
+        "name": "instruct",
+        "type": "string",
+        "required": false,
+        "description": "Transcription instruction; empty uses the upstream diarization prompt."
+      }
+    ],
+    "session": [],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "GGUF"
+    ],
+    "docs": [],
+    "recommended_package": "moss_transcribe_diarize_bf16"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "preprocessor_config": "model:preprocessor_config.json",
+        "processor_config": "model:processor_config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "moss_transcribe_diarize_bf16",
+      "display_name": "MOSS-Transcribe-Diarize GGUF BF16",
+      "default": true,
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "MOSS-Transcribe-Diarize-GGUF",
+      "files": [
+        "MOSS-Transcribe-Diarize-GGUF/moss-transcribe-diarize-bf16.gguf"
+      ],
+      "strip_prefix": "MOSS-Transcribe-Diarize-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1833018080,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1833018080,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1833018080,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1833018080,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1811939328,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "moss_transcribe_diarize_q8_0",
+      "display_name": "MOSS-Transcribe-Diarize GGUF Q8_0",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "MOSS-Transcribe-Diarize-GGUF",
+      "files": [
+        "MOSS-Transcribe-Diarize-GGUF/moss-transcribe-diarize-q8_0.gguf"
+      ],
+      "strip_prefix": "MOSS-Transcribe-Diarize-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1132110560,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1132110560,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1132110560,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1132110560,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1140850688,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "moss_transcribe_diarize_q4_k",
+      "display_name": "MOSS-Transcribe-Diarize GGUF Q4_K",
+      "format": "gguf",
+      "precision": "q4_k",
+      "target_directory": "MOSS-Transcribe-Diarize-GGUF",
+      "files": [
+        "MOSS-Transcribe-Diarize-GGUF/moss-transcribe-diarize-q4_k.gguf"
+      ],
+      "strip_prefix": "MOSS-Transcribe-Diarize-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 758293216,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 758293216,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 758293216,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 758293216,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 738197504,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Joint transcription, speaker diarization, and timestamps across 50+ languages with a Whisper encoder and Qwen3 decoder.",
+      "zh": "基于 Whisper 编码器与 Qwen3 解码器，覆盖 50+ 语言的转写、说话人日志与时间戳联合输出。"
+    },
+    "options": {
+      "max_tokens": {
+        "en": "Maximum generated transcript tokens.",
+        "zh": "最多生成的转写 token 数。"
+      },
+      "instruct": {
+        "en": "Transcription instruction; empty uses the upstream diarization prompt.",
+        "zh": "转写指令；为空时使用上游的说话人分离提示。"
+      }
+    }
+  }
+}

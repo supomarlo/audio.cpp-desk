@@ -1,0 +1,233 @@
+{
+  "family": "niagara_asr",
+  "schema_version": 1,
+  "display_name": "Niagara ASR",
+  "description": "ABR Niagara English batch ASR state-space models with attention, greedy CTC decoding, and SentencePiece tokenization.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "capabilities": {},
+  "dependencies": [],
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Recognition language; Niagara batch models are English-only.",
+        "required": false,
+        "default": "en"
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Audio chunking mode.",
+        "values": [
+          "none"
+        ],
+        "required": false,
+        "default": "none"
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Matmul weight storage type.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      },
+      {
+        "name": "graph_arena_mb",
+        "type": "int",
+        "description": "Inference graph arena size in MiB.",
+        "required": false,
+        "min": 64,
+        "default": 1024
+      },
+      {
+        "name": "weight_context_mb",
+        "type": "int",
+        "description": "Weight descriptor context size in MiB.",
+        "required": false,
+        "min": 16,
+        "default": 256
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "cpu"
+    ]
+  },
+  "ui": {
+    "recommended_package": "niagara_19m_f32",
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/asr.md",
+      "docs/gguf.md"
+    ],
+    "summary": "ABR Niagara compact English speech recognition."
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf"
+    }
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "preprocessor_config": "model:preprocessor_config.json",
+        "tokenizer_spm": "model:sentencepiece.model"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "niagara_19m_f32",
+      "display_name": "Niagara 19M Batch English F32 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "Niagara-ASR-GGUF",
+      "files": [
+        "Niagara-ASR-GGUF/niagara-19m-batch.en-f32.gguf"
+      ],
+      "strip_prefix": "Niagara-ASR-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 255372352,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 255372352,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 255372352,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 255372352,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 268435456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "niagara_38m_f32",
+      "display_name": "Niagara 38M Batch English F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "Niagara-ASR-GGUF",
+      "files": [
+        "Niagara-ASR-GGUF/niagara-38m-batch.en-f32.gguf"
+      ],
+      "strip_prefix": "Niagara-ASR-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 427067840,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 427067840,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 427067840,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 427067840,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 402653184,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "ABR Niagara English batch ASR state-space models with attention, greedy CTC decoding, and SentencePiece tokenization.",
+      "zh": "ABR Niagara 英语批量 ASR 状态空间模型，带注意力、贪心 CTC 解码与 SentencePiece 分词。"
+    },
+    "options": {
+      "language": {
+        "en": "Recognition language; Niagara batch models are English-only.",
+        "zh": "识别语言；Niagara 批处理模型仅支持英语。"
+      },
+      "audio_chunk_mode": {
+        "en": "Audio chunking mode.",
+        "zh": "音频分块模式。"
+      }
+    }
+  }
+}

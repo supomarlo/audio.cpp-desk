@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "family": "echo_tts",
+  "display_name": "Echo-TTS",
+  "description": "Echo-TTS is an English zero-shot voice-cloning TTS model packaged for audio.cpp. A 2.8B diffusion transformer generates 80-D latents in PCA space which the Fish S1-DAC decodes to 44.1 kHz audio. Generation is a fixed 29.72 s window (640 latents).",
+  "category": "tts",
+  "status": "experimental",
+  "tasks": [
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "text_guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale on the text condition.",
+        "required": false,
+        "min": 0.0,
+        "default": 3.0
+      },
+      {
+        "name": "speaker_guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale on the speaker condition.",
+        "required": false,
+        "min": 0.0,
+        "default": 8.0
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Euler sampler steps.",
+        "required": false,
+        "min": 1,
+        "default": 40
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "RNG seed for the initial latent.",
+        "required": false,
+        "default": 0
+      },
+      {
+        "name": "reference_duration_sec",
+        "type": "float",
+        "required": false,
+        "description": "Trim the speaker reference to at most this many seconds before encoding. Shorter references are cheaper and often clone better; upstream's guidance favours around 10 s. Defaults to 15 s. Values above the trained maximum of 297.1 s are clamped. Set per request, or as a session default from CLI or server config.",
+        "default": 15.0
+      },
+      {
+        "name": "max_duration_sec",
+        "type": "float",
+        "description": "Cap the generation window, in seconds (up to 29.7215 s, the trained maximum; larger values are clamped to it). Quantised down to a whole latent frame of 46.44 ms. Left unset, the window is estimated per chunk from text length and widened automatically if the utterance does not finish inside it, which is substantially cheaper for short text.",
+        "required": false,
+        "min": 0.05,
+        "max": 29.7215
+      },
+      {
+        "name": "guidance_interval",
+        "type": "int",
+        "description": "Refresh the two unconditional CFG lanes only every Nth step inside the guidance window, reusing the previous guidance correction in between. 1 reproduces upstream exactly. Worth raising to 2 at 30+ steps, where the correction is still measured 8-10 times across the guided phase (roughly 1.3x fewer denoiser evaluations); not recommended below ~20 steps, where it is already coarsely sampled and staleness shows up as degraded timbre and text adherence.",
+        "required": false,
+        "min": 1,
+        "default": 1
+      }
+    ],
+    "session": [
+      {
+        "name": "reference_duration_sec",
+        "type": "float",
+        "required": false,
+        "description": "Trim the speaker reference to at most this many seconds before encoding. Shorter references are cheaper and often clone better; upstream's guidance favours around 10 s. Defaults to 15 s. Values above the trained maximum of 297.1 s are clamped. Set per request, or as a session default from CLI or server config.",
+        "default": 15.0
+      },
+      {
+        "name": "reference_cache_slots",
+        "type": "int",
+        "required": false,
+        "description": "How many encoded speaker references to keep. Encoding is linear in reference length, so reusing a voice across requests avoids repeating it. 0 disables caching; default 4."
+      }
+    ],
+    "load": []
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "echo_tts_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": []
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "tensors": {
+        "dit_weights": {
+          "source": "weights:",
+          "prefix": "dit_weights"
+        },
+        "pca": {
+          "source": "weights:",
+          "prefix": "pca"
+        },
+        "codec_weights": {
+          "source": "weights:",
+          "prefix": "ae"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "echo_tts_q8_0",
+      "display_name": "Echo-TTS Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Echo-TTS-GGUF",
+      "files": [
+        "echo-tts-q8_0.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "dignome/Echo-TTS",
+        "revision": "919681c9906c88963352d5f96e0f732ddd3989ce",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "dignome/Echo-TTS",
+          "revision": "919681c9906c88963352d5f96e0f732ddd3989ce",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3028207456,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/dignome/Echo-TTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "dignome/Echo-TTS",
+          "revision": "919681c9906c88963352d5f96e0f732ddd3989ce",
+          "available": true,
+          "size_bytes": 3028207456,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/dignome/Echo-TTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3028207456,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 7583301632,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+      }
+    },
+    {
+      "id": "echo_tts_f16",
+      "display_name": "Echo-TTS F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Echo-TTS-GGUF",
+      "files": [
+        "echo-tts-f16.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "dignome/Echo-TTS",
+        "revision": "919681c9906c88963352d5f96e0f732ddd3989ce",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "dignome/Echo-TTS",
+          "revision": "919681c9906c88963352d5f96e0f732ddd3989ce",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5546617696,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://huggingface.co/dignome/Echo-TTS"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "dignome/Echo-TTS",
+          "revision": "919681c9906c88963352d5f96e0f732ddd3989ce",
+          "available": true,
+          "size_bytes": 5546617696,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license_url": "https://huggingface.co/dignome/Echo-TTS"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 5546617696,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 10066329600,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Echo-TTS is an English zero-shot voice-cloning TTS model packaged for audio.cpp. A 2.8B diffusion transformer generates 80-D latents in PCA space which the Fish S1-DAC decodes to 44.1 kHz audio. Generation is a fixed 29.72 s window (640 latents).",
+      "zh": "Echo-TTS 是面向 audio.cpp 打包的英语零样本音色克隆 TTS 模型。2.8B 扩散 Transformer 在 PCA 空间生成 80 维潜在，再由 Fish S1-DAC 解码为 44.1 kHz 音频。生成为固定 29.72 秒窗口（640 个潜在）。"
+    },
+    "options": {
+      "text_guidance_scale": {
+        "en": "Classifier-free guidance scale on the text condition.",
+        "zh": "文本条件上的无分类器引导强度。"
+      },
+      "speaker_guidance_scale": {
+        "en": "Classifier-free guidance scale on the speaker condition.",
+        "zh": "说话人条件上的无分类器引导强度。"
+      },
+      "num_inference_steps": {
+        "en": "Euler sampler steps.",
+        "zh": "Euler 采样步数。"
+      },
+      "seed": {
+        "en": "RNG seed for the initial latent.",
+        "zh": "初始隐变量的随机种子。"
+      },
+      "reference_duration_sec": {
+        "en": "Trim the speaker reference to at most this many seconds before encoding. Shorter references are cheaper and often clone better; upstream's guidance favours around 10 s. Defaults to 15 s. Values above the trained maximum of 297.1 s are clamped. Set per request, or as a session default from CLI or server config.",
+        "zh": "编码前把说话人参考音频裁剪到不超过该秒数。参考越短开销越小、往往克隆越好，上游建议约 10 秒；默认 15 秒。超过训练上限 297.1 秒会被截断。可按请求设置，也可通过 CLI 或服务端配置设为会话默认。"
+      },
+      "max_duration_sec": {
+        "en": "Cap the generation window, in seconds (up to 29.7215 s, the trained maximum; larger values are clamped to it). Quantised down to a whole latent frame of 46.44 ms. Left unset, the window is estimated per chunk from text length and widened automatically if the utterance does not finish inside it, which is substantially cheaper for short text.",
+        "zh": "限制生成窗口的秒数（上限 29.7215 秒，即训练最大值，更大值会被截断），并按 46.44 毫秒的整数个隐变量帧向下取整。不设置时按文本长度逐块估计窗口，若语音未在窗口内结束会自动放宽；对短文本开销明显更低。"
+      },
+      "guidance_interval": {
+        "en": "Refresh the two unconditional CFG lanes only every Nth step inside the guidance window, reusing the previous guidance correction in between. 1 reproduces upstream exactly. Worth raising to 2 at 30+ steps, where the correction is still measured 8-10 times across the guided phase (roughly 1.3x fewer denoiser evaluations); not recommended below ~20 steps, where it is already coarsely sampled and staleness shows up as degraded timbre and text adherence.",
+        "zh": "在引导窗口内每 N 步才刷新两条无条件 CFG 分支，其间复用上一次的引导修正。1 与上游完全一致。步数 30+ 时可提到 2：引导阶段仍会测得 8–10 次修正（去噪评估约减少 1.3 倍）；不建议在约 20 步以下使用——此时采样本就较粗，延迟更新会表现为音色与文本贴合度变差。"
+      }
+    }
+  }
+}

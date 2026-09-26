@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "family": "audiosr",
+  "display_name": "AudioSR",
+  "description": "AudioSR performs latent-diffusion audio super-resolution from an input waveform.",
+  "category": "audio_tools",
+  "status": "experimental",
+  "tasks": [
+    "s2s"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "auto"
+  ],
+  "runtime": {
+    "tags": [
+      "gguf",
+      "cuda"
+    ]
+  },
+  "capabilities": {
+    "s2s": [
+      "audio_enhancement"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "DDIM inference steps.",
+        "required": false,
+        "min": 1,
+        "max": 1000,
+        "default": 50
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale.",
+        "required": false,
+        "min": 0.0,
+        "max": 20.0,
+        "default": 3.5
+      },
+      {
+        "name": "ddim_eta",
+        "type": "float",
+        "description": "DDIM eta; 1.0 matches the official AudioSR default.",
+        "required": false,
+        "min": 0.0,
+        "max": 10.0,
+        "default": 1.0
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Long-audio chunk duration.",
+        "required": false,
+        "min": 0.001,
+        "max": 600.0,
+        "default": 15.0
+      },
+      {
+        "name": "audio_chunk_overlap_sec",
+        "type": "float",
+        "description": "Long-audio chunk overlap.",
+        "required": false,
+        "min": 0.0,
+        "max": 60.0,
+        "default": 2.0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed; -1 selects a random seed.",
+        "required": false,
+        "min": -1,
+        "max": 2147483647,
+        "default": 42
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "AudioSR weight storage type.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "audiosr_basic_f32",
+    "tags": [
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/audiosr.md",
+      "docs/gguf.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:"
+        },
+        "frontend": {
+          "source": "weights:",
+          "prefix": "frontend"
+        }
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "audiosr_basic_f32",
+      "display_name": "AudioSR Basic F32 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "AudioSR-GGUF",
+      "files": [
+        "AudioSR-GGUF/audiosr-basic-f32.gguf"
+      ],
+      "strip_prefix": "AudioSR-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6177855616,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 6177855616,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 6177854880,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6177855616,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6174015488,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "AudioSR performs latent-diffusion audio super-resolution from an input waveform.",
+      "zh": "AudioSR 对输入波形执行潜在扩散音频超分。"
+    },
+    "options": {
+      "num_inference_steps": {
+        "en": "DDIM inference steps.",
+        "zh": "DDIM 推理步数。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale.",
+        "zh": "无分类器引导（CFG）强度。"
+      },
+      "ddim_eta": {
+        "en": "DDIM eta; 1.0 matches the official AudioSR default.",
+        "zh": "DDIM eta；1.0 为官方 AudioSR 默认值。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Long-audio chunk duration.",
+        "zh": "长音频分块时长。"
+      },
+      "audio_chunk_overlap_sec": {
+        "en": "Long-audio chunk overlap.",
+        "zh": "长音频分块重叠量。"
+      },
+      "seed": {
+        "en": "Generation seed; -1 selects a random seed.",
+        "zh": "生成随机种子；-1 表示随机。"
+      }
+    }
+  }
+}

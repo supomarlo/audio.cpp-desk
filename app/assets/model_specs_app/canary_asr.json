@@ -1,0 +1,306 @@
+{
+  "family": "canary_asr",
+  "schema_version": 1,
+  "display_name": "Canary 180M Flash",
+  "description": "NVIDIA Canary multilingual speech recognition and speech translation.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en",
+    "de",
+    "es",
+    "fr"
+  ],
+  "capabilities": {},
+  "dependencies": [],
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Input audio language.",
+        "required": false,
+        "default": "en"
+      },
+      {
+        "name": "target_language",
+        "type": "string",
+        "description": "Output language: en, de, es, or fr. Defaults to the input language for transcription.",
+        "required": false
+      },
+      {
+        "name": "pnc",
+        "type": "bool",
+        "description": "Generate punctuation and capitalization.",
+        "required": false,
+        "default": true
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated tokens per chunk; zero uses the reference encoder-length-based limit.",
+        "required": false,
+        "min": 0,
+        "max": 1015,
+        "default": 0
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Long-form audio chunking mode.",
+        "values": [
+          "auto",
+          "fixed",
+          "none"
+        ],
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Maximum duration of each audio chunk in seconds.",
+        "required": false,
+        "min": 0.02,
+        "max": 40,
+        "default": 40
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Matmul weight storage type.",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q2_k",
+          "q3_k",
+          "q4_k",
+          "q5_k",
+          "q6_k",
+          "i8"
+        ],
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "cpu",
+      "cuda"
+    ]
+  },
+  "ui": {
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/canary_asr.md"
+    ],
+    "recommended_package": "canary_180m_flash_f32"
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "sources": [
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_spl_tokens": "model:tokenizer_spl_tokens.model",
+        "tokenizer_en": "model:tokenizer_en.model",
+        "tokenizer_de": "model:tokenizer_de.model",
+        "tokenizer_es": "model:tokenizer_es.model",
+        "tokenizer_fr": "model:tokenizer_fr.model"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    },
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_spl_tokens": "model:tokenizer_spl_tokens.model",
+        "tokenizer_en": "model:tokenizer_en.model",
+        "tokenizer_de": "model:tokenizer_de.model",
+        "tokenizer_es": "model:tokenizer_es.model",
+        "tokenizer_fr": "model:tokenizer_fr.model"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    }
+  ],
+  "packages": [
+    {
+      "id": "canary_180m_flash_f32",
+      "display_name": "Canary 180M Flash GGUF F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "Canary-180M-Flash-GGUF",
+      "files": [
+        "Canary-180M-Flash-GGUF/canary-180m-flash-f32.gguf"
+      ],
+      "strip_prefix": "Canary-180M-Flash-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 757871168,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 757871168,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 757871168,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 757871168,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 738197504,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    },
+    {
+      "id": "canary_180m_flash_q8_0",
+      "display_name": "Canary 180M Flash GGUF Q8_0",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Canary-180M-Flash-GGUF",
+      "files": [
+        "Canary-180M-Flash-GGUF/canary-180m-flash-q8_0.gguf"
+      ],
+      "strip_prefix": "Canary-180M-Flash-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 249496128,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 249496128,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 249496128,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 249496128,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 268435456,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "NVIDIA Canary multilingual speech recognition and speech translation.",
+      "zh": "NVIDIA Canary 多语言语音识别与语音翻译。"
+    },
+    "options": {
+      "language": {
+        "en": "Input audio language.",
+        "zh": "输入音频的语言。"
+      },
+      "target_language": {
+        "en": "Output language: en, de, es, or fr. Defaults to the input language for transcription.",
+        "zh": "输出语言：en、de、es 或 fr。转写时默认与输入语言一致。"
+      },
+      "pnc": {
+        "en": "Generate punctuation and capitalization.",
+        "zh": "生成标点与大写。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated tokens per chunk; zero uses the reference encoder-length-based limit.",
+        "zh": "每个分块最多生成的 token 数；为 0 时使用按参考编码长度推算的上限。"
+      },
+      "audio_chunk_mode": {
+        "en": "Long-form audio chunking mode.",
+        "zh": "长音频分块模式。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Maximum duration of each audio chunk in seconds.",
+        "zh": "每个音频分块的最大时长（秒）。"
+      }
+    }
+  }
+}
