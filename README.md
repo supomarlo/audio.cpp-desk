@@ -29,11 +29,12 @@
 
 | 模型 | 任务 |
 |---|---|
-| BreezeTTS 2 | TTS / 语音设计 / 克隆 |
+| BreezeTTS 2 | TTS / 克隆 / 语音设计 |
 | OmniVoice | TTS / 克隆 / 语音设计 |
 | Qwen3-TTS 1.7B Base | TTS / 克隆 |
-| Qwen3-TTS 1.7B CustomVoice | TTS（预置音色） |
-| Qwen3-TTS 1.7B VoiceDesign | 语音设计 |
+| Qwen3-TTS 1.7B CustomVoice | TTS / 内置音色 |
+| Qwen3-TTS 1.7B VoiceDesign | TTS / 语音设计 |
+| IndexTTS-2.5 | TTS / 克隆 / 情感控制 |
 | Qwen3-ASR 1.7B | ASR |
 
 > 其它模型走同一套通用控制台，但**尚未测试**；不同模型对指令的遵循程度不一。**欢迎反馈，也欢迎提出适配需求。**

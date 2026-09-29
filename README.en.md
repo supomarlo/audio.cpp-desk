@@ -33,11 +33,12 @@ The main features of the following models have been tested at a basic level:
 
 | Model | Task |
 |---|---|
-| BreezeTTS 2 | TTS / voice design / clone |
+| BreezeTTS 2 | TTS / clone / voice design |
 | OmniVoice | TTS / clone / voice design |
 | Qwen3-TTS 1.7B Base | TTS / clone |
-| Qwen3-TTS 1.7B CustomVoice | TTS (preset voices) |
-| Qwen3-TTS 1.7B VoiceDesign | Voice design |
+| Qwen3-TTS 1.7B CustomVoice | TTS / built-in voices |
+| Qwen3-TTS 1.7B VoiceDesign | TTS / voice design |
+| IndexTTS-2.5 | TTS / clone / emotion control |
 | Qwen3-ASR 1.7B | ASR |
 
 > Other models run through the same generic console but are not yet tested;
