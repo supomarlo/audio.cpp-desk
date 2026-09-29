@@ -4,9 +4,7 @@
 
 A session-based desktop client for [audio.cpp](https://github.com/0xShug0/audio.cpp): TTS, ASR, a model library with download management, a voice library, sessions & collections, and server control.
 
-> **Third-party client.** audio.cpp itself is **not** bundled with this
-> application — obtain it separately. All model weights are downloaded from
-> their upstream repositories; each model carries its own license.
+> This is a third-party client. It does not bundle audio.cpp and does not distribute model weights; both must be obtained separately and follow their own licenses.
 
 ## Features
 
