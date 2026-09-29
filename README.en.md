@@ -1,6 +1,6 @@
 # audio.cpp Desk
 
-English | [简体中文](README.md)
+[简体中文](README.md) | English
 
 A session-based desktop client for [audio.cpp](https://github.com/0xShug0/audio.cpp): TTS, ASR, a model library with download management, a voice library, sessions & collections, and server control.
 

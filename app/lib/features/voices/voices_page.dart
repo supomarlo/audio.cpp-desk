@@ -128,58 +128,29 @@ class VoicesPage extends ConsumerWidget {
                       ],
                     ),
                   )
-                : ListView.builder(
-                    itemCount: voices.length,
-                    itemBuilder: (context, i) {
-                      final v = voices[i];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        child: ListTile(
-                          // 固定为两行高度：无描述时标题垂直居中，与有描述行等高对齐。
-                          minTileHeight: 72,
-                          leading: CircleAvatar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primaryContainer,
-                            child: Text(
-                              firstGlyph(v.name) ?? '?',
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final cols =
+                          (constraints.maxWidth / 300).floor().clamp(1, 6);
+                      return GridView.builder(
+                        padding: EdgeInsets.zero,
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: cols,
+                          mainAxisExtent: 72,
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                        ),
+                        itemCount: voices.length,
+                        itemBuilder: (context, i) => _VoiceCard(
+                          voice: voices[i],
+                          onEdit: () => showDialog<void>(
+                            context: context,
+                            builder: (_) =>
+                                _ManageVoiceDialog(voice: voices[i]),
                           ),
-                          title: Text(v.name),
-                          subtitle: _voiceSubtitle(context, v),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                tooltip:
-                                    dict['voices.deleteTooltip'] ?? 'Delete',
-                                icon: const Icon(Icons.delete_outline),
-                                onPressed: () =>
-                                    _confirmDelete(context, ref, v),
-                              ),
-                              IconButton(
-                                tooltip: dict['voices.editTooltip'] ?? 'Edit',
-                                icon: const Icon(Icons.edit_outlined),
-                                onPressed: () {
-                                  showDialog<void>(
-                                    context: context,
-                                    builder: (_) =>
-                                        _ManageVoiceDialog(voice: v),
-                                  );
-                                },
-                              ),
-                              if ((v.audioPath ?? '').isNotEmpty)
-                                AuditionButton(
-                                  path: v.audioPath,
-                                  title: v.name,
-                                ),
-                            ],
-                          ),
+                          onDelete: () =>
+                              _confirmDelete(context, ref, voices[i]),
                         ),
                       );
                     },
@@ -219,6 +190,102 @@ Future<void> _confirmDelete(
     if (ok == true) {
       await ref.read(voiceLibraryProvider.notifier).remove(v.id);
     }
+  }
+}
+
+class _VoiceCard extends ConsumerWidget {
+  const _VoiceCard({
+    required this.voice,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final VoiceEntry voice;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dict = ref.watch(stringsProvider);
+    final v = voice;
+    final hasAudio = (v.audioPath ?? '').isNotEmpty;
+    final subtitle = _voiceSubtitle(context, v);
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onEdit,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor:
+                    Theme.of(context).colorScheme.primaryContainer,
+                child: Text(
+                  firstGlyph(v.name) ?? '?',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      v.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    if (subtitle != null) subtitle,
+                  ],
+                ),
+              ),
+              if (hasAudio)
+                AuditionButton(path: v.audioPath, title: v.name),
+              PopupMenuButton<String>(
+                tooltip: '',
+                icon: const Icon(Icons.more_vert, size: 20),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onSelected: (val) {
+                  if (val == 'edit') onEdit();
+                  if (val == 'delete') onDelete();
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Text(dict['voices.editTooltip'] ?? 'Edit'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete_outline, size: 18),
+                        const SizedBox(width: 8),
+                        Text(dict['voices.deleteTooltip'] ?? 'Delete'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

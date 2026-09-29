@@ -221,6 +221,8 @@ class ServerController extends StateNotifier<ServerSnapshot> {
       if (AppConfig.gpuBackends.contains(_config.backend))
         'device': _config.device,
       'threads': _config.threads,
+      // 单次任务超时：服务端"忙等待"上限（启动时写入；与客户端接收超时配套，客户端稍大）。
+      'busy_timeout_ms': _config.taskTimeoutSeconds * 1000,
       'lazy_load': true,
       // 限制常驻模型数：超出自动卸载，避免小显存下多模型叠加导致权重分配失败。
       'max_loaded_models': 1,
@@ -272,6 +274,11 @@ class ServerController extends StateNotifier<ServerSnapshot> {
       } else {
         _log('Server exited abnormally (code=$code)');
       }
+      _outSub?.cancel();
+      _errSub?.cancel();
+      _outSub = null;
+      _errSub = null;
+      _process = null;
       state = state.copyWith(
         lifecycle: ServerLifecycle.stopped,
         healthy: false,
@@ -366,9 +373,27 @@ class ServerController extends StateNotifier<ServerSnapshot> {
       p.kill();
       await p.exitCode.timeout(const Duration(seconds: 5));
     } catch (_) {
+      // 5s 内未退出（卡死的推理无法优雅退出）：强制终止。
+      _log('Server did not exit within 5s; force-terminating');
       try {
         p.kill(ProcessSignal.sigkill);
       } catch (_) {}
+    } finally {
+      // 不依赖 exitCode 回调：确保清理并落到 stopped，
+      // 避免状态卡在 stopping 导致无法再启动（KI-1）。
+      if (identical(_process, p)) {
+        _outSub?.cancel();
+        _errSub?.cancel();
+        _outSub = null;
+        _errSub = null;
+        _process = null;
+      }
+      if (state.lifecycle != ServerLifecycle.stopped) {
+        state = state.copyWith(
+          lifecycle: ServerLifecycle.stopped,
+          healthy: false,
+        );
+      }
     }
   }
 

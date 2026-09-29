@@ -1,10 +1,24 @@
-# Changelog
+# 更新日志
+
+## 0.1.1
+
+**新功能**
+- 设置页新增「单次任务超时」选项，可调整单次生成任务的最长处理时间。
+
+**改进**
+- 服务端启动/运行期间锁定参数，需先停止服务端才能修改，避免任务中断或频繁重启服务端导致异常。
+- 优化音色库列表的显示样式。
+- 窗口最小尺寸限制为 1280×720，避免布局被过度压缩。
+
+**修复**
+- 修复服务端「停止后无法再启动（点击无反应）」的问题，并提升反复启停的稳定性。
+- 修复首次检测到可用的 audio.cpp 服务端后，模型库未及时刷新的问题。
 
 ## 0.1.0
 
-- Initial public release.
-- Model library with multi-source downloads and variant descriptions.
-- Workbench (TTS / ASR) with per-family field rules, timer, and player.
-- Sessions and collections with metadata/audio separation.
-- Voice library, generation history, server control.
-- Bilingual UI (zh / en).
+- 首个公开发布版本。
+- 模型库：多源下载与变体说明。
+- 工作台（TTS / ASR）：按模型族的字段规则、计时器与播放器。
+- 会话与合集：元数据与音频分离。
+- 音色库、生成历史、服务端控制。
+- 中英双语界面。

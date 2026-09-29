@@ -8,12 +8,14 @@ import '../models/openai_model.dart';
 import 'app_logger.dart';
 
 class ServerClient {
-  ServerClient(String baseUrl)
-      : _dio = Dio(
+  ServerClient(
+    String baseUrl, {
+    Duration receiveTimeout = const Duration(minutes: 5),
+  }) : _dio = Dio(
           BaseOptions(
             baseUrl: baseUrl,
             connectTimeout: const Duration(seconds: 5),
-            receiveTimeout: const Duration(minutes: 5),
+            receiveTimeout: receiveTimeout,
           ),
         );
 

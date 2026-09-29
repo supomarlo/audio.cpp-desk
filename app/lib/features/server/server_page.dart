@@ -7,9 +7,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/app_config.dart';
 import '../../core/app_info.dart';
+import '../../core/app_logger.dart';
 import '../../core/gpu_probe.dart';
 import '../../models/audio_cpp_version.dart';
-import '../../models/model_spec.dart';
 import '../../models/server_snapshot.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/catalog_providers.dart';
@@ -61,53 +61,43 @@ class _ServerPageState extends ConsumerState<ServerPage> {
   }
 
   Future<void> _start() async {
-    final path = _selectedPath;
-    if (path == null) return;
-    final versions = ref.read(versionsProvider).value ?? [];
-    AudioCppVersion? version;
-    for (final v in versions) {
-      if (v.path == path) {
-        version = v;
-        break;
-      }
+    // 统一以 activeVersionProvider 解析版本（匹配 activeVersionPath，否则回退第一个），
+    // 避免 loading 空窗 / 路径口径不一致导致「点了没反应」（KI-1）。
+    final version = await ref.read(activeVersionProvider.future);
+    if (!mounted) return;
+    if (version == null) {
+      AppLogger.info('[server] start aborted: no audiocpp_server version found');
+      final dict = ref.read(stringsProvider);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(dict['server.startNoVersion'] ??
+            'No audio.cpp server version found. Check the directory or rescan.'),
+      ));
+      return;
     }
-    if (version == null) return;
+    // 回写选中路径，保持下拉与配置一致。
+    if (_selectedPath != version.path) {
+      setState(() => _selectedPath = version.path);
+    }
 
-    await _saveConfig(activeVersion: path);
+    await _saveConfig(activeVersion: version.path);
     final cfg = ref.read(appConfigProvider);
     final notifier = ref.read(serverControllerProvider.notifier);
     notifier.updateConfig(cfg);
 
-    final installed = ref
-        .read(modelLibraryProvider)
-        .entries
-        .where((e) => e.installed)
-        .toList();
-    if (installed.isEmpty) {
+    // 等待模型库首次加载完成，避免重载空窗被误判为"没有已安装模型"；
+    // 模型条目构建与工作台自动启动共用 buildServerModels，保证口径一致。
+    await ref.read(modelLibraryProvider.notifier).ready;
+    if (!mounted) return;
+    final models = buildServerModels(ref);
+    if (models.isEmpty) {
+      AppLogger.info('[server] start aborted: no installed model');
       final dict = ref.read(stringsProvider);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(dict['server.needModel'] ??
-              'Install a model from the model library first'),
-        ));
-      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(dict['server.needModel'] ??
+            'Install a model from the model library first'),
+      ));
       return;
     }
-    final specs = ref.read(specsProvider).value ?? const <ModelSpec>[];
-    final specByFamily = {for (final s in specs) s.family: s};
-    final modelsDir = cfg.modelsDir(ref.read(appPathsProvider));
-    final models = <Map<String, dynamic>>[
-      for (final e in installed)
-        {
-          'id': e.packageId,
-          'family': e.family,
-          'path': p.join(modelsDir.path, e.targetDirectory),
-          'task': (specByFamily[e.family]?.tasks.isNotEmpty ?? false)
-              ? specByFamily[e.family]!.tasks.first
-              : (e.category.isEmpty ? 'tts' : e.category),
-          'mode': 'offline',
-        },
-    ];
 
     await notifier.start(version, cfg, models: models);
   }
@@ -162,7 +152,12 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     final starting = snapshot.isStarting;
     final busy = running || starting || snapshot.lifecycle == ServerLifecycle.stopping;
     final dict = ref.watch(stringsProvider);
+    // 运行中/启动中禁止修改版本、后端、设备、线程等参数（改了对正在跑的实例不生效）。
+    final locked = running || starting;
+    final lockHint = dict['server.lockHint'] ??
+        'The server is running. Stop it first to change this.';
     final registeredBackends = ref.watch(availableBackendsProvider).value;
+    // 仅用于显示"探测后端中"指示；不用它禁用 Start（探测可能因显卡状态变慢，不应阻塞启动）。
     final capsLoading = ref.watch(availableBackendsProvider).isLoading;
     final backendOptions = AppConfig.backendOptions
         .where((b) =>
@@ -185,7 +180,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-            _buildVersionPicker(versions),
+            _buildVersionPicker(versions, locked, lockHint),
             const Divider(height: 28),
             if (capsLoading)
               Padding(
@@ -208,36 +203,47 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                   ],
                 ),
               ),
-            DropdownButtonFormField<String>(
-              initialValue: _backend,
-              decoration: _dec(dict['server.backend'] ?? 'Backend'),
-              items: [
-                for (final b in backendOptions)
-                  DropdownMenuItem(
-                    value: b,
-                    child: Text(b),
-                  ),
-              ],
-              onChanged: (v) {
-                if (v != null) {
-                  setState(() => _backend = v);
-                  _saveConfig();
-                }
-              },
+            _lockable(
+              locked,
+              lockHint,
+              DropdownButtonFormField<String>(
+                initialValue: _backend,
+                decoration: _dec(dict['server.backend'] ?? 'Backend'),
+                items: [
+                  for (final b in backendOptions)
+                    DropdownMenuItem(
+                      value: b,
+                      child: Text(b),
+                    ),
+                ],
+                onChanged: locked
+                    ? null
+                    : (v) {
+                        if (v != null) {
+                          setState(() => _backend = v);
+                          _saveConfig();
+                        }
+                      },
+              ),
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: _buildDeviceField(context),
+                  child: _buildDeviceField(context, locked, lockHint),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextField(
-                    controller: _threadsCtrl,
-                    decoration: _dec(dict['server.threads'] ?? 'Threads'),
-                    keyboardType: TextInputType.number,
-                    onSubmitted: (_) => _saveConfig(),
+                  child: _lockable(
+                    locked,
+                    lockHint,
+                    TextField(
+                      controller: _threadsCtrl,
+                      enabled: !locked,
+                      decoration: _dec(dict['server.threads'] ?? 'Threads'),
+                      keyboardType: TextInputType.number,
+                      onSubmitted: (_) => _saveConfig(),
+                    ),
                   ),
                 ),
               ],
@@ -258,9 +264,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
               children: [
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: busy || capsLoading || _selectedPath == null
-                        ? null
-                        : _start,
+                    onPressed: busy || _selectedPath == null ? null : _start,
                     icon: const Icon(Icons.play_arrow),
                     label: Text(dict['server.start'] ?? 'Start'),
                   ),
@@ -284,7 +288,11 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     );
   }
 
-  Widget _buildDeviceField(BuildContext context) {
+  /// 运行中/启动中时给参数控件套一层 Tooltip 提示（控件本身应已禁用）。
+  Widget _lockable(bool locked, String hint, Widget child) =>
+      locked ? Tooltip(message: hint, child: child) : child;
+
+  Widget _buildDeviceField(BuildContext context, bool locked, String lockHint) {
     final dict = ref.watch(stringsProvider);
     if (_backend == 'cpu') {
       return TextFormField(
@@ -322,16 +330,22 @@ class _ServerPageState extends ConsumerState<ServerPage> {
           ),
         ),
     ];
-    return DropdownButtonFormField<int>(
-      initialValue: device,
-      isExpanded: true,
-      decoration: _dec(dict['server.device'] ?? 'Device'),
-      items: items,
-      onChanged: (v) {
-        if (v == null) return;
-        setState(() => _device = v);
-        _saveConfig();
-      },
+    return _lockable(
+      locked,
+      lockHint,
+      DropdownButtonFormField<int>(
+        initialValue: device,
+        isExpanded: true,
+        decoration: _dec(dict['server.device'] ?? 'Device'),
+        items: items,
+        onChanged: locked
+            ? null
+            : (v) {
+                if (v == null) return;
+                setState(() => _device = v);
+                _saveConfig();
+              },
+      ),
     );
   }
 
@@ -355,7 +369,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     } catch (_) {}
   }
 
-  Widget _buildVersionPicker(AsyncValue<List<AudioCppVersion>> versions) {
+  Widget _buildVersionPicker(
+      AsyncValue<List<AudioCppVersion>> versions, bool locked, String lockHint) {
     final dict = ref.watch(stringsProvider);
     return versions.when(
       loading: () => const LinearProgressIndicator(),
@@ -385,7 +400,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                               dict['server.openDir'] ?? 'Open directory'),
                         ),
                         TextButton.icon(
-                          onPressed: () => ref.invalidate(versionsProvider),
+                          onPressed: () => rescanVersions(ref),
                           icon: const Icon(Icons.refresh),
                           label: Text(dict['server.rescan'] ?? 'Rescan'),
                         ),
@@ -406,23 +421,30 @@ class _ServerPageState extends ConsumerState<ServerPage> {
         final effective = list.any((v) => v.path == _selectedPath)
             ? _selectedPath
             : list.first.path;
-        return DropdownButtonFormField<String>(
-          initialValue: effective,
-          decoration: _dec(dict['server.versionDir'] ?? 'Version directory'),
-          isExpanded: true,
-          items: [
-            for (final v in list)
-              DropdownMenuItem(
-                value: v.path,
-                child: Text(p.basename(v.path), overflow: TextOverflow.ellipsis),
-              ),
-          ],
-          onChanged: (p) {
-            if (p != null) {
-              setState(() => _selectedPath = p);
-              _saveConfig(activeVersion: p);
-            }
-          },
+        return _lockable(
+          locked,
+          lockHint,
+          DropdownButtonFormField<String>(
+            initialValue: effective,
+            decoration: _dec(dict['server.versionDir'] ?? 'Version directory'),
+            isExpanded: true,
+            items: [
+              for (final v in list)
+                DropdownMenuItem(
+                  value: v.path,
+                  child:
+                      Text(p.basename(v.path), overflow: TextOverflow.ellipsis),
+                ),
+            ],
+            onChanged: locked
+                ? null
+                : (p) {
+                    if (p != null) {
+                      setState(() => _selectedPath = p);
+                      _saveConfig(activeVersion: p);
+                    }
+                  },
+          ),
         );
       },
     );

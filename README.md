@@ -1,6 +1,6 @@
 # audio.cpp Desk
 
-[English](README.en.md) | 简体中文
+简体中文 | [English](README.en.md)
 
 面向 [audio.cpp](https://github.com/0xShug0/audio.cpp) 的**会话式桌面客户端**：TTS、ASR、模型库与下载管理、音色库、会话与集合，以及服务端控制。
 

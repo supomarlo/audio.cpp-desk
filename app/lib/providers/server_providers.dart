@@ -6,6 +6,7 @@ import '../core/app_config.dart';
 import '../core/gpu_probe.dart';
 import '../core/server_client.dart';
 import '../core/server_controller.dart';
+import '../core/task_timeout.dart';
 import '../models/audio_cpp_version.dart';
 import '../models/model_catalog_entry.dart';
 import '../models/model_spec.dart';
@@ -17,7 +18,13 @@ import 'library_providers.dart';
 final serverClientProvider = Provider<ServerClient>((ref) {
   final host = ref.watch(appConfigProvider.select((c) => c.host));
   final port = ref.watch(appConfigProvider.select((c) => c.port));
-  return ServerClient('http://$host:$port');
+  final timeoutSec =
+      ref.watch(appConfigProvider.select((c) => c.taskTimeoutSeconds));
+  // 客户端接收超时 = 单次任务超时 + 余量（见 core/task_timeout.dart）。
+  return ServerClient(
+    'http://$host:$port',
+    receiveTimeout: taskReceiveTimeout(Duration(seconds: timeoutSec)),
+  );
 });
 
 final serverControllerProvider =
@@ -93,7 +100,9 @@ List<Map<String, dynamic>> _modelsFrom(
   ];
 }
 
-List<Map<String, dynamic>> _buildModels(WidgetRef ref) {
+/// 依据当前配置与已安装模型构建服务端模型条目。
+/// 供服务页手动启动与工作台自动启动共用，保证两处口径一致。
+List<Map<String, dynamic>> buildServerModels(WidgetRef ref) {
   final cfg = ref.read(appConfigProvider);
   final specs = ref.read(specsProvider).value ?? const <ModelSpec>[];
   final modelsDir = cfg.modelsDir(ref.read(appPathsProvider)).path;
@@ -155,7 +164,7 @@ Future<void> _ensureServerCore(
 /// 若 [requireModelId] 已注册于运行中的服务端则直接返回，否则重启以带上最新模型。
 Future<void> ensureServerStarted(WidgetRef ref, {String? requireModelId}) async {
   final versions = await ref.read(versionsProvider.future);
-  final models = _buildModels(ref);
+  final models = buildServerModels(ref);
   final cfg = ref.read(appConfigProvider);
   await _ensureServerCore(ref.read(serverControllerProvider.notifier),
       ref.read(serverControllerProvider), models, cfg, versions, requireModelId);

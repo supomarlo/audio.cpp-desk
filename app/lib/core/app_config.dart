@@ -15,6 +15,7 @@ class AppConfig {
     this.backend = 'vulkan',
     this.device = 0,
     this.threads = 4,
+    this.taskTimeoutSeconds = 300,
     this.showExperimental = false,
     this.serverLogToFile = false,
     this.appLogToFile = false,
@@ -33,6 +34,7 @@ class AppConfig {
   String backend;
   int device;
   int threads;
+  int taskTimeoutSeconds;
   bool showExperimental;
   bool serverLogToFile;
   bool appLogToFile;
@@ -61,6 +63,7 @@ class AppConfig {
       'backend': normalizeBackend(backend),
       'device': device,
       'threads': threads,
+      'task_timeout_seconds': taskTimeoutSeconds,
       'show_experimental': showExperimental,
       'server_log_to_file': serverLogToFile,
       'app_log_to_file': appLogToFile,
@@ -82,6 +85,8 @@ class AppConfig {
       backend: normalizeBackend(json['backend'] as String? ?? 'vulkan'),
       device: (json['device'] as num?)?.toInt() ?? 0,
       threads: (json['threads'] as num?)?.toInt() ?? 4,
+      taskTimeoutSeconds:
+          (json['task_timeout_seconds'] as num?)?.toInt() ?? 300,
       showExperimental: json['show_experimental'] as bool? ?? false,
       serverLogToFile: json['server_log_to_file'] as bool? ?? false,
       appLogToFile: json['app_log_to_file'] as bool? ?? false,

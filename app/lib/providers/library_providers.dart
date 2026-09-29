@@ -222,3 +222,11 @@ final modelLibraryProvider =
     modelsDir: AppConfig.normalizeAgainst(paths, modelsPath),
   );
 });
+
+/// 重新扫描 audio.cpp 版本目录，并同步重建模型库。
+/// 模型库的 specs 依赖版本扫描结果：若只 `invalidate(versionsProvider)`，
+/// 已按空版本加载过的模型库不会恢复，故两者必须一起刷新。
+void rescanVersions(WidgetRef ref) {
+  ref.invalidate(versionsProvider);
+  ref.invalidate(modelLibraryProvider);
+}

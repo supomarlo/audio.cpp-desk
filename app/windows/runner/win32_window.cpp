@@ -26,6 +26,10 @@ constexpr const wchar_t kGetPreferredBrightnessRegKey[] =
   L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
 constexpr const wchar_t kGetPreferredBrightnessRegValue[] = L"AppsUseLightTheme";
 
+// Minimum window size (logical pixels); scaled to physical by monitor DPI.
+constexpr int kMinWindowWidth = 1280;
+constexpr int kMinWindowHeight = 720;
+
 // The number of Win32Window objects that currently exist.
 static int g_active_window_count = 0;
 
@@ -186,6 +190,17 @@ Win32Window::MessageHandler(HWND hwnd,
         PostQuitMessage(0);
       }
       return 0;
+
+    case WM_GETMINMAXINFO: {
+      // Enforce a minimum window size (1280x720 logical, scaled by monitor DPI).
+      auto* info = reinterpret_cast<MINMAXINFO*>(lparam);
+      HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+      const UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
+      const double scale_factor = dpi / 96.0;
+      info->ptMinTrackSize.x = Scale(kMinWindowWidth, scale_factor);
+      info->ptMinTrackSize.y = Scale(kMinWindowHeight, scale_factor);
+      return 0;
+    }
 
     case WM_DPICHANGED: {
       auto newRectSize = reinterpret_cast<RECT*>(lparam);

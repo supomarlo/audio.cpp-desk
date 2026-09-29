@@ -38,10 +38,30 @@ jobs:
         shell: cmd
         run: package_release.bat
 
+      - name: Extract changelog section
+        shell: pwsh
+        run: |
+          $version = '${{ steps.ver.outputs.version }}'
+          $lines = Get-Content -LiteralPath CHANGELOG.md -Encoding UTF8
+          $out = [System.Collections.Generic.List[string]]::new()
+          $inSection = $false
+          foreach ($line in $lines) {
+            if ($line -match '^##\s') {
+              if ($inSection) { break }
+              if ($line -match ('^##\s+' + [regex]::Escape($version) + '\s*$')) { $inSection = $true }
+              continue
+            }
+            if ($inSection) { $out.Add($line) }
+          }
+          $body = ($out -join "`n").Trim()
+          if ([string]::IsNullOrWhiteSpace($body)) { $body = 'See CHANGELOG.md for details.' }
+          [IO.File]::WriteAllText("$env:GITHUB_WORKSPACE\RELEASE_NOTES.md", $body, [Text.UTF8Encoding]::new($false))
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
           name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
+          body_path: RELEASE_NOTES.md
+          generate_release_notes: false
           files: dist/*.zip
-          generate_release_notes: true

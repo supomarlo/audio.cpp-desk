@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 class GpuProbe {
@@ -12,26 +14,54 @@ class GpuProbe {
     }
   }
 
+  /// 运行 `--list-devices` 并收集 stdout。超时或异常则**杀掉子进程**，避免探测进程
+  /// 残留/卡住导致调用方（如后端列表）一直处于 loading、进而阻塞界面操作。
+  static Future<String?> _listDevices(String serverExe) async {
+    Process proc;
+    try {
+      proc = await Process.start(serverExe, const ['--list-devices']);
+    } catch (_) {
+      return null;
+    }
+    final out = StringBuffer();
+    final outSub = proc.stdout.transform(utf8.decoder).listen(out.write);
+    unawaited(proc.stderr.drain<void>());
+    try {
+      final code = await proc.exitCode.timeout(const Duration(seconds: 15));
+      await outSub.cancel();
+      if (code != 0) return null;
+      return out.toString();
+    } on TimeoutException {
+      try {
+        proc.kill(ProcessSignal.sigkill);
+      } catch (_) {}
+      try {
+        await outSub.cancel();
+      } catch (_) {}
+      return null;
+    } catch (_) {
+      try {
+        proc.kill(ProcessSignal.sigkill);
+      } catch (_) {}
+      return null;
+    }
+  }
+
   static Future<List<String>> listRegisteredBackends({
     required String serverExe,
   }) async {
     final backends = <String>[];
-    try {
-      final result = await Process.run(
-        serverExe,
-        const ['--list-devices'],
-      ).timeout(const Duration(seconds: 15));
-      if (result.exitCode != 0) return const <String>[];
-      final names = <String>{};
-      final re = RegExp(
-        r'^([A-Za-z]+):\d+\s+"[^"]*"',
-        multiLine: true,
-      );
-      for (final m in re.allMatches(result.stdout as String)) {
-        names.add(m.group(1)!.toLowerCase());
-      }
-      backends.addAll(names);
-    } catch (_) {}
+    final stdout = await _listDevices(serverExe);
+    if (stdout == null) return backends;
+    final names = <String>{};
+    final re = RegExp(
+      r'^([A-Za-z]+):\d+\s+"[^"]*"',
+      multiLine: true,
+    );
+    for (final m in re.allMatches(stdout)) {
+      names.add(m.group(1)!.toLowerCase());
+    }
+    backends.addAll(names);
     return backends;
   }
 
@@ -41,27 +71,22 @@ class GpuProbe {
   }) async {
     final want = regNameFor(backend);
     final names = <String>[];
-    try {
-      final result = await Process.run(
-        serverExe,
-        const ['--list-devices'],
-      ).timeout(const Duration(seconds: 15));
-      if (result.exitCode != 0) return const <String>[];
-      final re = RegExp(
-        r'^([A-Za-z]+):(\d+)\s+"([^"]*)"',
-        multiLine: true,
-      );
-      for (final m in re.allMatches(result.stdout as String)) {
-        if (m.group(1)!.toLowerCase() != want) continue;
-        final index = int.parse(m.group(2)!);
-        final name = m.group(3)!.trim();
-        if (name.isEmpty) continue;
-        while (names.length <= index) {
-          names.add('');
-        }
-        names[index] = name;
+    final stdout = await _listDevices(serverExe);
+    if (stdout == null) return names;
+    final re = RegExp(
+      r'^([A-Za-z]+):(\d+)\s+"([^"]*)"',
+      multiLine: true,
+    );
+    for (final m in re.allMatches(stdout)) {
+      if (m.group(1)!.toLowerCase() != want) continue;
+      final index = int.parse(m.group(2)!);
+      final name = m.group(3)!.trim();
+      if (name.isEmpty) continue;
+      while (names.length <= index) {
+        names.add('');
       }
-    } catch (_) {}
+      names[index] = name;
+    }
     return names.where((n) => n.isNotEmpty).toList();
   }
 }
