@@ -21,6 +21,9 @@ class ServerClient {
 
   final Dio _dio;
 
+  /// 实际请求的基地址（host:port），用于失败诊断。
+  String get baseUrl => _dio.options.baseUrl;
+
   Future<HealthInfo> health() async {
     final resp = await _dio.get('/health');
     return HealthInfo.fromJson(_map(resp.data));

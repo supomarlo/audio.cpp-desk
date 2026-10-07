@@ -59,6 +59,11 @@ class AudioTranscoder {
   /// 目标（ASR 用 16000 / 1）。
   Future<File> toWav(String inputPath, String tool,
       {int? rate, int? channels}) async {
+    // 前置存在性校验：输入不存在时直接给出明确原因，避免把系统级错误码
+    // （如 Media Foundation 的 0x80070002 = ERROR_FILE_NOT_FOUND）透传给用户。
+    if (!File(inputPath).existsSync()) {
+      throw AudioTranscodeException('input audio not found: $inputPath');
+    }
     await tmpDir.create(recursive: true);
     final out = File(p.join(
       tmpDir.path,

@@ -222,6 +222,17 @@ class GenerationQueue extends ChangeNotifier {
     }
   }
 
+  /// 失败时写一次"对接诊断"：客户端实际请求地址 + 生效端口 + 状态，
+  /// 便于定位"端口不一致导致连接被拒"。仅在失败时调用。
+  void _logContactDiag(String recordId, String msg) {
+    final client = _ref.read(serverClientProvider);
+    final snap = _ref.read(serverControllerProvider);
+    final ctrl = _ref.read(serverControllerProvider.notifier);
+    AppLogger.error('task contact diag: record=$recordId, '
+        'client=${client.baseUrl}, effectivePort=${ctrl.effectivePort}, '
+        'lifecycle=${snap.lifecycle}, healthy=${snap.healthy}, err=$msg');
+  }
+
   Future<void> _run(GenQueueItem it) async {
     final dict = _ref.read(stringsProvider);
     final session = _sessionOf(it);
@@ -274,13 +285,34 @@ class GenerationQueue extends ChangeNotifier {
           // 连续 3 次无法释放显存：判失败 + 停止队列 + 持久提示。
           record.status = 'failed';
           record.error = msg;
+          _logContactDiag(record.id, msg);
           AppLogger.error('task failed: record=${it.recordId}', e);
           _stopQueueAfterRecoverFailure(dict);
+          break;
+        }
+        // 连接类错误（服务端正在重启 / 端口未就绪等）：再确保一次服务端就绪并重试一次。
+        if (!retried && _isContactFailure(msg)) {
+          retried = true;
+          AppLogger.info(
+              'contact failure, re-ensure server and retry: record=${it.recordId}');
+          record.outputs.clear();
+          record.error = '';
+          continue;
+        }
+        // 重试后仍是连接类错误 → 视为"服务端不可用"（起不来 / 中途异常退出）：
+        // 本次判失败，并**暂停整个队列**（保留排队项），避免批量失败。
+        if (_isContactFailure(msg)) {
+          record.status = 'failed';
+          record.error = msg;
+          _logContactDiag(record.id, msg);
+          AppLogger.error('task failed: record=${it.recordId}', e);
+          _pauseQueueForServerDown(record.id, dict, msg);
           break;
         }
         // 非分配类错误，或重试后仍失败：判失败并跳到下一个任务。
         record.status = 'failed';
         record.error = msg;
+        _logContactDiag(record.id, msg);
         AppLogger.error('task failed: record=${it.recordId}', e);
         // 让错误在界面可见（底部持久提示条，不自动关闭）。
         _ref.read(workbenchErrorNoticeProvider.notifier).state = msg;
@@ -327,6 +359,13 @@ class GenerationQueue extends ChangeNotifier {
 
     final client = _ref.read(serverClientProvider);
     final language = _nz(record.inputs['language']);
+    // 语言提交位置由规则声明：languageKey 非空 → 提交到 options.<languageKey>；
+    // 否则走顶层 `language`（通用 + Fallback）。
+    final languageInOptions = language != null && rule.languageKey.isNotEmpty;
+    if (languageInOptions) {
+      extra[rule.languageKey] = language;
+    }
+    final topLevelLanguage = languageInOptions ? null : language;
     // 情感参考音频：需转码 WAV 并走通用任务路由（可携带 audio_input）。
     final emotionAudio = _nz(record.inputs['emotion_audio']);
     late final List<int> bytes;
@@ -358,7 +397,7 @@ class GenerationQueue extends ChangeNotifier {
             if (_nz(record.inputs['voice']) != null) 'voice': record.inputs['voice'],
             if (_nz(record.inputs['voice_id']) != null)
               'voice_id': record.inputs['voice_id'],
-            if (language != null) 'language': language,
+            if (topLevelLanguage != null) 'language': topLevelLanguage,
             if (extra.isNotEmpty) 'options': extra,
           },
         );
@@ -377,7 +416,7 @@ class GenerationQueue extends ChangeNotifier {
         input: record.inputs['text'] ?? '',
         voice: voice,
         voiceRef: _nz(record.inputs['voice_ref']),
-        language: language,
+        language: topLevelLanguage,
         responseFormat: 'wav',
         extra: extra,
       );
@@ -472,6 +511,18 @@ class GenerationQueue extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 服务端不可用（起不来 / 中途异常退出）：暂停整个队列，保留排队项，
+  /// 避免"每个任务逐个失败"的批量失败；恢复后由用户手动继续。
+  void _pauseQueueForServerDown(
+      String recordId, Map<String, String> dict, String msg) {
+    _pausing = true;
+    _ref.read(workbenchErrorNoticeProvider.notifier).state =
+        dict['workbench.serverNotReady'] ?? 'Server not ready';
+    AppLogger.error(
+        'server unavailable; generation queue paused: record=$recordId, err=$msg');
+    notifyListeners();
+  }
+
   /// 是否为「后端显存 / 权重分配失败」类错误（用于触发一次重启重试）。
   static bool _isAllocFailure(String msg) {
     final m = msg.toLowerCase();
@@ -480,6 +531,17 @@ class GenerationQueue extends ChangeNotifier {
         m.contains('unable to allocate') ||
         m.contains('backend weight buffer') ||
         m.contains('oom');
+  }
+
+  /// 是否为「连接 / 服务端未就绪」类错误（用于再等一次服务端就绪并重试一次）。
+  static bool _isContactFailure(String msg) {
+    final m = msg.toLowerCase();
+    return m.contains('dioexception') ||
+        m.contains('socketexception') ||
+        m.contains('connection') ||
+        m.contains('refused') ||
+        m.contains('远程计算机拒绝') ||
+        m.contains('not ready');
   }
 
   static String? _nz(String? s) => (s == null || s.isEmpty) ? null : s;

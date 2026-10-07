@@ -29,6 +29,10 @@ class ServerController extends StateNotifier<ServerSnapshot> {
   Timer? _healthTimer;
   bool _stopRequested = false;
   int? _adoptPid;
+  int _effectivePort = 0;
+
+  /// 最近一次"实际生效"的服务端端口（接管 / 备用端口时会与配置端口不同）。
+  int get effectivePort => _effectivePort;
   File? _runLogFile;
   IOSink? _logSink;
   final List<String> _pendingLog = [];
@@ -182,6 +186,7 @@ class ServerController extends StateNotifier<ServerSnapshot> {
 
     if (adoptPid > 0) {
       _adoptPid = adoptPid;
+      _effectivePort = effectivePort;
       final h = adoptedHealth!;
       _log('Server ready (adopted our instance) '
           'configured_backend=${h.backend} loaded_models=${h.models}');
@@ -190,6 +195,7 @@ class ServerController extends StateNotifier<ServerSnapshot> {
         healthy: true,
         backend: h.backend,
         loadedModelsCount: h.models,
+        port: effectivePort,
       );
       return;
     }
@@ -214,6 +220,7 @@ class ServerController extends StateNotifier<ServerSnapshot> {
       _config.port = spare;
     }
 
+    _effectivePort = effectivePort;
     final serverJson = <String, dynamic>{
       'host': _config.host,
       'port': effectivePort,
@@ -328,10 +335,28 @@ class ServerController extends StateNotifier<ServerSnapshot> {
             healthy: true,
             backend: h.backend,
             loadedModelsCount: h.models,
+            port: _effectivePort,
           );
         }
       } catch (_) {}
     });
+  }
+
+  /// 等待端口真正释放：杀掉旧实例后端口可能仍被占用一小段时间，
+  /// 若不等就启动会误判"端口被占"而启用备用端口，造成端口漂移。
+  Future<void> _waitPortReleased(
+    String host,
+    int port, {
+    Duration timeout = const Duration(seconds: 8),
+  }) async {
+    if (port <= 0) return;
+    final deadline = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(deadline)) {
+      final occ = await PortArbiter.probe(host, port);
+      if (occ == null) return;
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+    }
+    _log('Port $port still occupied after wait timeout');
   }
 
   Future<void> stop() async {
@@ -354,6 +379,7 @@ class ServerController extends StateNotifier<ServerSnapshot> {
       } catch (e) {
         _log('Failed to stop adopted instance: $e');
       }
+      await _waitPortReleased(_config.host, _effectivePort);
       state = state.copyWith(lifecycle: ServerLifecycle.stopped, healthy: false);
       return;
     }
@@ -395,6 +421,7 @@ class ServerController extends StateNotifier<ServerSnapshot> {
         );
       }
     }
+    await _waitPortReleased(_config.host, _effectivePort);
   }
 
   void clearLog() {

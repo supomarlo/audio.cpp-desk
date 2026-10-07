@@ -3,7 +3,7 @@ class AppInfo {
   AppInfo._();
 
   static const name = 'audio.cpp Desk';
-  static const version = '0.1.1';
+  static const version = '0.1.2';
   static const homepage = 'https://github.com/supomarlo/audio.cpp-desk';
   static const upstream = 'https://github.com/0xShug0/audio.cpp';
 }

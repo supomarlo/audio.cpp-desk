@@ -496,9 +496,10 @@ class WorkbenchRule {
     this.optionTypes = const {},
     this.optionExtensions = const {},
     this.fields = const {},
-    this.language = 'hidden',
-    this.languageDefault = '',
-    this.languageValues = const [],
+        this.language = 'hidden',
+        this.languageDefault = '',
+        this.languageKey = '',
+        this.languageValues = const [],
     this.requiredInputs = const [],
     this.source = '',
   });
@@ -584,6 +585,11 @@ class WorkbenchRule {
   /// 默认语言（可为空）
   final String languageDefault;
 
+  /// 语言提交字段名：非空时把所选语言提交到 `options.<languageKey>`
+  /// （如 `language`），而非顶层 `language`（用于语言是 request option 的模型，
+  /// 见 `index_tts2`）；为空则走顶层 `language`（通用/Fallback）。
+  final String languageKey;
+
   /// 语言下拉的取值覆盖（模型相关，如完整语言名）；为空则用规格 `languages`。
   final List<String> languageValues;
 
@@ -668,6 +674,7 @@ class WorkbenchRule {
             : const {},
         language: json['language'] as String? ?? 'hidden',
         languageDefault: json['languageDefault'] as String? ?? '',
+        languageKey: json['languageKey'] as String? ?? '',
         languageValues: (json['languageValues'] as List<dynamic>? ?? [])
             .map((e) => e.toString())
             .toList(),

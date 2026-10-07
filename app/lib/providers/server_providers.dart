@@ -17,7 +17,12 @@ import 'library_providers.dart';
 
 final serverClientProvider = Provider<ServerClient>((ref) {
   final host = ref.watch(appConfigProvider.select((c) => c.host));
-  final port = ref.watch(appConfigProvider.select((c) => c.port));
+  final cfgPort = ref.watch(appConfigProvider.select((c) => c.port));
+  // 以"服务端实际生效端口"为准（接管 / 备用端口时会与配置端口不同）；
+  // 未知（0）才回退用配置端口。
+  final snapPort =
+      ref.watch(serverControllerProvider.select((s) => s.port));
+  final port = snapPort > 0 ? snapPort : cfgPort;
   final timeoutSec =
       ref.watch(appConfigProvider.select((c) => c.taskTimeoutSeconds));
   // 客户端接收超时 = 单次任务超时 + 余量（见 core/task_timeout.dart）。

@@ -4,6 +4,7 @@ class ServerSnapshot {
   const ServerSnapshot({
     this.lifecycle = ServerLifecycle.stopped,
     this.exeName,
+    this.port = 0,
     this.error,
     this.healthy = false,
     this.backend,
@@ -15,6 +16,10 @@ class ServerSnapshot {
   final ServerLifecycle lifecycle;
   final String? exeName;
   final String? error;
+
+  /// 服务端实际监听端口（0 = 未知，调用方回退用配置端口）。
+  final int port;
+
   final bool healthy;
   final String? backend;
   final int loadedModelsCount;
@@ -32,6 +37,7 @@ class ServerSnapshot {
   ServerSnapshot copyWith({
     ServerLifecycle? lifecycle,
     String? exeName,
+    int? port,
     String? error,
     bool? healthy,
     String? backend,
@@ -42,6 +48,7 @@ class ServerSnapshot {
     return ServerSnapshot(
       lifecycle: lifecycle ?? this.lifecycle,
       exeName: exeName ?? this.exeName,
+      port: port ?? this.port,
       error: error ?? this.error,
       healthy: healthy ?? this.healthy,
       backend: backend ?? this.backend,
