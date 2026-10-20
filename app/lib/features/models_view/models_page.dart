@@ -26,6 +26,8 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
   final GlobalKey _tabBarKey = GlobalKey();
   String _query = '';
   bool _refreshing = false;
+  // 「已安装」区域折叠状态：首次进入默认展开，不持久化。
+  bool _installedCollapsed = false;
 
   Future<void> _refresh() async {
     if (_refreshing) return;
@@ -234,15 +236,19 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
         if (installedGroups.isNotEmpty) ...[
           _SectionHeader(
               title: trF(ref, 'models.section.installed',
-                  {'count': '${installedGroups.length}'})),
-          for (final g in installedGroups)
-            _ModelCard(
-              key: ValueKey(g.name),
-              group: g,
-              onTap: () => _showDetail(context, g),
-              onDownload: () => _showDownload(context, g),
-              onManage: () => _manageModel(context, g),
-            ),
+                  {'count': '${installedGroups.length}'}),
+              collapsed: _installedCollapsed,
+              onTap: () => setState(
+                  () => _installedCollapsed = !_installedCollapsed)),
+          if (!_installedCollapsed)
+            for (final g in installedGroups)
+              _ModelCard(
+                key: ValueKey(g.name),
+                group: g,
+                onTap: () => _showDetail(context, g),
+                onDownload: () => _showDownload(context, g),
+                onManage: () => _manageModel(context, g),
+              ),
           const SizedBox(height: 8),
         ],
         if (notInstalledGroups.isNotEmpty) ...[
@@ -728,15 +734,37 @@ class _ModelGroup {
 }
 
 class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
+  const _SectionHeader({required this.title, this.collapsed, this.onTap});
 
   final String title;
 
+  /// 非 null 时显示折叠/展开图标，并可按 [onTap] 切换。
+  final bool? collapsed;
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 4),
-      child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+    final titleText =
+        Text(title, style: Theme.of(context).textTheme.titleMedium);
+    if (collapsed == null || onTap == null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 4),
+        child: titleText,
+      );
+    }
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 4),
+        child: Row(
+          children: [
+            Icon(collapsed! ? Icons.chevron_right : Icons.expand_more,
+                size: 20),
+            const SizedBox(width: 4),
+            titleText,
+          ],
+        ),
+      ),
     );
   }
 }

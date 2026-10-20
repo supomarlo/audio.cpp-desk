@@ -125,12 +125,21 @@ class VoiceLibraryController extends StateNotifier<VoiceLibraryState> {
 }
 
 class ModelLibraryState {
-  const ModelLibraryState({this.entries = const []});
+  const ModelLibraryState({this.entries = const [], this.loading = false});
 
   final List<ModelCatalogEntry> entries;
 
-  ModelLibraryState copyWith({List<ModelCatalogEntry>? entries}) =>
-      ModelLibraryState(entries: entries ?? this.entries);
+  /// 首次加载尚未完成：UI 应显示"读取中"，而不是把空列表当成"没有模型"。
+  final bool loading;
+
+  ModelLibraryState copyWith({
+    List<ModelCatalogEntry>? entries,
+    bool? loading,
+  }) =>
+      ModelLibraryState(
+        entries: entries ?? this.entries,
+        loading: loading ?? this.loading,
+      );
 }
 
 class ModelLibraryController extends StateNotifier<ModelLibraryState> {
@@ -139,7 +148,7 @@ class ModelLibraryController extends StateNotifier<ModelLibraryState> {
       : _store = ModelLibraryStore(paths),
         _ref = ref,
         _modelsDir = modelsDir,
-        super(const ModelLibraryState()) {
+        super(const ModelLibraryState(loading: true)) {
     AppLogger.info('ModelLibraryController created: modelsDir=$_modelsDir');
     _init();
   }
@@ -162,6 +171,10 @@ class ModelLibraryController extends StateNotifier<ModelLibraryState> {
       AppLogger.info(
           'model library loaded: modelsRoot=$_modelsDir, entries=${entries.length}, '
           'installed=${entries.where((e) => e.installed).length}');
+    } catch (e) {
+      // 加载失败也要退出 loading 态，避免界面一直停在"读取中"。
+      AppLogger.error('model library load failed: $e');
+      state = const ModelLibraryState();
     } finally {
       if (!_readyCompleter.isCompleted) _readyCompleter.complete();
     }

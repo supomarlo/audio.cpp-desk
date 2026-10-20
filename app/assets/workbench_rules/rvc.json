@@ -8,7 +8,6 @@
     ],
     "instruction": "hidden",
     "language": "hidden",
-    "requiredInputs": ["--audio"],
     "source": "docs/audio_tools.md"
   }
 }

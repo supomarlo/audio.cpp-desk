@@ -64,6 +64,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   /// 控制区最小宽度（保证操作区不被挤压）。
   static const double _minControlWidth = 520;
   bool _queueBusy = false;
+  int _queueRetries = 0;
   String? _lastQueueText;
   String? _result;
   String? _notice;
@@ -104,6 +105,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     _genTicker = null;
     _genStart = null;
     _genElapsed = Duration.zero;
+    _queueRetries = 0;
   }
 
   String _fmtDur(Duration d) {
@@ -650,7 +652,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     return entries.where((e) {
       if (!e.installed) return false;
       final tasks = specByFamily[e.family]?.tasks ?? const <String>[];
-      return tasks.contains('tts') || tasks.contains('asr');
+      return tasks.contains('tts') || tasks.contains('asr') || tasks.contains('vc');
     }).toList();
   }
 
@@ -667,6 +669,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     final tasks = specByFamily[e.family]?.tasks ?? const <String>[];
     if (tasks.contains('tts')) return 'tts';
     if (tasks.contains('asr')) return 'asr';
+    if (tasks.contains('vc')) return 'vc';
     return '';
   }
 
@@ -704,30 +707,30 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     if (task == 'tts') {
       final text = _textCtrl.text.trim();
       if (text.isEmpty) {
-        _toast(tr(ref, 'workbench.needText'));
+        _toast(tr(ref, 'workbench.needText'), autoHide: true);
         return;
       }
       final rule = _ruleFor(entry.packageId, entry.family);
       if (rule.referenceRequired && _voiceId.isEmpty) {
-        _toast(tr(ref, 'workbench.needReference'));
+        _toast(tr(ref, 'workbench.needReference'), autoHide: true);
         return;
       }
       if (rule.referenceTextRequired &&
           _voiceId.isNotEmpty &&
           _refTextCtrl.text.trim().isEmpty) {
-        _toast(tr(ref, 'workbench.needReferenceText'));
+        _toast(tr(ref, 'workbench.needReferenceText'), autoHide: true);
         return;
       }
       final instrEmpty = _instructionValue(rule).isEmpty;
       if (rule.instructionRequired &&
           rule.instructionShownWithVoice(_hasVoiceSelected(rule)) &&
           instrEmpty) {
-        _toast(tr(ref, 'workbench.needInstruction'));
+        _toast(tr(ref, 'workbench.needInstruction'), autoHide: true);
         return;
       }
       if ((rule.emotion?.modeById(_emotionMode)?.audio ?? false) &&
           _emotionAudioPath == null) {
-        _toast(tr(ref, 'workbench.emotion.needAudio'));
+        _toast(tr(ref, 'workbench.emotion.needAudio'), autoHide: true);
         return;
       }
       final (voicePreset, voiceRef) = _resolveVoice();
@@ -789,7 +792,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     } else if (task == 'asr') {
       final path = _audioPath;
       if (path == null) {
-        _toast(tr(ref, 'workbench.needAudio'));
+        _toast(tr(ref, 'workbench.needAudio'), autoHide: true);
         return;
       }
       final record = ctrl.addRecord(
@@ -801,6 +804,55 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
           'audio': path,
           'language':
               (_asrLanguage?.isEmpty ?? true) ? '' : (_asrLanguage ?? ''),
+        },
+      );
+      ref.read(generationQueueProvider).enqueue(ctrl.session.id, record.id);
+    } else if (task == 'vc') {
+      // 语音转换：源音频 + 参考音色（走 /v1/tasks/run 的 audio + voice_ref）。
+      final path = _audioPath;
+      if (path == null) {
+        _toast(tr(ref, 'workbench.needAudio'), autoHide: true);
+        return;
+      }
+      final rule = _ruleFor(entry.packageId, entry.family);
+      final (voicePreset, voiceRef) = _resolveVoice();
+      if (rule.referenceRequired && voiceRef == null) {
+        _toast(tr(ref, 'workbench.needReference'), autoHide: true);
+        return;
+      }
+      final advancedNames = _advancedOptions(_specFor(entry.family), rule)
+          .map((o) => o.name)
+          .toSet();
+      final familyParams = <String, String>{
+        for (final e in (ref.read(appConfigProvider).modelParams[entry.family] ??
+                const <String, String>{})
+            .entries)
+          if (advancedNames.contains(e.key) && e.value.isNotEmpty)
+            e.key: e.value,
+        // 规则声明的额外文件输入（如 rvc 的 voice_model_path）。
+        for (final i in rule.inputs)
+          if ((_inputPaths[i.option] ?? '').isNotEmpty)
+            i.option: _inputPaths[i.option]!,
+      };
+      // 内置音色：规则声明 option 时提交到 options.<option>（如 rvc 的 voice_id）。
+      final vi = rule.voiceId;
+      if (rule.showsVoiceId && vi != null && vi.option.isNotEmpty) {
+        familyParams[vi.option] = _effectiveBuiltinVoice(rule);
+      }
+      final record = ctrl.addRecord(
+        type: RecordType.vc,
+        family: entry.family,
+        packageId: entry.packageId,
+        status: 'queued',
+        inputs: {
+          'audio': path,
+          if (voiceRef != null) 'voice_ref': voiceRef,
+          if (voicePreset != null) 'voice': voicePreset,
+          if (_voiceId.isNotEmpty) 'voice_entry': _voiceId,
+          if (_ttsRoleName(rule).isNotEmpty) 'voice_name': _ttsRoleName(rule),
+          if ((_builtinVoice.isNotEmpty) && rule.showsVoiceId)
+            'voice_id': _effectiveBuiltinVoice(rule),
+          if (familyParams.isNotEmpty) 'params': jsonEncode(familyParams),
         },
       );
       ref.read(generationQueueProvider).enqueue(ctrl.session.id, record.id);
@@ -886,8 +938,12 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         _startGenTimer();
       } else if (!busy && _queueBusy) {
         _stopGenTimer();
+      } else if (busy && next.retryCount != _queueRetries) {
+        // 重试：计时从 0 重新开始（重试次数显示在标题里）。
+        _startGenTimer();
       }
       _queueBusy = busy;
+      _queueRetries = next.retryCount;
       final lt = next.lastText;
       if (lt != null && lt != _lastQueueText) {
         _lastQueueText = lt;
@@ -965,14 +1021,35 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
                         _sessionHeader(dict),
                         const SizedBox(height: 12),
                         Expanded(
-                          child: workModels.isEmpty
+                          child: lib.loading
+                              // 首次加载中：显示"读取中"，不要把空列表当成"没有模型"。
                               ? Center(
-                                  child: Text(
-                                      dict['workbench.noModels'] ??
-                                          'No TTS / ASR models installed. Install and load one from the model library first.',
-                                      style: textTheme.bodyLarge),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2.5),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                          dict['workbench.loadingModels'] ??
+                                              'Loading models...',
+                                          style: textTheme.bodyLarge),
+                                    ],
+                                  ),
                                 )
-                              : _buildBody(dict, current!, task, languages),
+                              : workModels.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                          dict['workbench.noModels'] ??
+                                              'No TTS / ASR models installed. Install and load one from the model library first.',
+                                          style: textTheme.bodyLarge),
+                                    )
+                                  : _buildBody(
+                                      dict, current!, task, languages),
                         ),
                         const PlayerBar(),
                       ],
@@ -1321,9 +1398,16 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
       );
 
   Widget _taskTile(Map<String, String> dict, GenerationRecord r) {
-    final running = ref.watch(generationQueueProvider).runningId == r.id;
+    final q = ref.watch(generationQueueProvider);
+    final running = q.runningId == r.id;
     final subtitle = running
-        ? dictTpl(dict, 'workbench.generating', {'time': _fmtDur(_genElapsed)})
+        ? (q.retryCount > 0
+            ? dictTpl(dict, 'workbench.generatingRetry', {
+                'count': '${q.retryCount}',
+                'time': _fmtDur(_genElapsed),
+              })
+            : dictTpl(
+                dict, 'workbench.generating', {'time': _fmtDur(_genElapsed)}))
         : (dict['task.queued'] ?? 'Queued');
     final Widget trailing = running
         ? const SizedBox(
@@ -1413,6 +1497,9 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         _textCtrl.text = '';
         _audioPath = _nn(r.inputs['audio']);
         _asrLanguage = _nn(r.inputs['language']);
+        if (r.type == RecordType.vc) {
+          _voiceId = r.inputs['voice_entry'] ?? '';
+        }
         _result = r.text.isNotEmpty ? r.text : null;
       }
     });
@@ -1587,7 +1674,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     if (save == null) return;
     try {
       await File(abs).copy(save.path);
-      _toast(dict['session.saved'] ?? 'Saved');
+      _toast(dict['session.saved'] ?? 'Saved', autoHide: true);
     } catch (e) {
       _toast('$e');
     }
@@ -1601,7 +1688,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     if (save == null) return;
     try {
       await File(save.path).writeAsString(text);
-      _toast(dict['session.saved'] ?? 'Saved');
+      _toast(dict['session.saved'] ?? 'Saved', autoHide: true);
     } catch (e) {
       _toast('$e');
     }
@@ -1745,6 +1832,27 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
                         ),
                       ],
                     ),
+                  ],
+                  if (task == 'vc') ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _pickAudio,
+                            icon: const Icon(Icons.audio_file_outlined),
+                            label: Text(
+                              _audioPath == null
+                                  ? (dict['workbench.pickAudio'] ?? 'Choose audio')
+                                  : File(_audioPath!).uri.pathSegments.last,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ..._layoutTop(dict, entry, rule, languages),
                   ],
                   const SizedBox(height: 16),
                   Row(

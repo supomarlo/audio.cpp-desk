@@ -146,6 +146,7 @@ class AppConfig {
       backend: backend,
       device: device,
       threads: threads,
+      taskTimeoutSeconds: taskTimeoutSeconds,
       showExperimental: showExperimental,
       serverLogToFile: serverLogToFile,
       appLogToFile: appLogToFile,

@@ -40,6 +40,9 @@ class GenerationQueue extends ChangeNotifier {
   DateTime? _runningSince;
   String? _lastText;
 
+  /// 当前任务已重试次数（UI 显示"重试 N 次"，并在重试时重置计时）。
+  int _retryCount = 0;
+
   /// 中止锁：一旦置位，队列不再推进、服务端返回也不再落库。
   bool _aborted = false;
 
@@ -54,6 +57,7 @@ class GenerationQueue extends ChangeNotifier {
   DateTime? get runningSince => _runningSince;
   String? get lastText => _lastText;
   bool get busy => _runningId != null;
+  int get retryCount => _retryCount;
   bool get pausing => _pausing;
   bool get paused => _paused;
 
@@ -241,6 +245,7 @@ class GenerationQueue extends ChangeNotifier {
     final record = session.records[idx];
 
     if (_aborted) return;
+    _retryCount = 0;
     record.status = 'generating';
     _persist(it, record);
     AppLogger.info(
@@ -249,6 +254,10 @@ class GenerationQueue extends ChangeNotifier {
     // 显存不足（模型常驻、新模型权重分配失败）时：重启一次服务端后重试一次；
     // 每个任务最多重试一次，重试再失败即判失败，绝不循环。
     var retried = false;
+    // 卡死恢复：本次任务最多重启服务端一次。
+    var restartedForBusy = false;
+    // 待重试标记：服务端就绪、真正重新发送请求前才计数并重置计时。
+    var pendingRetry = false;
     while (true) {
       try {
         final entry = _entryFor(record.packageId);
@@ -256,8 +265,14 @@ class GenerationQueue extends ChangeNotifier {
           throw _Msg(dict['workbench.modelMissing'] ?? 'Model not available');
         }
         await _ensureServer(record.packageId, dict);
+        if (pendingRetry) {
+          pendingRetry = false;
+          _noteRetry(record.id);
+        }
         if (record.type == RecordType.asr) {
           await _runAsr(it, record, entry, dict);
+        } else if (record.type == RecordType.vc) {
+          await _runVc(it, record, entry, dict);
         } else {
           await _runTts(it, record, entry);
         }
@@ -273,6 +288,7 @@ class GenerationQueue extends ChangeNotifier {
         final msg = e is _Msg ? e.message : '$e';
         if (!retried && _isAllocFailure(msg)) {
           retried = true;
+          pendingRetry = true;
           final ok = await _unloadForAlloc(it);
           if (ok) {
             // 显存已释放：重试该任务一次。
@@ -290,9 +306,48 @@ class GenerationQueue extends ChangeNotifier {
           _stopQueueAfterRecoverFailure(dict);
           break;
         }
+        // 模型推理卡死（busy / wedged / 客户端接收超时）：audio.cpp 的 busy_timeout
+        // 只拒绝能进入处理线程的新请求，不会中断/释放已卡死的推理；卡死还可能占满
+        // 工作线程，连 503 都发不出来。唯一恢复手段是杀进程重启。重启后重试一次；
+        // 仍失败则暂停队列（保留排队项），避免后续任务批量失败。
+        final wedged = _isBusyStuckFailure(msg) || _isReceiveTimeout(msg);
+        if (wedged) {
+          if (!restartedForBusy) {
+            restartedForBusy = true;
+            pendingRetry = true;
+            _ref.read(workbenchNoticeProvider.notifier).state =
+                dict['workbench.timeoutRestarting'] ?? msg;
+            if (await _restartForBusy(record.packageId, dict, it.recordId)) {
+              record.outputs.clear();
+              record.error = '';
+              AppLogger.info(
+                  'server restarted after wedged timeout; retrying task: record=${it.recordId}');
+              continue;
+            }
+            // 重启失败：按"服务端不可用"处理（暂停队列，保留排队项）。
+            record.status = 'failed';
+            record.error = msg;
+            _logContactDiag(record.id, msg);
+            AppLogger.error(
+                'task failed (model wedged, server restart failed): record=${it.recordId}',
+                e);
+            _pauseQueueForServerDown(record.id, dict, msg);
+            break;
+          }
+          // 重启后仍卡死：判失败并暂停队列，避免后续任务全部失败。
+          record.status = 'failed';
+          record.error = msg;
+          _logContactDiag(record.id, msg);
+          AppLogger.error(
+              'task failed (model still wedged after restart): record=${it.recordId}',
+              e);
+          _pauseQueueForBusy(dict, record.id, msg);
+          break;
+        }
         // 连接类错误（服务端正在重启 / 端口未就绪等）：再确保一次服务端就绪并重试一次。
         if (!retried && _isContactFailure(msg)) {
           retried = true;
+          pendingRetry = true;
           AppLogger.info(
               'contact failure, re-ensure server and retry: record=${it.recordId}');
           record.outputs.clear();
@@ -490,6 +545,74 @@ class GenerationQueue extends ChangeNotifier {
     }
   }
 
+  /// 语音转换（VC）：源音频 + 参考音色，走 `/v1/tasks/run` 的 `audio` + `voice_ref`。
+  Future<void> _runVc(GenQueueItem it, GenerationRecord record,
+      ModelCatalogEntry entry, Map<String, String> dict) async {
+    final path = record.inputs['audio'] ?? '';
+    final voiceRef = record.inputs['voice_ref'] ?? '';
+    final paths = _ref.read(appPathsProvider);
+    final transcoder = AudioTranscoder(
+      tmpDir: paths.tmpDir,
+      appRoot: paths.appRoot,
+    );
+    final tool = await transcoder.toolPath();
+    File? tmp;
+    var upload = File(path);
+    if (tool != null) {
+      try {
+        tmp = await transcoder.toWav(path, tool, rate: 16000, channels: 1);
+      } on AudioTranscodeException catch (e) {
+        throw _Msg(
+            '${dict['workbench.transcodeFailed'] ?? 'Audio transcode failed'}: ${e.message}');
+      }
+      upload = tmp;
+    } else if (p.extension(path).toLowerCase() != '.wav') {
+      throw _Msg(dict['workbench.wavOnly'] ?? 'Only WAV audio is supported');
+    }
+    try {
+      final params = <String, String>{};
+      final raw = record.inputs['params'];
+      if (raw != null && raw.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(raw);
+          if (decoded is Map) {
+            decoded.forEach((k, v) {
+              final value = v?.toString() ?? '';
+              if (value.isNotEmpty) params[k.toString()] = value;
+            });
+          }
+        } catch (_) {}
+      }
+      final bytes = await _ref.read(serverClientProvider).taskAudio(
+        model: entry.packageId,
+        request: {
+          'audio': upload.path,
+          if (voiceRef.isNotEmpty) 'voice_ref': voiceRef,
+          if (params.isNotEmpty) 'options': params,
+        },
+      );
+      final store = _ref.read(sessionStoreProvider);
+      final outPath = store.audioPath(it.sessionId, record.id);
+      await File(outPath).parent.create(recursive: true);
+      await File(outPath).writeAsBytes(bytes);
+      record.outputs.add(RecordOutput(
+        kind: 'audio',
+        path: store.relativeAudioPath(it.sessionId, record.id),
+      ));
+      final player = _ref.read(audioPlayerProvider);
+      if (player.currentPath == null) {
+        player.load(outPath,
+            title: record.inputs['voice_name'] ?? entry.family);
+      }
+    } finally {
+      if (tmp != null) {
+        try {
+          if (tmp.existsSync()) tmp.deleteSync();
+        } catch (_) {}
+      }
+    }
+  }
+
   /// 分配失败后经 API 卸载常驻模型释放显存：最多 3 次，任一次成功即通过。
   Future<bool> _unloadForAlloc(GenQueueItem it) async {
     for (var i = 1; i <= 3; i++) {
@@ -535,6 +658,8 @@ class GenerationQueue extends ChangeNotifier {
 
   /// 是否为「连接 / 服务端未就绪」类错误（用于再等一次服务端就绪并重试一次）。
   static bool _isContactFailure(String msg) {
+    // 接收超时说明请求已送达（服务端在跑但不响应），交给"卡死"分支处理。
+    if (_isReceiveTimeout(msg)) return false;
     final m = msg.toLowerCase();
     return m.contains('dioexception') ||
         m.contains('socketexception') ||
@@ -542,6 +667,52 @@ class GenerationQueue extends ChangeNotifier {
         m.contains('refused') ||
         m.contains('远程计算机拒绝') ||
         m.contains('not ready');
+  }
+
+  /// 记录一次重试：递增计数并通知 UI（显示"重试 N 次"，同时重置生成计时）。
+  void _noteRetry(String recordId) {
+    _retryCount++;
+    AppLogger.info('retry #$_retryCount: record=$recordId');
+    notifyListeners();
+  }
+
+  /// 模型卡死后重启服务端（卡死的推理无法取消，只能杀进程释放模型锁）。
+  Future<bool> _restartForBusy(
+      String packageId, Map<String, String> dict, String recordId) async {
+    AppLogger.info(
+        'model wedged/busy: restarting server before retry: record=$recordId');
+    try {
+      await _ref.read(serverControllerProvider.notifier).stop();
+    } catch (_) {}
+    await _ensureServer(packageId, dict);
+    final snap = _ref.read(serverControllerProvider);
+    return snap.isRunning && snap.healthy;
+  }
+
+  /// 卡死且重启后仍失败：暂停队列（保留排队项）并给出持久提示。
+  void _pauseQueueForBusy(
+      Map<String, String> dict, String recordId, String msg) {
+    _pausing = true;
+    _ref.read(workbenchErrorNoticeProvider.notifier).state =
+        dict['workbench.busyPaused'] ?? msg;
+    AppLogger.error(
+        'model still wedged after server restart; queue paused: record=$recordId, err=$msg');
+    notifyListeners();
+  }
+
+  /// 是否为「模型被卡死推理占用」类错误（audio.cpp 503：busy / wedged）。
+  static bool _isBusyStuckFailure(String msg) {
+    final m = msg.toLowerCase();
+    return m.contains('is busy') ||
+        m.contains('wedged') ||
+        m.contains('busy_timeout_ms');
+  }
+
+  /// 客户端接收超时：请求已发出，但超时内没收到任何响应。
+  /// 卡死推理可能占满服务端工作线程，连 503 都发不出来，因此也按卡死处理。
+  static bool _isReceiveTimeout(String msg) {
+    final m = msg.toLowerCase();
+    return m.contains('receive timeout') || m.contains('receivetimeout');
   }
 
   static String? _nz(String? s) => (s == null || s.isEmpty) ? null : s;

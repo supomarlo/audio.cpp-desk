@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.1.3
+
+**New**
+- Voice conversion (VC) support (offline), with MeanVC2 adapted.
+
+**Improvements**
+- Automatic recovery and retry after a task timeout or wedged inference.
+- Close the player when switching sessions.
+- Show a loading state at startup.
+- Unify UI messages and wording.
+- Collapse the installed models section.
+- New sessions inherit the current collection.
+
+**Fixes**
+- Fix the task timeout setting being reset.
+- Fix abnormal timeout slider behavior.
+- Fix the status bar text when the service stops.
+
 ## 0.1.2
 
 **Improvements**

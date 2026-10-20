@@ -79,6 +79,18 @@ void main() {
       final cfg = AppConfig(locale: 'en').normalizedFor(paths);
       expect(cfg.locale, 'en');
     });
+
+    test('normalizedFor 保留单次任务超时', () async {
+      final temp = Directory.systemTemp.createTempSync('i18n_cfg_');
+      addTearDown(() {
+        try {
+          temp.deleteSync(recursive: true);
+        } catch (_) {}
+      });
+      final paths = AppPaths(temp);
+      final cfg = AppConfig(taskTimeoutSeconds: 600).normalizedFor(paths);
+      expect(cfg.taskTimeoutSeconds, 600);
+    });
   });
 
   testWidgets('侧边栏语言切换并写入配置', (tester) async {

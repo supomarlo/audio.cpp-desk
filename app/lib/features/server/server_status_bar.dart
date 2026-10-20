@@ -30,7 +30,7 @@ class ServerStatusBar extends ConsumerWidget {
         ),
       ServerLifecycle.stopping => (
           Colors.orange,
-          dict['server.status.starting'] ?? 'Starting…'
+          dict['server.status.stopping'] ?? 'Stopping…'
         ),
       ServerLifecycle.error => (
           Colors.red,

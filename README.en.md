@@ -17,7 +17,7 @@ A session-based desktop client for [audio.cpp](https://github.com/0xShug0/audio.
 - **Server control**: configure and run the audio.cpp server.
 - **Bilingual UI** (简体中文 / English).
 
-> Only **TTS / ASR** have been tested so far; other features may be incomplete.
+> Only **TTS / ASR / VC** have been tested so far; other features may be incomplete.
 
 > Model specs library: derived from the official audio.cpp repository and
 > documentation, with additions by this project (descriptions, sizes, memory /
@@ -39,7 +39,8 @@ The main features of the following models have been tested at a basic level:
 | Qwen3-TTS 1.7B CustomVoice | TTS / built-in voices |
 | Qwen3-TTS 1.7B VoiceDesign | TTS / voice design |
 | IndexTTS-2.5 | TTS / clone / emotion control |
-| Qwen3-ASR 1.7B | ASR |
+| Qwen3-ASR 1.7B | ASR / speech recognition |
+| MeanVC2 | VC / voice conversion |
 
 > Other models run through the same generic console but are not yet tested;
 > instruction adherence varies by model. Feedback and adaptation requests are

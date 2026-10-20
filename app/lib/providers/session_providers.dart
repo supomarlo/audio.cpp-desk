@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -5,15 +7,25 @@ import 'package:flutter_riverpod/legacy.dart';
 import '../core/session_store.dart';
 import '../models/session.dart';
 import 'app_providers.dart';
+import 'player_providers.dart';
 
 final sessionStoreProvider = Provider<SessionStore>(
     (ref) => SessionStore(ref.watch(appPathsProvider)));
 
 /// 当前会话（ChangeNotifier：字段可变，变更后 notifyListeners + 落盘）。
 class CurrentSessionController extends ChangeNotifier {
-  CurrentSessionController(this._store) : session = _store.createSession();
+  CurrentSessionController(this._store,
+      {this.onSessionSwitch, this.onSessionPersisted})
+      : session = _store.createSession();
 
   final SessionStore _store;
+
+  /// 切换会话（新建 / 载入）时的附带动作：停止并关闭全局播放器，
+  /// 避免上一个会话的音频残留或串场。
+  final void Function()? onSessionSwitch;
+
+  /// 会话首次落盘时的附带动作（用于把继承来的集合归属写进集合文件）。
+  final void Function(String sessionId, String collectionId)? onSessionPersisted;
   Session session;
   bool _persisted = false;
 
@@ -41,10 +53,16 @@ class CurrentSessionController extends ChangeNotifier {
     );
     session.records.add(r);
     // 有第一条记录时才把会话落盘（空会话不进历史）。
+    final wasPersisted = _persisted;
     session.updatedAtMs = r.createdAtMs;
     _store.saveMeta(session);
     _persisted = true;
     _store.saveRecord(session.id, r);
+    // 继承来的集合归属：首次落盘后写入集合成员列表。
+    final cid = session.collectionId;
+    if (!wasPersisted && cid != null && cid.isNotEmpty) {
+      onSessionPersisted?.call(session.id, cid);
+    }
     notifyListeners();
     return r;
   }
@@ -87,7 +105,13 @@ class CurrentSessionController extends ChangeNotifier {
   }
 
   void newSession() {
+    // 继承当前会话的集合归属（新建会话不再重置集合）。
+    final inheritCid = session.collectionId;
+    onSessionSwitch?.call();
     session = _store.createSession();
+    if (inheritCid != null && inheritCid.isNotEmpty) {
+      session.collectionId = inheritCid;
+    }
     _persisted = false;
     notifyListeners();
   }
@@ -95,6 +119,7 @@ class CurrentSessionController extends ChangeNotifier {
   void openSession(String sid) {
     final s = _store.loadSession(sid);
     if (s != null) {
+      onSessionSwitch?.call();
       session = s;
       _persisted = true;
       notifyListeners();
@@ -104,7 +129,16 @@ class CurrentSessionController extends ChangeNotifier {
 
 final currentSessionProvider =
     ChangeNotifierProvider<CurrentSessionController>((ref) {
-  return CurrentSessionController(ref.watch(sessionStoreProvider));
+  return CurrentSessionController(
+    ref.watch(sessionStoreProvider),
+    onSessionSwitch: () => unawaited(ref.read(audioPlayerProvider).stop()),
+    onSessionPersisted: (sid, cid) {
+      final cc = ref.read(collectionsProvider.notifier);
+      // 集合可能已被删除：忽略失效归属。
+      if (cc.byId(cid) == null) return;
+      cc.addSession(sid, cid);
+    },
+  );
 });
 
 /// 会话列表（按最近活动倒序）。会在当前会话变更后重新扫描。

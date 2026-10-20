@@ -183,7 +183,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   /// 应用单次任务超时（写进 server.json 的 busy_timeout_ms；服务端非停止态时重启以生效）。
   Future<void> _applyTimeout(int minutes) async {
-    if (!await confirmWhileBusy(ref, context)) return;
+    if (!await confirmWhileBusy(ref, context)) {
+      // 未应用：草稿归位到当前配置值，避免 UI 与实际配置不一致。
+      if (mounted) setState(() => _timeoutDraft = null);
+      return;
+    }
     if (!mounted) return;
     final snap = ref.read(serverControllerProvider);
     // 只要不在“已停止”态（含 starting/stopping/running/error）都需重启一次来套用新配置。
@@ -380,10 +384,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       max: _timeoutMax.toDouble(),
                                       divisions: _timeoutMax - _timeoutMin,
                                       label: '$shown min',
+                                      // 拖动中只更新草稿（即时反馈）；松手后才应用/拦截。
                                       onChanged: (v) {
                                         final m = v.round();
                                         setState(() => _timeoutDraft = m);
-                                        _scheduleTaskTimeout(m);
+                                      },
+                                      onChangeEnd: (v) {
+                                        _scheduleTaskTimeout(v.round());
                                       },
                                     ),
                                   ),
