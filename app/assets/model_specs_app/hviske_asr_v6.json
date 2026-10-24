@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "family": "hviske_asr_v6",
+  "display_name": "Hviske v6",
+  "description": "Danish speech recognition with a rotary Whisper encoder and Qwen3 decoder.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "da"
+  ],
+  "capabilities": {},
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "auto preserves silence splitting above 30 seconds; silence splits above the configured duration at silence boundaries; fixed splits at the configured duration; none disables splitting and accepts at most 30 seconds.",
+        "required": false,
+        "default": "auto",
+        "values": [
+          "auto",
+          "silence",
+          "fixed",
+          "none"
+        ]
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Maximum chunk duration when splitting. In auto mode the 30-second trigger remains unchanged.",
+        "required": false,
+        "default": 28.0,
+        "min": 0.001,
+        "max": 30.0
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated tokens per chunk, also capped to eight tokens per audio second plus twelve.",
+        "required": false,
+        "default": 440,
+        "min": 1
+      },
+      {
+        "name": "num_beams",
+        "type": "int",
+        "description": "Beam-search width. One selects greedy decoding.",
+        "required": false,
+        "default": 2,
+        "min": 1
+      },
+      {
+        "name": "length_penalty",
+        "type": "float",
+        "description": "Exponent used to normalize beam scores by generated length.",
+        "required": false,
+        "default": 1.0
+      },
+      {
+        "name": "cased",
+        "type": "bool",
+        "description": "Request casing separately from punctuation. Both cased and punc must be provided to override automatic formatting.",
+        "required": false
+      },
+      {
+        "name": "punc",
+        "type": "bool",
+        "description": "Request punctuation only, unlike the combined punctuation/casing control in Canary, Cohere and original Hviske. Both cased and punc must be provided to override automatic formatting.",
+        "required": false
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "preset": "weight_type_full",
+        "description": "Weight storage override; native preserves the supplied checkpoint types.",
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "packages": [
+    {
+      "id": "hviske_asr_v6_bf16",
+      "display_name": "Hviske v6 BF16 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "Hviske-v6-GGUF",
+      "files": [
+        "Hviske-v6-GGUF/hviske-v6-bf16.gguf"
+      ],
+      "strip_prefix": "Hviske-v6-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2803839744,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2803839744,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2803839744,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2803839744,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "hviske_asr_v6_q8_0",
+      "display_name": "Hviske v6 Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "Hviske-v6-GGUF",
+      "files": [
+        "Hviske-v6-GGUF/hviske-v6-q8_0.gguf"
+      ],
+      "strip_prefix": "Hviske-v6-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "audio-cpp/audio.cpp-gguf"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1650365184,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1650365184,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1650365184,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1650365184,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "hviske_asr_v6_bf16",
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/hviske_asr_v6.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "model:model.safetensors"
+        }
+      }
+    },
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_json": "model:tokenizer.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Danish speech recognition with a rotary Whisper encoder and Qwen3 decoder.",
+      "zh": "丹麦语语音识别，采用旋转位置编码的 Whisper 编码器与 Qwen3 解码器。"
+    },
+    "options": {
+      "audio_chunk_mode": {
+        "en": "auto preserves silence splitting above 30 seconds; silence splits above the configured duration at silence boundaries; fixed splits at the configured duration; none disables splitting and accepts at most 30 seconds.",
+        "zh": "auto 在超过 30 秒时按静音切分；silence 在配置时长以上的静音边界切分；fixed 按配置时长切分；none 关闭切分并最多接受 30 秒。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Maximum chunk duration when splitting. In auto mode the 30-second trigger remains unchanged.",
+        "zh": "切分时的最大分块时长。auto 模式下 30 秒触发阈值保持不变。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated tokens per chunk, also capped to eight tokens per audio second plus twelve.",
+        "zh": "每个分块生成的最大 token 数，同时限制为每秒音频 8 个 token 加 12。"
+      },
+      "num_beams": {
+        "en": "Beam-search width. One selects greedy decoding.",
+        "zh": "beam search 宽度；1 表示贪心解码。"
+      },
+      "length_penalty": {
+        "en": "Exponent used to normalize beam scores by generated length.",
+        "zh": "用于按生成长度归一化 beam 分数的指数。"
+      },
+      "cased": {
+        "en": "Request casing separately from punctuation. Both cased and punc must be provided to override automatic formatting.",
+        "zh": "单独请求大小写，与标点分开。cased 与 punc 必须同时提供才能覆盖自动格式。"
+      },
+      "punc": {
+        "en": "Request punctuation only, unlike the combined punctuation/casing control in Canary, Cohere and original Hviske. Both cased and punc must be provided to override automatic formatting.",
+        "zh": "仅请求标点，不同于 Canary、Cohere 与原版 Hviske 的标点/大小写联合控制。cased 与 punc 必须同时提供才能覆盖自动格式。"
+      }
+    }
+  }
+}

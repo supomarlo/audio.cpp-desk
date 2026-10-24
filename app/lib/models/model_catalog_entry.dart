@@ -1,3 +1,5 @@
+import 'package:path/path.dart' as p;
+
 import 'model_spec.dart';
 
 class ModelCatalogEntry {
@@ -64,6 +66,24 @@ class ModelCatalogEntry {
   bool get isSupported => status == 'supported';
   bool get isExperimental => !isSupported;
   bool get hasSource => sources.isNotEmpty;
+
+  /// 当前包在本地的加载路径。
+  ///
+  /// GGUF 包只含一个权重文件时直接返回该文件（避免目录内多版本 GGUF 歧义）；
+  /// 其它情况返回目标目录。
+  String localModelPath(String modelsDir) {
+    final dir = p.join(modelsDir, targetDirectory);
+    final ggufs = files
+        .where((f) => f.toLowerCase().endsWith('.gguf'))
+        .toList(growable: false);
+    if (ggufs.length != 1) return dir;
+    final prefix = stripPrefix.replaceAll(RegExp(r'/+$'), '');
+    var rel = ggufs.first;
+    if (prefix.isNotEmpty && rel.startsWith('$prefix/')) {
+      rel = rel.substring(prefix.length + 1);
+    }
+    return rel.isEmpty ? dir : p.join(dir, rel);
+  }
 
   ModelCatalogEntry copyWith({
     String? family,
@@ -178,7 +198,9 @@ class ModelCatalogEntry {
       isDefault: json['is_default'] as bool? ?? false,
       sourceRepo: json['source_repo'] as String? ?? '',
       targetDirectory: json['target_directory'] as String? ?? '',
-      files: (json['files'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      files: (json['files'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
       stripPrefix: json['strip_prefix'] as String? ?? '',
       downloadKind: json['download_kind'] as String? ?? 'huggingface_snapshot',
       revision: json['revision'] as String? ?? 'main',

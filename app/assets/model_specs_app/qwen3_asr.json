@@ -61,7 +61,8 @@
       {
         "name": "max_tokens",
         "type": "int",
-        "description": "Maximum decode tokens."
+        "description": "Maximum decode tokens.",
+        "min": 1
       },
       {
         "name": "audio_chunk_mode",
@@ -72,7 +73,14 @@
           "fixed",
           "vad",
           "none"
-        ]
+        ],
+        "default": "auto"
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Maximum audio chunk duration in seconds; default 30, or 15 for timestamps/VAD chunking.",
+        "min": 0.0
       },
       {
         "name": "return_timestamps",
@@ -512,6 +520,10 @@
       "audio_chunk_mode": {
         "en": "Audio chunking mode: auto, fixed, vad, or none.",
         "zh": "音频分块模式：auto、fixed、vad 或 none。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Maximum audio chunk duration in seconds; default 30, or 15 for timestamps/VAD chunking.",
+        "zh": "最大音频分块时长（秒）；默认 30，时间戳/VAD 分块时默认 15。"
       },
       "return_timestamps": {
         "en": "Request word timestamps in the result.",

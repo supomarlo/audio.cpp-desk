@@ -104,6 +104,7 @@ class GenerationRecord {
     required this.type,
     this.family = '',
     this.packageId = '',
+    this.seq = 0,
     this.status = 'generating',
     required this.createdAtMs,
     Map<String, String>? inputs,
@@ -117,6 +118,9 @@ class GenerationRecord {
   final String type;
   final String family;
   final String packageId;
+
+  /// 会话内序号；旧记录为 0，加载时补写。
+  int seq;
 
   /// generating | done | failed
   String status;
@@ -134,6 +138,7 @@ class GenerationRecord {
         'type': type,
         'family': family,
         'package_id': packageId,
+        if (seq > 0) 'seq': seq,
         'status': status,
         'created_at_ms': createdAtMs,
         'inputs': inputs,
@@ -147,6 +152,7 @@ class GenerationRecord {
         type: json['type'] as String? ?? RecordType.other,
         family: json['family'] as String? ?? '',
         packageId: json['package_id'] as String? ?? '',
+        seq: (json['seq'] as num?)?.toInt() ?? 0,
         status: json['status'] as String? ?? 'done',
         createdAtMs: (json['created_at_ms'] as num?)?.toInt() ?? 0,
         inputs: (json['inputs'] as Map?)?.map(

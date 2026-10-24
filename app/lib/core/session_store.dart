@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+import 'app_logger.dart';
 import 'app_paths.dart';
 import '../models/session.dart';
 
@@ -191,18 +192,37 @@ class SessionStore {
       } catch (_) {}
     }
     recs.sort((a, b) => a.createdAtMs.compareTo(b.createdAtMs));
+    _backfillSequences(sid, recs);
     return recs;
+  }
+
+  /// 旧记录没有 seq：按创建顺序补写，之后删除记录也不重排。
+  void _backfillSequences(String sid, List<GenerationRecord> recs) {
+    if (recs.every((r) => r.seq > 0)) return;
+    var last = 0;
+    for (final r in recs) {
+      if (r.seq > last) last = r.seq;
+    }
+    for (final r in recs) {
+      if (r.seq > 0) continue;
+      r.seq = ++last;
+      _writeJson(File(p.join(recordsDir(sid).path, '${r.id}.json')), r.toJson());
+    }
   }
 
   void deleteRecord(String sid, String rid) {
     try {
       final rf = File(p.join(recordsDir(sid).path, '$rid.json'));
       if (rf.existsSync()) rf.deleteSync();
-    } catch (_) {}
+    } catch (e) {
+      AppLogger.error('session: failed to delete record json $sid/$rid: $e');
+    }
     try {
       final af = File(audioPath(sid, rid));
       if (af.existsSync()) af.deleteSync();
-    } catch (_) {}
+    } catch (e) {
+      AppLogger.error('session: failed to delete record audio $sid/$rid: $e');
+    }
   }
 
   /// 删除记录后同步会话统计；为空则删除整个会话（meta/records/audio）。

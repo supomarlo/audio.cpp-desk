@@ -152,8 +152,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     final starting = snapshot.isStarting;
     final busy = running || starting || snapshot.lifecycle == ServerLifecycle.stopping;
     final dict = ref.watch(stringsProvider);
-    // 运行中/启动中禁止修改版本、后端、设备、线程等参数（改了对正在跑的实例不生效）。
-    final locked = running || starting;
+    // 非 stopped 状态禁止修改版本、后端、设备、线程等参数。
+    final locked = !snapshot.isStopped;
     final lockHint = dict['server.lockHint'] ??
         'The server is running. Stop it first to change this.';
     final registeredBackends = ref.watch(availableBackendsProvider).value;

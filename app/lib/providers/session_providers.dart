@@ -42,11 +42,16 @@ class CurrentSessionController extends ChangeNotifier {
     Map<String, String>? inputs,
     String status = 'generating',
   }) {
+    var lastSeq = 0;
+    for (final r in session.records) {
+      if (r.seq > lastSeq) lastSeq = r.seq;
+    }
     final r = GenerationRecord(
       id: SessionStore.newId(),
       type: type,
       family: family,
       packageId: packageId,
+      seq: lastSeq + 1,
       status: status,
       createdAtMs: DateTime.now().millisecondsSinceEpoch,
       inputs: inputs ?? {},

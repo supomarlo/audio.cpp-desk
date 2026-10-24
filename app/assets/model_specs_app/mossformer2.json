@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "family": "mossformer2",
+  "display_name": "MossFormer2",
+  "description": "MossFormer2 overlapping speech separation at 16 kHz.",
+  "category": "audio_tools",
+  "status": "supported",
+  "tasks": [
+    "sep"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "sep": [
+      "stems"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Separation window duration; zero selects whole-file inference.",
+        "min": 0,
+        "default": 2,
+        "required": false
+      },
+      {
+        "name": "audio_chunk_overlap_sec",
+        "type": "float",
+        "description": "Overlap between adjacent audio chunks, in seconds; must be smaller than audio_chunk_duration_sec when chunking is enabled. Recommended: 25% of audio_chunk_duration_sec, matching the official Python settings. Overlapping edges are trimmed rather than averaged. Ignored for whole-file inference.",
+        "min": 0,
+        "default": 0.5,
+        "required": false
+      },
+      {
+        "name": "normalize_output",
+        "type": "bool",
+        "description": "Match each trimmed track RMS to the input as in ClearVoice's NumPy interface.",
+        "default": true,
+        "required": false
+      }
+    ],
+    "session": [],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "mossformer2_ss_16k_f32",
+      "display_name": "MossFormer2 SS 16K F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "MossFormer2-GGUF",
+      "files": [
+        "MossFormer2-GGUF/mossformer2-ss-16k-f32.gguf"
+      ],
+      "strip_prefix": "MossFormer2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 223123620,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 223123620,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 223123620,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 223123620,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "mossformer2_ss_16k_f16",
+      "display_name": "MossFormer2 SS 16K F16",
+      "default": false,
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "MossFormer2-GGUF",
+      "files": [
+        "MossFormer2-GGUF/mossformer2-ss-16k-f16.gguf"
+      ],
+      "strip_prefix": "MossFormer2-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 112087204,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 112087204,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 112087204,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 112087204,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/mossformer2.md"
+    ],
+    "recommended_package": "mossformer2_ss_16k_f32"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "MossFormer2 overlapping speech separation at 16 kHz.",
+      "zh": "MossFormer2 16 kHz 重叠语音分离。"
+    },
+    "options": {
+      "audio_chunk_duration_sec": {
+        "en": "Separation window duration; zero selects whole-file inference.",
+        "zh": "分离窗口时长；0 表示整文件推理。"
+      },
+      "audio_chunk_overlap_sec": {
+        "en": "Overlap between adjacent audio chunks, in seconds; must be smaller than audio_chunk_duration_sec when chunking is enabled. Recommended: 25% of audio_chunk_duration_sec, matching the official Python settings. Overlapping edges are trimmed rather than averaged. Ignored for whole-file inference.",
+        "zh": "相邻音频分块的重叠时长（秒）；启用分块时必须小于 audio_chunk_duration_sec。推荐为 audio_chunk_duration_sec 的 25%，与官方 Python 设置一致。重叠边缘会被裁掉而非平均。整文件推理时忽略。"
+      },
+      "normalize_output": {
+        "en": "Match each trimmed track RMS to the input as in ClearVoice's NumPy interface.",
+        "zh": "按 ClearVoice NumPy 接口，将每条裁剪后轨道的 RMS 匹配到输入。"
+      }
+    }
+  }
+}

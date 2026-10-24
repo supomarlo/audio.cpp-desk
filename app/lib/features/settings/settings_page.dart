@@ -121,16 +121,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       }
       return;
     }
-    if (serverChanged) {
-      // 按新目录重启服务端：等模型库重建完成后，带最新模型启动。
-      try {
-        await ref.read(modelLibraryProvider.notifier).ready;
-      } catch (_) {}
-      try {
-        await ref.read(serverControllerProvider.notifier).stop();
-        await ensureServerStarted(ref);
-      } catch (_) {}
-    }
   }
 
   // 单次任务超时范围（分钟），滑动条按 1 分钟步进。
@@ -220,17 +210,41 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
+  Widget _lockTip(bool locked, String hint, Widget child) =>
+      locked ? Tooltip(message: hint, child: child) : child;
+
+  Widget _aboutLink(String url) {
+    final textTheme = Theme.of(context).textTheme;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => _openUrl(url),
+        child: Text(
+          url,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
+
   InputDecoration _dirDecoration(
+    String label,
     String hint,
-    TextEditingController ctrl,
-  ) {
+    TextEditingController ctrl, {
+    bool enabled = true,
+  }) {
     return InputDecoration(
       border: const OutlineInputBorder(),
+      labelText: label,
       hintText: hint,
       suffixIcon: IconButton(
         tooltip: ref.read(stringsProvider)['settings.pickDir'] ?? 'Choose directory',
         icon: const Icon(Icons.folder_open),
-        onPressed: () => _pickDirectory(ctrl),
+        onPressed: enabled ? () => _pickDirectory(ctrl) : null,
       ),
     );
   }
@@ -241,6 +255,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final config = ref.watch(appConfigProvider);
     final dict = ref.watch(stringsProvider);
     final textTheme = Theme.of(context).textTheme;
+    final serverSnap = ref.watch(serverControllerProvider);
+    final serverLocked = !serverSnap.isStopped;
+    final lockHint = dict['server.lockHint'] ??
+        'The server is running. Stop it first to change this.';
     final cur = _timeoutMinutes(config.taskTimeoutSeconds);
     // 拖动过程中用本地草稿值做即时反馈；防抖应用后再回到配置值。
     final shown = _timeoutDraft ?? cur;
@@ -255,51 +273,73 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           Expanded(
             child: ListView(
               children: [
+                const SizedBox(height: 12),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(dict['settings.directories'] ?? 'Directories',
-                            style: textTheme.titleMedium),
-                        const SizedBox(height: 8),
-                        Text(dict['settings.audioCppDesc'] ?? '',
-                            style: textTheme.bodySmall),
-                        TextField(
-                          controller: _audioCppCtrl,
-                          decoration: _dirDecoration(
-                            dict['settings.audioCppHint'] ?? 'audio.cpp or absolute path',
-                            _audioCppCtrl,
+                        _lockTip(
+                          serverLocked,
+                          lockHint,
+                          TextField(
+                            controller: _audioCppCtrl,
+                            enabled: !serverLocked,
+                            decoration: _dirDecoration(
+                              dict['settings.audioCppDesc'] ?? '',
+                              dict['settings.audioCppHint'] ??
+                                  'audio.cpp or absolute path',
+                              _audioCppCtrl,
+                              enabled: !serverLocked,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text(dict['settings.modelsLabel'] ?? 'Default model directory',
-                            style: textTheme.bodySmall),
-                        TextField(
-                          controller: _modelsCtrl,
-                          decoration: _dirDecoration(
-                            dict['settings.modelsHint'] ?? 'models or absolute path',
-                            _modelsCtrl,
+                        _lockTip(
+                          serverLocked,
+                          lockHint,
+                          TextField(
+                            controller: _modelsCtrl,
+                            enabled: !serverLocked,
+                            decoration: _dirDecoration(
+                              dict['settings.modelsLabel'] ??
+                                  'Default model directory',
+                              dict['settings.modelsHint'] ??
+                                  'models or absolute path',
+                              _modelsCtrl,
+                              enabled: !serverLocked,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text(dict['settings.dataLabel'] ?? 'Data directory (backup = copy this directory)',
-                            style: textTheme.bodySmall),
-                        TextField(
-                          controller: _dataCtrl,
-                          decoration: _dirDecoration(
-                            dict['settings.dataHint'] ?? 'data or absolute path',
-                            _dataCtrl,
+                        _lockTip(
+                          serverLocked,
+                          lockHint,
+                          TextField(
+                            controller: _dataCtrl,
+                            enabled: !serverLocked,
+                            decoration: _dirDecoration(
+                              dict['settings.dataLabel'] ??
+                                  'Data directory (backup = copy this directory)',
+                              dict['settings.dataHint'] ??
+                                  'data or absolute path',
+                              _dataCtrl,
+                              enabled: !serverLocked,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: FilledButton.icon(
-                            onPressed: _save,
-                            icon: const Icon(Icons.save_outlined),
-                            label: Text(dict['common.save'] ?? 'Save'),
+                          child: _lockTip(
+                            serverLocked,
+                            lockHint,
+                            FilledButton.icon(
+                              onPressed: serverLocked ? null : _save,
+                              icon: const Icon(Icons.save_outlined),
+                              label: Text(dict['common.save'] ?? 'Save'),
+                            ),
                           ),
                         ),
                       ],
@@ -418,123 +458,137 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       children: [
                         Text(dict['settings.about'] ?? 'About',
                             style: textTheme.titleMedium),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Image.asset('assets/icon/app_icon.png',
-                                width: 48, height: 48),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(AppInfo.name,
-                                      style: textTheme.titleMedium),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'v${AppInfo.version}',
-                                    style: textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant),
+                        const SizedBox(height: 12),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final left = Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  children: [
+                                    Image.asset('assets/icon/app_icon.png',
+                                        width: 48, height: 48),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(AppInfo.name,
+                                              style: textTheme.titleMedium),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'v${AppInfo.version}',
+                                            style:
+                                                textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  dict['settings.about.desc'] ??
+                                      'A desktop client for audio.cpp.',
+                                  style: textTheme.bodyMedium,
+                                ),
+                                const SizedBox(height: 12),
+                                _aboutLink(AppInfo.homepage),
+                              ],
+                            );
+                            final right = Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () => showLicensePage(
+                                      context: context,
+                                      applicationName: AppInfo.name,
+                                      applicationVersion: 'v${AppInfo.version}',
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.description_outlined,
+                                            size: 18,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          dict['settings.about.license'] ??
+                                              'Open-source licenses',
+                                          style: textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  dict['settings.about.source'] ??
+                                      'Model specs and descriptions are derived from the official audio.cpp repository and documentation.',
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  dict['settings.about.binary'] ??
+                                      'audio.cpp itself is not provided with this software; obtain it separately.',
+                                  style: textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                _aboutLink(AppInfo.upstream),
+                              ],
+                            );
+                            if (constraints.maxWidth < 680) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  left,
+                                  const Divider(height: 24),
+                                  right,
+                                ],
+                              );
+                            }
+                            return IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(flex: 5, child: left),
+                                  const SizedBox(width: 24),
+                                  Container(
+                                    width: 1,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .outlineVariant,
+                                  ),
+                                  const SizedBox(width: 24),
+                                  Expanded(flex: 6, child: right),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          dict['settings.about.desc'] ??
-                              'A desktop client for audio.cpp.',
-                          style: textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          dict['settings.about.source'] ??
-                              'Model specs and descriptions are derived from the official audio.cpp repository and documentation.',
-                          style: textTheme.bodySmall?.copyWith(
-                              color:
-                                  Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${dict['settings.about.homepage'] ?? 'Homepage'}: ',
-                              style: textTheme.bodySmall,
-                            ),
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    onTap: () => _openUrl(AppInfo.homepage),
-                                    child: Text(
-                                      AppInfo.homepage,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${dict['settings.about.upstream'] ?? 'Upstream'}: ',
-                              style: textTheme.bodySmall,
-                            ),
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    onTap: () => _openUrl(AppInfo.upstream),
-                                    child: Text(
-                                      AppInfo.upstream,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton.icon(
-                            onPressed: () => showLicensePage(
-                              context: context,
-                              applicationName: AppInfo.name,
-                              applicationVersion: 'v${AppInfo.version}',
-                            ),
-                            icon: const Icon(Icons.description_outlined,
-                                size: 18),
-                            label: Text(
-                                dict['settings.about.license'] ??
-                                    'Open-source licenses'),
-                          ),
+                            );
+                          },
                         ),
                       ],
                     ),

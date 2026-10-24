@@ -24,10 +24,17 @@ class ModelsPage extends ConsumerStatefulWidget {
 
 class _ModelsPageState extends ConsumerState<ModelsPage> {
   final GlobalKey _tabBarKey = GlobalKey();
+  final TextEditingController _searchCtrl = TextEditingController();
   String _query = '';
   bool _refreshing = false;
   // 「已安装」区域折叠状态：首次进入默认展开，不持久化。
   bool _installedCollapsed = false;
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   Future<void> _refresh() async {
     if (_refreshing) return;
@@ -124,6 +131,7 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
           children: [
             Expanded(
               child: TextField(
+                controller: _searchCtrl,
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
                   hintText: ref.watch(stringsProvider)['models.searchHint'] ??

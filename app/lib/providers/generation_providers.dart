@@ -412,6 +412,29 @@ class GenerationQueue extends ChangeNotifier {
       } catch (_) {}
     }
 
+    // 规则声明的派生选项（如 template_name）：仅当规则声明时执行。
+    final derived = rule.derivedOptions;
+    if (derived != null) {
+      final vi = rule.voiceId;
+      final builtinVoice = vi != null &&
+          ((vi.option.isNotEmpty && _nz(extra[vi.option]) != null) ||
+              (vi.option.isEmpty && _nz(record.inputs['voice_id']) != null));
+      final referenceVoice = !builtinVoice &&
+          (_nz(record.inputs['voice_ref']) != null ||
+              _nz(record.inputs['voice']) != null);
+      final result = derived.resolve(
+        extra,
+        builtinVoice: builtinVoice,
+        referenceVoice: referenceVoice,
+      );
+      if (result != null) {
+        for (final key in result.clear) {
+          extra.remove(key);
+        }
+        extra.addAll(result.set);
+      }
+    }
+
     final client = _ref.read(serverClientProvider);
     final language = _nz(record.inputs['language']);
     // 语言提交位置由规则声明：languageKey 非空 → 提交到 options.<languageKey>；

@@ -9,6 +9,7 @@ import '../core/app_config.dart';
 import '../core/app_logger.dart';
 import '../core/app_paths.dart';
 import '../core/model_library_store.dart';
+import '../core/variant_key.dart';
 import '../core/voice_library_store.dart';
 import '../models/model_catalog_entry.dart';
 import '../models/model_spec.dart';
@@ -86,8 +87,9 @@ class VoiceLibraryController extends StateNotifier<VoiceLibraryState> {
       description: (description == null || description.trim().isEmpty)
           ? null
           : description.trim(),
-      language:
-          (language == null || language.trim().isEmpty) ? null : language.trim(),
+      language: (language == null || language.trim().isEmpty)
+          ? null
+          : language.trim(),
       createdAt: DateTime.now(),
     );
     state = state.copyWith(voices: [...state.voices, entry]);
@@ -208,9 +210,9 @@ class ModelLibraryController extends StateNotifier<ModelLibraryState> {
       }
     }
     if (target == null || !target.installed || target.family.isEmpty) return;
-    final family = target.family;
+    final variant = '${target.family}|${VariantKey.of(packageId)}';
     final entries = state.entries.map((e) {
-      if (e.family != family) return e;
+      if ('${e.family}|${VariantKey.of(e.packageId)}' != variant) return e;
       return e.copyWith(activeVersion: e.packageId == packageId);
     }).toList();
     state = state.copyWith(entries: entries);

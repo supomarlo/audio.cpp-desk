@@ -1,0 +1,625 @@
+{
+  "schema_version": 1,
+  "family": "gigaam_asr",
+  "display_name": "GigaAM ASR",
+  "description": "GigaAM v3 and Multilingual Conformer speech recognition with CTC or RNN-T decoding.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "ru",
+    "kk",
+    "ky",
+    "uz",
+    "en"
+  ],
+  "capabilities": {
+    "asr": [
+      "word_timestamps",
+      "vad_chunking"
+    ]
+  },
+  "dependencies": [],
+  "options": {
+    "request": [
+      {
+        "name": "return_timestamps",
+        "type": "bool",
+        "description": "Return word timestamps derived from decoder token emission frames.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Long-form audio chunking mode.",
+        "values": [
+          "auto",
+          "fixed",
+          "quiet_energy",
+          "vad",
+          "none"
+        ],
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Maximum duration of each audio chunk in seconds.",
+        "required": false,
+        "min": 0.02,
+        "max": 25,
+        "default": 25
+      }
+    ],
+    "session": [
+      {
+        "name": "vad_model_path",
+        "type": "path",
+        "description": "Offline VAD model used only with audio_chunk_mode=vad.",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Weight storage type.",
+        "preset": "weight_type_full",
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "gigaam_v3_ctc_f16",
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/gigaam_asr.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "gigaam_v3_ctc_f16",
+      "display_name": "GigaAM v3 CTC F16 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "GigaAM-ASR-GGUF",
+      "files": [
+        "GigaAM-ASR-GGUF/gigaam-v3-ctc-f16.gguf"
+      ],
+      "strip_prefix": "GigaAM-ASR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "GigaAM v3 Russian ASR with CTC decoding.",
+          "zh": "GigaAM v3 俄语 ASR，CTC 解码。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 441594240,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 441594240,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 441594240,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 441594240,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "gigaam_v3_rnnt_f16",
+      "display_name": "GigaAM v3 RNN-T F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "GigaAM-ASR-GGUF",
+      "files": [
+        "GigaAM-ASR-GGUF/gigaam-v3-rnnt-f16.gguf"
+      ],
+      "strip_prefix": "GigaAM-ASR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "GigaAM v3 Russian ASR with RNN-T decoding.",
+          "zh": "GigaAM v3 俄语 ASR，RNN-T 解码。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 446260224,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 446260224,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 446260224,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 446260224,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "gigaam_v3_e2e_ctc_f16",
+      "display_name": "GigaAM v3 E2E CTC F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "GigaAM-ASR-GGUF",
+      "files": [
+        "GigaAM-ASR-GGUF/gigaam-v3-e2e-ctc-f16.gguf"
+      ],
+      "strip_prefix": "GigaAM-ASR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "GigaAM v3 Russian ASR with E2E CTC decoding; restores punctuation and capitalization.",
+          "zh": "GigaAM v3 俄语 ASR，E2E CTC 解码，恢复标点与大小写。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 442520704,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 442520704,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 442520704,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 442520704,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "gigaam_v3_e2e_rnnt_f16",
+      "display_name": "GigaAM v3 E2E RNN-T F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "GigaAM-ASR-GGUF",
+      "files": [
+        "GigaAM-ASR-GGUF/gigaam-v3-e2e-rnnt-f16.gguf"
+      ],
+      "strip_prefix": "GigaAM-ASR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "GigaAM v3 Russian ASR with E2E RNN-T decoding; restores punctuation and capitalization.",
+          "zh": "GigaAM v3 俄语 ASR，E2E RNN-T 解码，恢复标点与大小写。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 449056064,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 449056064,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 449056064,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 449056064,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "gigaam_multilingual_ctc_f32",
+      "display_name": "GigaAM Multilingual CTC F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "GigaAM-ASR-GGUF",
+      "files": [
+        "GigaAM-ASR-GGUF/gigaam-multilingual-ctc-f32.gguf"
+      ],
+      "strip_prefix": "GigaAM-ASR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "GigaAM Multilingual ASR (Russian, Kazakh, Kyrgyz, Uzbek, English) with CTC decoding.",
+          "zh": "GigaAM Multilingual ASR（俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语），CTC 解码。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 883071840,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 883071840,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 883071840,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 883071840,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "gigaam_multilingual_ctc_f16",
+      "display_name": "GigaAM Multilingual CTC F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "GigaAM-ASR-GGUF",
+      "files": [
+        "GigaAM-ASR-GGUF/gigaam-multilingual-ctc-f16.gguf"
+      ],
+      "strip_prefix": "GigaAM-ASR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "GigaAM Multilingual ASR (Russian, Kazakh, Kyrgyz, Uzbek, English) with CTC decoding.",
+          "zh": "GigaAM Multilingual ASR（俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语），CTC 解码。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 442339680,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 442339680,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 442339680,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 442339680,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "gigaam_multilingual_large_ctc_f32",
+      "display_name": "GigaAM Multilingual Large CTC F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "GigaAM-ASR-GGUF",
+      "files": [
+        "GigaAM-ASR-GGUF/gigaam-multilingual-large-ctc-f32.gguf"
+      ],
+      "strip_prefix": "GigaAM-ASR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "GigaAM Multilingual Large ASR (Russian, Kazakh, Kyrgyz, Uzbek, English) with CTC decoding.",
+          "zh": "GigaAM Multilingual Large ASR（俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语），CTC 解码。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2341443040,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2341443040,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2341443040,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2341443040,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "gigaam_multilingual_large_ctc_f16",
+      "display_name": "GigaAM Multilingual Large CTC F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "GigaAM-ASR-GGUF",
+      "files": [
+        "GigaAM-ASR-GGUF/gigaam-multilingual-large-ctc-f16.gguf"
+      ],
+      "strip_prefix": "GigaAM-ASR-GGUF",
+      "i18n": {
+        "description": {
+          "en": "GigaAM Multilingual Large ASR (Russian, Kazakh, Kyrgyz, Uzbek, English) with CTC decoding.",
+          "zh": "GigaAM Multilingual Large ASR（俄语、哈萨克语、吉尔吉斯语、乌兹别克语、英语），CTC 解码。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1172282848,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1172282848,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1172282848,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1172282848,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    },
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "GigaAM v3 and Multilingual Conformer speech recognition with CTC or RNN-T decoding.",
+      "zh": "GigaAM v3 与多语言 Conformer 语音识别，支持 CTC 或 RNN-T 解码。"
+    },
+    "options": {
+      "return_timestamps": {
+        "en": "Return word timestamps derived from decoder token emission frames.",
+        "zh": "返回基于解码 token 发射帧推导的词级时间戳。"
+      },
+      "audio_chunk_mode": {
+        "en": "Long-form audio chunking mode.",
+        "zh": "长音频分块模式。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Maximum duration of each audio chunk in seconds.",
+        "zh": "每个音频分块的最大时长（秒）。"
+      }
+    }
+  }
+}

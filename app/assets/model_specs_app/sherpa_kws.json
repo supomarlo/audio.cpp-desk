@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "family": "sherpa_kws",
+  "display_name": "sherpa-onnx Zipformer KWS",
+  "description": "Streaming Zipformer transducer keyword spotting from sherpa-onnx model exports.",
+  "category": "audio_tools",
+  "status": "experimental",
+  "tasks": [
+    "wake_word"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "model_dependent"
+  ],
+  "capabilities": {
+    "wake_word": [
+      "speech_segments",
+      "stream_events"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "keywords",
+        "type": "string",
+        "description": "Newline- or slash-separated tokenized keyword rows; each row may include :score, #threshold, and @label fields.",
+        "required": false
+      },
+      {
+        "name": "max_active_paths",
+        "type": "int",
+        "description": "Maximum keyword decoder hypotheses.",
+        "required": false,
+        "default": 4,
+        "min": 1,
+        "max": 64
+      },
+      {
+        "name": "keywords_score",
+        "type": "float",
+        "description": "Default context score added for each matched keyword token. Negative values are accepted but token scores are clamped to at least zero.",
+        "required": false,
+        "default": 1
+      },
+      {
+        "name": "keywords_threshold",
+        "type": "float",
+        "description": "Default mean acoustic probability required to trigger a keyword.",
+        "required": false,
+        "default": 0.25,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "num_trailing_blanks",
+        "type": "int",
+        "description": "Emit after strictly more than this many trailing blank frames; 1 requires 2 blanks, 0 requires 1.",
+        "required": false,
+        "default": 1,
+        "min": 0
+      }
+    ],
+    "session": [],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "sherpa_kws_zipformer_zh_en_3m_f32",
+      "display_name": "Sherpa KWS Zipformer Chinese-English 3M GGUF F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "Sherpa-KWS-GGUF",
+      "files": [
+        "Sherpa-KWS-GGUF/sherpa-kws-zipformer-zh-en-3m-f32.gguf"
+      ],
+      "strip_prefix": "Sherpa-KWS-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 12514208,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 12514208,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 12514208,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 12514208,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "Wake Word",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/models/sherpa_kws.md"
+    ],
+    "recommended_package": "sherpa_kws_zipformer_zh_en_3m_f32"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokens": "model:tokens.txt",
+        "keywords": "model:keywords.txt"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokens": "model:tokens.txt",
+        "keywords": "model:keywords.txt"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Streaming Zipformer transducer keyword spotting from sherpa-onnx model exports.",
+      "zh": "来自 sherpa-onnx 模型导出的流式 Zipformer transducer 关键词检测。"
+    },
+    "options": {
+      "keywords": {
+        "en": "Newline- or slash-separated tokenized keyword rows; each row may include :score, #threshold, and @label fields.",
+        "zh": "换行或斜杠分隔的 token 化关键词行；每行可包含 :score、#threshold 和 @label 字段。"
+      },
+      "max_active_paths": {
+        "en": "Maximum keyword decoder hypotheses.",
+        "zh": "关键词解码假设上限。"
+      },
+      "keywords_score": {
+        "en": "Default context score added for each matched keyword token. Negative values are accepted but token scores are clamped to at least zero.",
+        "zh": "每个匹配关键词 token 默认添加的上下文分数。接受负值，但 token 分数会被钳制到至少 0。"
+      },
+      "keywords_threshold": {
+        "en": "Default mean acoustic probability required to trigger a keyword.",
+        "zh": "触发关键词所需的平均声学概率。"
+      },
+      "num_trailing_blanks": {
+        "en": "Emit after strictly more than this many trailing blank frames; 1 requires 2 blanks, 0 requires 1.",
+        "zh": "严格超过该数量的尾部空白帧后发射；1 需要 2 个空白，0 需要 1 个。"
+      }
+    }
+  }
+}

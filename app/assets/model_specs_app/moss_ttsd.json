@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "family": "moss_ttsd",
+  "display_name": "MOSS-TTSD",
+  "description": "8B delay-pattern dialogue TTS: speaker-tagged conversation in one take, with per-speaker zero-shot voice cloning. 24 kHz, 16 codebooks.",
+  "category": "community",
+  "status": "experimental",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "en",
+    "zh"
+  ],
+  "capabilities": {
+    "tts": [
+      "speaker_reference",
+      "multi_speaker",
+      "long_form"
+    ],
+    "clone": [
+      "speaker_reference",
+      "multi_speaker"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_merges": "model:merges.txt",
+        "audio_tokenizer_config": "model:audio_tokenizer/config.json"
+      },
+      "tensors": {
+        "model_weights": {
+          "source": "weights:",
+          "prefix": "model_weights"
+        },
+        "audio_tokenizer_weights": {
+          "source": "weights:",
+          "prefix": "audio_tokenizer_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": ".",
+        "audio_tokenizer": "audio_tokenizer"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_json": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "tokenizer_merges": "model:merges.txt",
+        "audio_tokenizer_config": "audio_tokenizer:config.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors.index.json",
+        "audio_tokenizer_weights": "audio_tokenizer:model.safetensors.index.json"
+      }
+    }
+  ],
+  "options": {
+    "request": [
+      {
+        "name": "voice_samples",
+        "type": "string",
+        "required": false,
+        "description": "Per-speaker reference WAV paths, comma separated and positional: the first is [S1], the second [S2]. Leave an entry empty to let that speaker be invented rather than cloned. Cannot be combined with voice_ref."
+      },
+      {
+        "name": "reference_text",
+        "type": "string",
+        "required": false,
+        "description": "What the reference recordings say, speaker-tagged. Prepended to the dialogue so the continuation carries on from words it has already spoken."
+      },
+      {
+        "name": "language",
+        "type": "string",
+        "required": false,
+        "description": "Full language name; the model does not understand codes like 'en'."
+      },
+      {
+        "name": "instruct",
+        "type": "string",
+        "required": false,
+        "description": "Free-text direction for the delivery."
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "required": false,
+        "description": "Reproduces a take exactly. Parsed as signed 32-bit integer then converted to uint32; negative values wrap."
+      },
+      {
+        "name": "text_temperature",
+        "type": "float",
+        "required": false,
+        "default": 1.5,
+        "description": "Text-token sampling temperature. Must be finite and positive when sampling."
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "required": false,
+        "min": 0.0,
+        "default": 1.5,
+        "description": "Audio sampling temperature; must be > 0, default 1.5."
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "required": false,
+        "min": 0.0,
+        "default": 0.6,
+        "description": "Audio nucleus sampling cutoff."
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "required": false,
+        "default": 50,
+        "description": "Audio top-k. Nonpositive values disable filtering."
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "required": false,
+        "min": 0.0,
+        "default": 1.1,
+        "description": "Audio repetition penalty; must be > 0. Checked when token history is present; default 1.1."
+      },
+      {
+        "name": "max_frames",
+        "type": "int",
+        "required": false,
+        "description": "Ceiling on generated codec frames at 12.5/s; 0 derives one from the dialogue length. Nonpositive values derive an automatic ceiling."
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "values": [
+          "native",
+          "f32",
+          "bf16",
+          "q8_0"
+        ],
+        "required": false,
+        "default": "native",
+        "description": "Backbone and head weight storage; default native, which keeps a GGUF package's own type. Forcing bf16 dequantises a quantised package and costs the VRAM the quantisation was meant to save. f16 is rejected: this backbone produces NaN in it."
+      }
+    ],
+    "load": []
+  },
+  "ui": {
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/moss_ttsd.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ],
+    "recommended_package": "moss_ttsd_q8_0_codec_f16"
+  },
+  "packages": [
+    {
+      "id": "moss_ttsd_q8_0_codec_f16",
+      "display_name": "MOSS-TTSD Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "MOSS-TTSD-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "christopherthompson81/MOSS-TTSD-GGUF"
+      },
+      "files": [
+        "moss_ttsd_q8_0_codec_f16.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/MOSS-TTSD-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 13041314784,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTSD-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/MOSS-TTSD-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 13041314784,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTSD-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 13041314784,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "moss_ttsd_q4_k_codec_f16",
+      "display_name": "MOSS-TTSD Q4_K GGUF (f16 heads)",
+      "default": false,
+      "format": "gguf",
+      "precision": "q4_k",
+      "target_directory": "MOSS-TTSD-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "christopherthompson81/MOSS-TTSD-GGUF"
+      },
+      "files": [
+        "moss_ttsd_q4_k_codec_f16.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/MOSS-TTSD-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 10195508192,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTSD-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/MOSS-TTSD-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 10195508192,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTSD-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 10195508192,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "moss_ttsd_bf16_codec_f16",
+      "display_name": "MOSS-TTSD BF16 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "MOSS-TTSD-GGUF",
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "christopherthompson81/MOSS-TTSD-GGUF"
+      },
+      "files": [
+        "moss_ttsd_bf16_codec_f16.gguf"
+      ],
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/MOSS-TTSD-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 20276612064,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTSD-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/MOSS-TTSD-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 20276612064,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTSD-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 20276612064,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "dependencies": [],
+  "i18n": {
+    "description": {
+      "en": "8B delay-pattern dialogue TTS: speaker-tagged conversation in one take, with per-speaker zero-shot voice cloning. 24 kHz, 16 codebooks.",
+      "zh": "8B 延迟模式对话 TTS：一次生成带说话人标记的对话，并支持逐说话人零样本音色克隆；24 kHz、16 个码本。"
+    },
+    "options": {
+      "voice_samples": {
+        "en": "Per-speaker reference WAV paths, comma separated and positional: the first is [S1], the second [S2]. Leave an entry empty to let that speaker be invented rather than cloned. Cannot be combined with voice_ref.",
+        "zh": "逐说话人参考 WAV 路径，逗号分隔且按位置对应：第一个为 [S1]，第二个为 [S2]。留空表示让该说话人由模型生成而非克隆。不能与 voice_ref 同时使用。"
+      },
+      "reference_text": {
+        "en": "What the reference recordings say, speaker-tagged. Prepended to the dialogue so the continuation carries on from words it has already spoken.",
+        "zh": "参考录音对应的内容，带说话人标记。会前置到对话中，使续写从已说过的词继续。"
+      },
+      "language": {
+        "en": "Full language name; the model does not understand codes like 'en'.",
+        "zh": "完整语言名称；模型不识别 'en' 这类代码。"
+      },
+      "instruct": {
+        "en": "Free-text direction for the delivery.",
+        "zh": "对表达方式的自由文本指令。"
+      },
+      "seed": {
+        "en": "Reproduces a take exactly. Parsed as signed 32-bit integer then converted to uint32; negative values wrap.",
+        "zh": "精确复现一次 take。按有符号 32 位整数解析后转换为 uint32；负值会回绕。"
+      },
+      "text_temperature": {
+        "en": "Text-token sampling temperature. Must be finite and positive when sampling.",
+        "zh": "文本 token 采样温度。采样时必须为有限正数。"
+      },
+      "temperature": {
+        "en": "Audio sampling temperature; must be > 0, default 1.5.",
+        "zh": "音频采样温度；必须 > 0，默认 1.5。"
+      },
+      "top_p": {
+        "en": "Audio nucleus sampling cutoff.",
+        "zh": "音频核采样截断。"
+      },
+      "top_k": {
+        "en": "Audio top-k. Nonpositive values disable filtering.",
+        "zh": "音频 top-k。非正值关闭过滤。"
+      },
+      "repetition_penalty": {
+        "en": "Audio repetition penalty; must be > 0. Checked when token history is present; default 1.1.",
+        "zh": "音频重复惩罚；必须 > 0。存在 token 历史时检查；默认 1.1。"
+      },
+      "max_frames": {
+        "en": "Ceiling on generated codec frames at 12.5/s; 0 derives one from the dialogue length. Nonpositive values derive an automatic ceiling.",
+        "zh": "生成 codec 帧上限（12.5 帧/秒）；0 表示按对话长度推导。非正值自动推导上限。"
+      }
+    }
+  }
+}

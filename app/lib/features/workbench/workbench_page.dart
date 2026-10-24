@@ -45,9 +45,14 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   final TextEditingController _refTextCtrl = TextEditingController();
   final TextEditingController _instrCtrl = TextEditingController();
   String _instrChoice = '';
+
   /// `instructionType='attributes'`：类别 id → 选中值。
   final Map<String, String> _instrAttr = {};
   final TextEditingController _builtinVoiceCtrl = TextEditingController();
+
+  /// 布局 `option` 控件的当前值（option 名 → 原值）。
+  final Map<String, String> _optionValues = {};
+  String _optionRuleKey = '';
   String _emotionRuleKey = '';
   String _emotionMode = 'none';
   List<double> _emotionVector = [];
@@ -57,10 +62,13 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   final Map<String, String> _inputPaths = {};
   String? _audioPath;
   double _panelWidth = 360;
+
   /// 会话面板可拖动的最大宽度（由可用宽度 - 控制区最小宽度 动态决定）。
   double _maxPanelWidth = 900;
+
   /// 分隔条宽度。
   static const double _resizerWidth = 6;
+
   /// 控制区最小宽度（保证操作区不被挤压）。
   static const double _minControlWidth = 520;
   bool _queueBusy = false;
@@ -149,7 +157,9 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
 
   WorkbenchRule _ruleFor(String packageId, String family) {
     final rules = ref.read(workbenchRulesProvider).value ?? const {};
-    return rules[VariantKey.of(packageId)] ?? rules[family] ?? WorkbenchRule.none;
+    return rules[VariantKey.of(packageId)] ??
+        rules[family] ??
+        WorkbenchRule.none;
   }
 
   ModelSpec? _specFor(String family) {
@@ -170,6 +180,9 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     };
     final e = rule.emotion;
     if (e != null) occupied.addAll(e.occupiedOptions);
+    for (final n in rule.layoutOptionNodes) {
+      if (_optionChoices(n, spec).isNotEmpty) occupied.add(n.option);
+    }
     occupied.addAll(rule.inputs.map((i) => i.option));
     occupied.addAll(rule.hiddenOptions);
     final vi = rule.voiceId;
@@ -177,6 +190,42 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     return spec.requestOptions
         .where((o) => !occupied.contains(o.name))
         .toList();
+  }
+
+  /// 某 `option` 控件的可选值：规则未声明时回退到规格枚举。
+  List<OptionChoice> _optionChoices(LayoutNode n, ModelSpec? spec) {
+    if (n.values.isNotEmpty) return n.values;
+    for (final o in spec?.requestOptions ?? const <SpecOption>[]) {
+      if (o.name == n.option) {
+        return [for (final v in o.values) OptionChoice(value: v)];
+      }
+    }
+    return const [];
+  }
+
+  bool _whenOptionsEmptyOk(LayoutNode n) =>
+      n.whenOptionsEmpty.every((name) => (_optionValues[name] ?? '').isEmpty);
+
+  /// 当前可见的布局 `option` 节点（含祖先 `when` 条件）。
+  Iterable<LayoutNode> _activeOptionNodes(
+      List<LayoutNode> nodes, WorkbenchRule rule) sync* {
+    for (final n in nodes) {
+      if (!_whenOk(n.when, rule) || !_whenOptionsEmptyOk(n)) continue;
+      if (n.type == 'option' && n.option.isNotEmpty) yield n;
+      yield* _activeOptionNodes(n.children, rule);
+    }
+  }
+
+  /// 布局 `option` 控件提交字段（只取当前可见、值合法的 option）。
+  Map<String, String> _optionSelectParams(WorkbenchRule rule, ModelSpec? spec) {
+    final out = <String, String>{};
+    for (final n in _activeOptionNodes(rule.layout, rule)) {
+      final v = _optionValues[n.option] ?? '';
+      if (v.isEmpty) continue;
+      final choices = _optionChoices(n, spec);
+      if (choices.any((c) => c.value == v)) out[n.option] = v;
+    }
+    return out;
   }
 
   /// 情感控制提交字段（无/向量/文本+强度；参考音频暂不提交）。
@@ -238,7 +287,14 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   Future<void> _pickEmotionAudio() async {
     final f = await openFile(acceptedTypeGroups: const [
       XTypeGroup(label: 'Audio', extensions: [
-        'wav', 'mp3', 'flac', 'ogg', 'm4a', 'aac', 'webm', 'opus',
+        'wav',
+        'mp3',
+        'flac',
+        'ogg',
+        'm4a',
+        'aac',
+        'webm',
+        'opus',
       ]),
     ]);
     if (f == null) return;
@@ -254,7 +310,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () => _pickInput(i),
-            icon: Icon(i.isAudio ? Icons.audio_file_outlined : Icons.folder_open),
+            icon:
+                Icon(i.isAudio ? Icons.audio_file_outlined : Icons.folder_open),
             label: Text(
               _inputPaths[i.option] == null || _inputPaths[i.option]!.isEmpty
                   ? i.label(uiLang)
@@ -326,6 +383,19 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     );
   }
 
+  bool _instructionHiddenByOptions(List<LayoutNode> nodes) {
+    for (final n in nodes) {
+      if (n.type == 'instruction' && !_whenOptionsEmptyOk(n)) return true;
+      if (_instructionHiddenByOptions(n.children)) return true;
+    }
+    return false;
+  }
+
+  /// 指令是否显示 / 提交（音色条件 + 布局 option 条件）。
+  bool _instructionVisible(WorkbenchRule rule) =>
+      rule.instructionShownWithVoice(_hasVoiceSelected(rule)) &&
+      !_instructionHiddenByOptions(rule.layout);
+
   /// 指令提交值：`enum` 取单选、`attributes` 拼接各组选中值（`, ` 连接）、
   /// 否则取文本框内容。
   String _instructionValue(WorkbenchRule rule) {
@@ -370,11 +440,10 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         labelText: dict['workbench.instruction'] ?? 'Instruction / style',
       ),
       // 自适应列数：按每项最小宽度决定列数（窄→1 列，宽→多列）。
-      child: _grid(
-          [for (final g in rule.instructionGroups)
-            _instructionGroupField(dict, g, rule)],
-          300,
-          12),
+      child: _grid([
+        for (final g in rule.instructionGroups)
+          _instructionGroupField(dict, g, rule)
+      ], 300, 12),
     );
   }
 
@@ -409,7 +478,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         children: [
           SizedBox(
             width: labelWidth,
-            child: showTip ? Tooltip(message: tip, child: labelText) : labelText,
+            child:
+                showTip ? Tooltip(message: tip, child: labelText) : labelText,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -446,6 +516,65 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 写入 `option` 值；有互斥组时把同组其它控件重置为默认。
+  void _setOptionValue(WorkbenchRule rule, LayoutNode n, String? raw) {
+    final value = raw ?? '';
+    setState(() {
+      if (value.isEmpty) {
+        _optionValues.remove(n.option);
+        return;
+      }
+      _optionValues[n.option] = value;
+      if (n.exclusiveGroup.isEmpty) return;
+      for (final other in rule.layoutOptionNodes) {
+        if (other.option != n.option &&
+            other.exclusiveGroup == n.exclusiveGroup) {
+          _optionValues.remove(other.option);
+        }
+      }
+    });
+  }
+
+  /// 通用 `option` 下拉：显示规则提供的中/英标签，提交原值。
+  Widget? _optionSelectField(Map<String, String> dict, LayoutNode n,
+      ModelSpec? spec, WorkbenchRule rule) {
+    final choices = _optionChoices(n, spec);
+    if (choices.isEmpty) return null;
+    final locale = ref.read(localeProvider).code;
+    final rawLabel = locale == 'zh'
+        ? (n.labelZh.isNotEmpty ? n.labelZh : n.labelEn)
+        : (n.labelEn.isNotEmpty ? n.labelEn : n.labelZh);
+    final label = rawLabel.isNotEmpty ? rawLabel : n.option;
+    final raw = _optionValues[n.option] ?? '';
+    final value = choices.any((c) => c.value == raw) ? raw : '';
+    return InputDecorator(
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
+        isDense: true,
+        labelText: label,
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isExpanded: true,
+          isDense: true,
+          items: [
+            DropdownMenuItem(
+              value: '',
+              child: Text(dict['workbench.default'] ?? 'Default'),
+            ),
+            for (final c in choices)
+              DropdownMenuItem(
+                value: c.value,
+                child: Text(c.label(locale)),
+              ),
+          ],
+          onChanged: (v) => _setOptionValue(rule, n, v),
+        ),
       ),
     );
   }
@@ -606,6 +735,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     _instrCtrl.text = '';
     _instrChoice = '';
     _instrAttr.clear();
+    _optionValues.clear();
     _inputPaths.clear();
     _ttsLanguage = null;
   }
@@ -624,6 +754,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     if (_builtinVoice.isNotEmpty) return _builtinVoice;
     final v = rule.voiceId;
     if (v == null) return '';
+    if (v.allowEmpty) return '';
     if (v.defaultValue.isNotEmpty) return v.defaultValue;
     if (v.values != null && v.values!.isNotEmpty) return v.values!.first;
     return '';
@@ -643,16 +774,21 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   /// 是否已选定音色：本地音色库的参考音色，或显式选择的内置音色。
   /// 用于 `instructionWhen=no-voice` 时隐藏 / 不提交指令。
   bool _hasVoiceSelected(WorkbenchRule rule) =>
-      _voiceId.isNotEmpty || (rule.showsVoiceId && _builtinVoice.isNotEmpty);
+      _voiceId.isNotEmpty || _hasBuiltinVoice(rule);
+
+  bool _hasBuiltinVoice(WorkbenchRule rule) =>
+      rule.showsVoiceId && _builtinVoice.isNotEmpty;
 
   List<ModelCatalogEntry> _workModels(
     List<ModelCatalogEntry> entries,
     Map<String, ModelSpec> specByFamily,
   ) {
     return entries.where((e) {
-      if (!e.installed) return false;
+      if (!e.installed || !e.activeVersion) return false;
       final tasks = specByFamily[e.family]?.tasks ?? const <String>[];
-      return tasks.contains('tts') || tasks.contains('asr') || tasks.contains('vc');
+      return tasks.contains('tts') ||
+          tasks.contains('asr') ||
+          tasks.contains('vc');
     }).toList();
   }
 
@@ -676,7 +812,14 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   Future<void> _pickAudio() async {
     final f = await openFile(acceptedTypeGroups: const [
       XTypeGroup(label: 'Audio', extensions: [
-        'wav', 'mp3', 'flac', 'ogg', 'm4a', 'aac', 'webm', 'opus',
+        'wav',
+        'mp3',
+        'flac',
+        'ogg',
+        'm4a',
+        'aac',
+        'webm',
+        'opus',
       ]),
     ]);
     if (f == null) return;
@@ -722,9 +865,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         return;
       }
       final instrEmpty = _instructionValue(rule).isEmpty;
-      if (rule.instructionRequired &&
-          rule.instructionShownWithVoice(_hasVoiceSelected(rule)) &&
-          instrEmpty) {
+      if (rule.instructionRequired && _instructionVisible(rule) && instrEmpty) {
         _toast(tr(ref, 'workbench.needInstruction'), autoHide: true);
         return;
       }
@@ -742,15 +883,17 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
           .map((o) => o.name)
           .toSet();
       final familyParams = <String, String>{
-        for (final e in (ref.read(appConfigProvider).modelParams[entry.family] ??
-                const <String, String>{})
-            .entries)
+        for (final e
+            in (ref.read(appConfigProvider).modelParams[entry.family] ??
+                    const <String, String>{})
+                .entries)
           if (advancedNames.contains(e.key) && e.value.isNotEmpty)
             e.key: e.value,
       };
       // 情感控制与高级参数一起进入记录快照（作为 request options）。
       final ttsParams = <String, String>{
         ...familyParams,
+        ..._optionSelectParams(rule, _specFor(entry.family)),
         ..._emotionParams(rule),
         for (final i in rule.inputs)
           if ((_inputPaths[i.option] ?? '').isNotEmpty)
@@ -777,9 +920,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
           'reference_text': (rule.showsReferenceText && _voiceId.isNotEmpty)
               ? _refTextCtrl.text.trim()
               : '',
-          'instruction': rule.instructionShownWithVoice(_hasVoiceSelected(rule))
-              ? _instructionValue(rule)
-              : '',
+          'instruction':
+              _instructionVisible(rule) ? _instructionValue(rule) : '',
           'instruction_key': rule.instructionKey,
           'language': rule.showsLanguage ? (lang ?? '') : '',
           if ((rule.emotion?.modeById(_emotionMode)?.audio ?? false) &&
@@ -824,9 +966,10 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
           .map((o) => o.name)
           .toSet();
       final familyParams = <String, String>{
-        for (final e in (ref.read(appConfigProvider).modelParams[entry.family] ??
-                const <String, String>{})
-            .entries)
+        for (final e
+            in (ref.read(appConfigProvider).modelParams[entry.family] ??
+                    const <String, String>{})
+                .entries)
           if (advancedNames.contains(e.key) && e.value.isNotEmpty)
             e.key: e.value,
         // 规则声明的额外文件输入（如 rvc 的 voice_model_path）。
@@ -905,9 +1048,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     if (!mounted) return;
     _copyTimer?.cancel();
     setState(() {
-      _copyFeedback =
-          dict[ok ? 'common.copied' : 'common.copyFailed'] ??
-              (ok ? 'Copied to clipboard' : 'Copy failed');
+      _copyFeedback = dict[ok ? 'common.copied' : 'common.copyFailed'] ??
+          (ok ? 'Copied to clipboard' : 'Copy failed');
     });
     _copyTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted) setState(() => _copyFeedback = null);
@@ -1048,8 +1190,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
                                               'No TTS / ASR models installed. Install and load one from the model library first.',
                                           style: textTheme.bodyLarge),
                                     )
-                                  : _buildBody(
-                                      dict, current!, task, languages),
+                                  : _buildBody(dict, current!, task, languages),
                         ),
                         const PlayerBar(),
                       ],
@@ -1266,9 +1407,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
       ),
     );
     if (name == null) return;
-    final c = ref
-        .read(collectionsProvider)
-        .create(name, addSessionId: sid);
+    final c = ref.read(collectionsProvider).create(name, addSessionId: sid);
     ref.read(currentSessionProvider).setCollectionId(c.id);
   }
 
@@ -1374,8 +1513,9 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
             });
           },
           onHorizontalDragEnd: (_) {
-            ref.read(appConfigProvider.notifier).update(
-                (c) => c.sessionPanelWidth = _panelWidth.round());
+            ref
+                .read(appConfigProvider.notifier)
+                .update((c) => c.sessionPanelWidth = _panelWidth.round());
           },
           child: const SizedBox(
             width: _resizerWidth,
@@ -1389,8 +1529,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         child: Row(
           children: [
             Expanded(
-              child:
-                  Text(title, style: Theme.of(context).textTheme.titleSmall),
+              child: Text(title, style: Theme.of(context).textTheme.titleSmall),
             ),
             if (trailing != null) trailing,
           ],
@@ -1423,8 +1562,23 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     return ListTile(
       dense: true,
       leading: RecordAvatar(record: r),
-      title:
-          Text(_recordTitle(r), maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Row(
+        children: [
+          if (r.seq > 0) ...[
+            Text(
+              '#${r.seq}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(width: 6),
+          ],
+          Expanded(
+            child: Text(_recordTitle(r),
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      ),
       subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
       trailing: trailing,
     );
@@ -1475,6 +1629,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
       _selectedRecordId = r.id;
       if (target != null) _selectedPackageId = target.packageId;
       _resetTtsInputs();
+      if (target != null) _optionRuleKey = target.family;
       if (r.type == RecordType.tts) {
         _audioPath = null;
         _textCtrl.text = r.inputs['text'] ?? '';
@@ -1489,6 +1644,10 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         _result = null;
         _restoreEmotion(rule, r);
         final pin = _paramsOf(r);
+        for (final n in rule.layoutOptionNodes) {
+          final v = pin[n.option];
+          if (v != null && v.isNotEmpty) _optionValues[n.option] = v;
+        }
         for (final i in rule.inputs) {
           final v = pin[i.option];
           if (v != null && v.isNotEmpty) _inputPaths[i.option] = v;
@@ -1542,7 +1701,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     try {
       final decoded = jsonDecode(raw);
       if (decoded is Map) {
-        return decoded.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''));
+        return decoded
+            .map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''));
       }
     } catch (_) {}
     return const {};
@@ -1606,14 +1766,29 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     return ListTile(
       dense: true,
       // 选中态常驻：便于知道当前试听/阅读的是哪条（弹跳高亮点击后即消失）。
-      tileColor: selected
-          ? Theme.of(context).colorScheme.primaryContainer
-          : null,
+      tileColor:
+          selected ? Theme.of(context).colorScheme.primaryContainer : null,
       // 点击记录：把该次的类型/模型/参数填回工作台（便于直接重新生成）；
       // 有结果的优先展示——TTS 载入播放器（不自动播放），ASR 展示文本。
       onTap: () => _applyRecord(dict, r),
       leading: RecordAvatar(record: r),
-      title: Text(_recordTitle(r), maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Row(
+        children: [
+          if (r.seq > 0) ...[
+            Text(
+              '#${r.seq}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(width: 6),
+          ],
+          Expanded(
+            child: Text(_recordTitle(r),
+                maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      ),
       subtitle: Text(
         '${_statusText(dict, r.status)} · ${_timeText(r.createdAtMs)}',
         style: Theme.of(context).textTheme.bodySmall,
@@ -1624,8 +1799,13 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
           IconButton(
             icon: const Icon(Icons.delete_outline),
             tooltip: dict['session.record.delete'] ?? 'Delete record',
-            onPressed: () =>
-                ref.read(currentSessionProvider).deleteRecord(r.id),
+            onPressed: () async {
+              final path = _recordAudioAbs(r);
+              if (path != null) {
+                await ref.read(audioPlayerProvider).stopIfPath(path);
+              }
+              ref.read(currentSessionProvider).deleteRecord(r.id);
+            },
           ),
           if (r.type == RecordType.asr) ...[
             // ASR：删除、播放（输入音频）、下载（文本）
@@ -1736,6 +1916,18 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
     if (task == 'asr') {
       advanced = advanced.where((o) => o.name != 'language').toList();
     }
+    // 布局 option 控件按 family 恢复已保存值（切换模型时）。
+    if (_optionRuleKey != entry.family) {
+      _optionRuleKey = entry.family;
+      final names = rule.layoutOptionNames;
+      _optionValues.removeWhere((k, _) => !names.contains(k));
+      final saved = ref.read(appConfigProvider).modelParams[entry.family] ??
+          const <String, String>{};
+      for (final name in names) {
+        final v = saved[name] ?? '';
+        if (v.isNotEmpty) _optionValues[name] = v;
+      }
+    }
     // 情感控制的按 family 初始化/重置（切换模型时）。
     final emotion = rule.emotion;
     if (_emotionRuleKey != entry.family) {
@@ -1746,7 +1938,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
       _emotionStrength = emotion?.strengthDefault ?? 1.0;
       _emotionAudioPath = null;
       _inputPaths.clear();
-    } else if (emotion != null && _emotionVector.length != emotion.maxDimensions) {
+    } else if (emotion != null &&
+        _emotionVector.length != emotion.maxDimensions) {
       _emotionVector = List<double>.filled(emotion.maxDimensions, 0);
     }
     return SingleChildScrollView(
@@ -1770,12 +1963,11 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
                     ),
                     items: [
                       for (final m in _workModelsSorted(
-                          ref.read(modelLibraryProvider).entries,
-                          {for (final s in ref
-                                  .read(specsProvider)
-                                  .value ??
-                              const <ModelSpec>[])
-                            s.family: s}))
+                          ref.read(modelLibraryProvider).entries, {
+                        for (final s in ref.read(specsProvider).value ??
+                            const <ModelSpec>[])
+                          s.family: s
+                      }))
                         DropdownMenuItem(
                           value: m.packageId,
                           child: Text(m.displayName),
@@ -1804,8 +1996,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
                       maxLines: 6,
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
-                        hintText:
-                            dict['workbench.textHint'] ?? 'Type the text to speak...',
+                        hintText: dict['workbench.textHint'] ??
+                            'Type the text to speak...',
                       ),
                     ),
                   ],
@@ -1824,7 +2016,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
                             icon: const Icon(Icons.audio_file_outlined),
                             label: Text(
                               _audioPath == null
-                                  ? (dict['workbench.pickAudio'] ?? 'Choose audio')
+                                  ? (dict['workbench.pickAudio'] ??
+                                      'Choose audio')
                                   : File(_audioPath!).uri.pathSegments.last,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -1843,7 +2036,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
                             icon: const Icon(Icons.audio_file_outlined),
                             label: Text(
                               _audioPath == null
-                                  ? (dict['workbench.pickAudio'] ?? 'Choose audio')
+                                  ? (dict['workbench.pickAudio'] ??
+                                      'Choose audio')
                                   : File(_audioPath!).uri.pathSegments.last,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -1859,11 +2053,9 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
                     children: [
                       if (advanced.isNotEmpty)
                         OutlinedButton.icon(
-                          onPressed: () =>
-                              _openAdvanced(entry, advanced, dict),
+                          onPressed: () => _openAdvanced(entry, advanced, dict),
                           icon: const Icon(Icons.tune),
-                          label:
-                              Text(dict['workbench.advanced'] ?? 'Advanced'),
+                          label: Text(dict['workbench.advanced'] ?? 'Advanced'),
                         ),
                       const Spacer(),
                       FilledButton.icon(
@@ -1965,7 +2157,11 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
       value = 'builtin_custom';
     } else if (builtinValues.isNotEmpty) {
       final eff = _effectiveBuiltinVoice(rule);
-      if (builtinValues.contains(eff)) value = 'builtin:$eff';
+      if (eff.isNotEmpty && builtinValues.contains(eff)) {
+        value = 'builtin:$eff';
+      } else if (vi?.allowEmpty ?? false) {
+        value = '';
+      }
     } else if (rule.showsReference && !rule.referenceRequired) {
       value = '';
     }
@@ -2084,8 +2280,12 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   }
 
   /// 依次渲染节点（不适用者跳过），相邻项插入纵向 `spacing`。
-  List<Widget> _layoutChildrenOf(List<LayoutNode> nodes, double spacing,
-      Map<String, String> dict, ModelCatalogEntry entry, WorkbenchRule rule,
+  List<Widget> _layoutChildrenOf(
+      List<LayoutNode> nodes,
+      double spacing,
+      Map<String, String> dict,
+      ModelCatalogEntry entry,
+      WorkbenchRule rule,
       List<String> languages) {
     final out = <Widget>[];
     for (final n in nodes) {
@@ -2098,8 +2298,12 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   }
 
   /// 渲染子节点为控件列表（不含间距）。
-  List<Widget> _layoutWidgetsOf(List<LayoutNode> nodes, Map<String, String> dict,
-      ModelCatalogEntry entry, WorkbenchRule rule, List<String> languages) {
+  List<Widget> _layoutWidgetsOf(
+      List<LayoutNode> nodes,
+      Map<String, String> dict,
+      ModelCatalogEntry entry,
+      WorkbenchRule rule,
+      List<String> languages) {
     final out = <Widget>[];
     for (final n in nodes) {
       final w = _layoutWidget(n, dict, entry, rule, languages);
@@ -2111,7 +2315,7 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   /// 渲染单个布局节点（容器或控件）；不适用返回 null。
   Widget? _layoutWidget(LayoutNode n, Map<String, String> dict,
       ModelCatalogEntry entry, WorkbenchRule rule, List<String> languages) {
-    if (!_whenOk(n.when, rule)) return null;
+    if (!_whenOk(n.when, rule) || !_whenOptionsEmptyOk(n)) return null;
     switch (n.type) {
       case 'column':
         final kids = _layoutChildrenOf(
@@ -2152,10 +2356,10 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
           ],
         );
       case 'grid':
-        final items = _layoutWidgetsOf(n.children, dict, entry, rule, languages);
+        final items =
+            _layoutWidgetsOf(n.children, dict, entry, rule, languages);
         if (items.isEmpty) return null;
-        return _grid(
-            items, n.minItemWidth, n.spacing, n.runSpacing, n.columns);
+        return _grid(items, n.minItemWidth, n.spacing, n.runSpacing, n.columns);
       case 'spacer':
         return SizedBox(height: n.spacing);
       case 'voice':
@@ -2167,11 +2371,13 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
             ? _referenceTextField(dict, rule)
             : null;
       case 'emotion':
-        return rule.emotion != null ? _emotionSection(dict, rule.emotion!) : null;
-      case 'instruction':
-        return rule.instructionShownWithVoice(_hasVoiceSelected(rule))
-            ? _instructionField(dict, rule)
+        return rule.emotion != null
+            ? _emotionSection(dict, rule.emotion!)
             : null;
+      case 'option':
+        return _optionSelectField(dict, n, _specFor(entry.family), rule);
+      case 'instruction':
+        return _instructionVisible(rule) ? _instructionField(dict, rule) : null;
       case 'inputs':
         return rule.inputs.isNotEmpty ? _inputsSection(dict, rule) : null;
       case 'language':
@@ -2210,8 +2416,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
             cells.add(SizedBox(width: cellW, child: items[i + j]));
           }
           if (rows.isNotEmpty) rows.add(SizedBox(height: runSpacing));
-          rows.add(
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: cells));
+          rows.add(Row(
+              crossAxisAlignment: CrossAxisAlignment.start, children: cells));
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2231,6 +2437,10 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         return _hasVoiceSelected(rule);
       case 'noVoice':
         return !_hasVoiceSelected(rule);
+      case 'builtinVoice':
+        return _hasBuiltinVoice(rule);
+      case 'noBuiltinVoice':
+        return !_hasBuiltinVoice(rule);
       case 'customVoice':
         return _voiceId.isNotEmpty;
       case 'noCustomVoice':
@@ -2247,7 +2457,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
       opts.add(rule.languageDefault);
     }
     // 语言取值：规则 languageValues 覆盖优先，否则规格 languages。
-    final src = rule.languageValues.isNotEmpty ? rule.languageValues : languages;
+    final src =
+        rule.languageValues.isNotEmpty ? rule.languageValues : languages;
     for (final l in src) {
       if (!opts.contains(l)) opts.add(l);
     }
@@ -2257,7 +2468,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
         !opts.contains(_ttsLanguage)) {
       opts.add(_ttsLanguage!);
     }
-    final raw = _ttsLanguage ?? (rule.languageDefault.isNotEmpty ? rule.languageDefault : 'auto');
+    final raw = _ttsLanguage ??
+        (rule.languageDefault.isNotEmpty ? rule.languageDefault : 'auto');
     final value = opts.contains(raw) ? raw : 'auto';
     return InputDecorator(
       decoration: InputDecoration(
@@ -2271,11 +2483,10 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
           isExpanded: true,
           isDense: true,
           items: [
-            for (final l in opts)
-              DropdownMenuItem(value: l, child: Text(l)),
+            for (final l in opts) DropdownMenuItem(value: l, child: Text(l)),
           ],
-          onChanged: (v) => setState(() =>
-              _ttsLanguage = (v == null || v == 'auto' || v.isEmpty) ? null : v),
+          onChanged: (v) => setState(() => _ttsLanguage =
+              (v == null || v == 'auto' || v.isEmpty) ? null : v),
         ),
       ),
     );
@@ -2285,7 +2496,8 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
   Widget _asrLanguageField(
       Map<String, String> dict, List<String> languages, WorkbenchRule rule) {
     final opts = <String>['auto'];
-    final vals = rule.languageValues.isNotEmpty ? rule.languageValues : languages;
+    final vals =
+        rule.languageValues.isNotEmpty ? rule.languageValues : languages;
     for (final l in vals) {
       if (!opts.contains(l)) opts.add(l);
     }
@@ -2312,7 +2524,6 @@ class _WorkbenchPageState extends ConsumerState<WorkbenchPage> {
       ),
     );
   }
-
 }
 
 /// 「高级参数」弹窗：按规格 request options 渲染控件。
@@ -2448,8 +2659,8 @@ class _AdvancedDialogState extends State<_AdvancedDialog> {
         if (n == null ||
             (o.min != null && n < o.min!) ||
             (o.max != null && n > o.max!)) {
-          errs[o.name] = dictTpl(
-              widget.dict, 'workbench.invalidValue', {'name': o.name});
+          errs[o.name] =
+              dictTpl(widget.dict, 'workbench.invalidValue', {'name': o.name});
           continue;
         }
       }
@@ -2489,7 +2700,8 @@ class _AdvancedDialogState extends State<_AdvancedDialog> {
   Widget _slider(SpecOption o) {
     final min = o.min!.toDouble();
     final max = o.max!.toDouble();
-    final v = (_numbers[o.name] ?? _defaultNumber(o)).clamp(min, max).toDouble();
+    final v =
+        (_numbers[o.name] ?? _defaultNumber(o)).clamp(min, max).toDouble();
     final divisions =
         o.isInt ? ((max - min).round()).clamp(1, 1000).toInt() : null;
     final display = o.isInt ? v.round().toString() : v.toStringAsFixed(3);

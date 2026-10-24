@@ -328,6 +328,20 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                           // ASR：标题为 "ASR · 时间"，正文是转写文本；其它：标题为文本。
                           title: Row(
                             children: [
+                              if (r.seq > 0) ...[
+                                Text(
+                                  '#${r.seq}',
+                                  style: Theme.of(ctx)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(ctx)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                                const SizedBox(width: 6),
+                              ],
                               Expanded(
                                 child: Text(isAsr ? meta : _recordTitle(r),
                                     maxLines: 1,
@@ -360,7 +374,13 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                                 icon: const Icon(Icons.delete_outline),
                                 tooltip:
                                     dict['session.record.delete'] ?? 'Delete',
-                                onPressed: () {
+                                onPressed: () async {
+                                  final path = _recordAudioAbs(r);
+                                  if (path != null) {
+                                    await ref
+                                        .read(audioPlayerProvider)
+                                        .stopIfPath(path);
+                                  }
                                   final ctrl = ref.read(currentSessionProvider);
                                   if (ctrl.session.id == s.id) {
                                     // 当前会话：走控制器（同步内存与 meta）。

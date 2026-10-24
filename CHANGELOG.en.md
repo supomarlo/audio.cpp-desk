@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.4
+
+**Model support**
+- Added Ming 3.0 TTS 0.5B support.
+
+**Improvements**
+- Show task numbers in the workbench and history to distinguish repeated generations of the same text.
+
+**Fixes**
+- Fixed multiple installed versions/quantizations of the same model still appearing as multiple specs in the workbench and failing task submission.
+- Fixed abnormal list filtering after switching from the model library to the downloads tab and back.
+- Disable audio.cpp / model weights / data directory settings while the server is running to avoid configuration and runtime state mismatch.
+- Fixed the server starting automatically after changing directory settings while stopped, keeping startup manual.
+- Fixed playback continuing after deleting a record during audition, and ensured the audio file is deleted normally.
+
+**Other**
+- Updated the bundled model spec library with new models and parameters from audio.cpp 0.9.2+.
+- Aligned adapted models with the latest specs and completed advanced parameter controls for some models.
+
 ## 0.1.3
 
 **New**

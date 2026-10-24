@@ -1,0 +1,718 @@
+{
+  "schema_version": 1,
+  "family": "lfm2_audio",
+  "display_name": "LFM2.5-Audio",
+  "description": "Liquid AI's LFM2.5-Audio, loaded from the llama.cpp-format GGUF components Liquid publishes. ASR: a FastConformer encoder feeds an LFM2 hybrid short-conv/attention backbone. TTS: the backbone generates audio frames through a depthformer, and an LFM2 detokenizer and ISTFT turn them into 24 kHz audio. S2S: a spoken question goes in as for ASR, and the reply comes out as interleaved text and audio.",
+  "category": "asr",
+  "status": "experimental",
+  "tasks": [
+    "asr",
+    "tts",
+    "s2s"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "en",
+    "ja"
+  ],
+  "capabilities": {
+    "asr": [
+      "vad_chunking"
+    ],
+    "tts": [
+      "built_in_voices",
+      "long_form"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Must match the checkpoint's language (en or ja) when given; each published checkpoint transcribes and speaks one language.",
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "ASR: transcript tokens per audio chunk, 512 by default. TTS: audio frames (80 ms each) per text chunk, 512 by default. S2S: text tokens and audio frames of the reply together, 1024 by default. A transcript, a text chunk's speech or a reply that reaches it is cut off there, with a warning on stderr.",
+        "required": false,
+        "min": 1
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Audio chunking mode. auto transcribes input up to audio_chunk_duration_sec whole and splits longer input at pauses found by the bundled VAD (fixed chunks when the VAD model is absent); vad always splits at pauses and skips silence; fixed cuts every audio_chunk_duration_sec; none transcribes the whole input at once.",
+        "values": [
+          "auto",
+          "fixed",
+          "vad",
+          "none"
+        ],
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Longest chunk in seconds, at least 1. With fixed chunks, a final piece shorter than 1 second joins the previous chunk.",
+        "required": false,
+        "min": 1,
+        "default": 30
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "TTS and S2S: audio code sampling temperature, 0.8 by default for TTS and 1.0 for S2S; 0 picks the most likely code.",
+        "required": false,
+        "min": 0
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "TTS and S2S: sample audio codes from the k most likely, 64 by default for TTS and 4 for S2S; 0 keeps all, 1 is greedy.",
+        "required": false,
+        "min": 0
+      },
+      {
+        "name": "text_temperature",
+        "type": "float",
+        "description": "S2S: text token sampling temperature; 0, the default, picks the most likely token, as liquid-audio's README and demo do.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      },
+      {
+        "name": "text_top_k",
+        "type": "int",
+        "description": "S2S: with a text_temperature above 0, sample text tokens from the k most likely; 0, the default, keeps all, and 1 is greedy.",
+        "required": false,
+        "min": 0,
+        "default": 0
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "TTS and S2S: sampling seed; omitted requests choose a random seed. TTS text chunk i uses seed + i. S2S text sampling draws from a stream of its own, so with the same seed a reply follows the greedy-text reply until a text token differs.",
+        "required": false,
+        "min": 0
+      },
+      {
+        "name": "text_chunk_mode",
+        "type": "enum",
+        "description": "TTS: long-form text chunking mode; japanese for the Japanese checkpoint and default otherwise when omitted.",
+        "values": [
+          "default",
+          "tag_aware",
+          "japanese",
+          "endline"
+        ],
+        "required": false
+      },
+      {
+        "name": "text_chunk_size",
+        "type": "int",
+        "description": "TTS: maximum Unicode codepoints per text chunk, each spoken as its own turn.",
+        "required": false,
+        "min": 1,
+        "default": 200
+      },
+      {
+        "name": "stream_frames_per_event",
+        "type": "int",
+        "description": "TTS and S2S streaming: audio frames (80 ms each) per event; each event's audio is final. ASR runs offline only.",
+        "required": false,
+        "min": 1,
+        "default": 1
+      },
+      {
+        "name": "return_codes",
+        "type": "bool",
+        "description": "S2S: also return the reply's text tokens and audio codes as an lfm2_audio.reply artifact, to send back as history with the conversation's next turn.",
+        "required": false,
+        "default": false
+      }
+    ],
+    "session": [
+      {
+        "name": "model_gguf",
+        "type": "string",
+        "description": "Backbone GGUF, relative to the model directory. Defaults to the directory's only backbone GGUF.",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "mmproj_gguf",
+        "type": "string",
+        "description": "Audio encoder (mmproj) GGUF, relative to the model directory. Defaults to mmproj-<backbone GGUF name>, or else the directory's only mmproj GGUF.",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "vocoder_gguf",
+        "type": "string",
+        "description": "TTS/S2S vocoder GGUF (depthformer), relative to the model directory. Defaults to vocoder-<backbone GGUF name>, or the directory's only vocoder GGUF.",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "detokenizer_gguf",
+        "type": "string",
+        "description": "TTS/S2S audio detokenizer GGUF, relative to the model directory. Defaults to tokenizer-<backbone GGUF name>, or the directory's only tokenizer GGUF.",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "vad_model_path",
+        "type": "string",
+        "description": "Path to the Silero VAD model directory used by automatic audio chunking.",
+        "required": false,
+        "default": "assets/framework/models/silero_vad"
+      },
+      {
+        "name": "max_pass_duration_sec",
+        "type": "float",
+        "description": "Most audio, in seconds, the encoder takes in one pass: an ASR chunk (the whole input with audio_chunk_mode=none) or the S2S question. Longer audio is rejected before it is encoded.",
+        "required": false,
+        "min": 1,
+        "default": 120
+      },
+      {
+        "name": "cpu_repack",
+        "type": "bool",
+        "description": "On the CPU, multiply the matrices with the kernels of ggml's CPU extra buffer types where those take the weight's type and shape: the repacked ones take Q4_0 on x86 with AVX2 and Q4_0, Q8_0 and Q6_K on Arm; where ggml's AMX buffer is built, it comes first and also takes F16, Q8_0 and K-quants. Where the token embedding's type is taken, the text head gets a copy of it. Other backends ignore it.",
+        "required": false,
+        "default": true
+      },
+      {
+        "name": "conversation_cache_slots",
+        "type": "int",
+        "description": "S2S: how many conversations a session keeps the earlier questions' encoder output and prefill blocks of, for their next turns, the least recently used dropped first; 0 keeps none. Each kept conversation takes up to about 350 MiB of host memory at the conversation limit, and a slot that no conversation has used takes nothing. Output does not depend on it.",
+        "required": false,
+        "min": 0,
+        "default": 4
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "cpu",
+      "metal",
+      "cuda"
+    ]
+  },
+  "packages": [
+    {
+      "id": "lfm2_audio_1_5b_q8_0",
+      "display_name": "LFM2.5-Audio-1.5B Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "LFM2.5-Audio-1.5B-GGUF",
+      "files": [
+        "LFM2.5-Audio-1.5B-Q8_0.gguf",
+        "mmproj-LFM2.5-Audio-1.5B-Q8_0.gguf",
+        "vocoder-LFM2.5-Audio-1.5B-Q8_0.gguf",
+        "tokenizer-LFM2.5-Audio-1.5B-Q8_0.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+        "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1822397120,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+          "available": true,
+          "size_bytes": 1822397120,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1822397120,
+          "checked_at": "2026-10-24T05:52:04.534280",
+          "license_url": "https://www.modelscope.cn/models/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1822397120,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "lfm2_audio_1_5b_f16",
+      "display_name": "LFM2.5-Audio-1.5B F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "LFM2.5-Audio-1.5B-GGUF",
+      "files": [
+        "LFM2.5-Audio-1.5B-F16.gguf",
+        "mmproj-LFM2.5-Audio-1.5B-F16.gguf",
+        "vocoder-LFM2.5-Audio-1.5B-F16.gguf",
+        "tokenizer-LFM2.5-Audio-1.5B-F16.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+        "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3331991168,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+          "available": true,
+          "size_bytes": 3331991168,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3331991168,
+          "checked_at": "2026-10-24T05:52:04.534280",
+          "license_url": "https://www.modelscope.cn/models/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3331991168,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "lfm2_audio_1_5b_q4_0",
+      "display_name": "LFM2.5-Audio-1.5B Q4_0 GGUF",
+      "format": "gguf",
+      "precision": "q4_0",
+      "target_directory": "LFM2.5-Audio-1.5B-GGUF",
+      "files": [
+        "LFM2.5-Audio-1.5B-Q4_0.gguf",
+        "mmproj-LFM2.5-Audio-1.5B-Q4_0.gguf",
+        "vocoder-LFM2.5-Audio-1.5B-Q4_0.gguf",
+        "tokenizer-LFM2.5-Audio-1.5B-Q4_0.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+        "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1074794688,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "7d525f883a077e20afb782f2ff618edcae0e39e4",
+          "available": true,
+          "size_bytes": 1074794688,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1074794688,
+          "checked_at": "2026-10-24T05:52:04.534280",
+          "license_url": "https://www.modelscope.cn/models/LiquidAI/LFM2.5-Audio-1.5B-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1074794688,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "lfm2_audio_1_5b_jp_q8_0",
+      "display_name": "LFM2.5-Audio-1.5B-JP Q8_0 GGUF",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "LFM2.5-Audio-1.5B-JP-GGUF",
+      "files": [
+        "LFM2.5-Audio-1.5B-JP-Q8_0.gguf",
+        "mmproj-LFM2.5-Audio-1.5B-JP-Q8_0.gguf",
+        "vocoder-LFM2.5-Audio-1.5B-JP-Q8_0.gguf",
+        "tokenizer-LFM2.5-Audio-1.5B-JP-Q8_0.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+        "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1820023680,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+          "available": true,
+          "size_bytes": 1820023680,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1820023680,
+          "checked_at": "2026-10-24T05:52:04.534280",
+          "license_url": "https://www.modelscope.cn/models/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1820023680,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "lfm2_audio_1_5b_jp_f16",
+      "display_name": "LFM2.5-Audio-1.5B-JP F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "LFM2.5-Audio-1.5B-JP-GGUF",
+      "files": [
+        "LFM2.5-Audio-1.5B-JP-F16.gguf",
+        "mmproj-LFM2.5-Audio-1.5B-JP-F16.gguf",
+        "vocoder-LFM2.5-Audio-1.5B-JP-F16.gguf",
+        "tokenizer-LFM2.5-Audio-1.5B-JP-F16.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+        "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3302879040,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+          "available": true,
+          "size_bytes": 3302879040,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3302879040,
+          "checked_at": "2026-10-24T05:52:04.534280",
+          "license_url": "https://www.modelscope.cn/models/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3302879040,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "lfm2_audio_1_5b_jp_f32",
+      "display_name": "LFM2.5-Audio-1.5B-JP F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "LFM2.5-Audio-1.5B-JP-GGUF",
+      "files": [
+        "LFM2.5-Audio-1.5B-JP-F32.gguf",
+        "mmproj-LFM2.5-Audio-1.5B-JP-F32.gguf",
+        "vocoder-LFM2.5-Audio-1.5B-JP-F32.gguf",
+        "tokenizer-LFM2.5-Audio-1.5B-JP-F32.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+        "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 6466303808,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+          "available": true,
+          "size_bytes": 6466303808,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 6466303808,
+          "checked_at": "2026-10-24T05:52:04.534280",
+          "license_url": "https://www.modelscope.cn/models/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 6466303808,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "lfm2_audio_1_5b_jp_q4_0",
+      "display_name": "LFM2.5-Audio-1.5B-JP Q4_0 GGUF",
+      "format": "gguf",
+      "precision": "q4_0",
+      "target_directory": "LFM2.5-Audio-1.5B-JP-GGUF",
+      "files": [
+        "LFM2.5-Audio-1.5B-JP-Q4_0.gguf",
+        "mmproj-LFM2.5-Audio-1.5B-JP-Q4_0.gguf",
+        "vocoder-LFM2.5-Audio-1.5B-JP-Q4_0.gguf",
+        "tokenizer-LFM2.5-Audio-1.5B-JP-Q4_0.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+        "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+        "gated": false
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1072421248,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "64b96718b341dbd5650f9e85627cecdcbd4ac61b",
+          "available": true,
+          "size_bytes": 1072421248,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1072421248,
+          "checked_at": "2026-10-24T05:52:04.534280",
+          "license_url": "https://www.modelscope.cn/models/LiquidAI/LFM2.5-Audio-1.5B-JP-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1072421248,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "ASR",
+      "TTS",
+      "GGUF",
+      "Stream"
+    ],
+    "recommended_package": "lfm2_audio_1_5b_q8_0",
+    "docs": [
+      "docs/models/lfm2_audio.md"
+    ],
+    "summary": "LFM2.5-Audio transcription, speech and spoken chat (English and Japanese checkpoints) from Liquid's published GGUFs.",
+    "builtin_voices": [
+      "us_male",
+      "us_female",
+      "uk_male",
+      "uk_female"
+    ],
+    "default_voice": "us_male"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": "."
+      },
+      "files": {},
+      "optional_files": {},
+      "tensors": {}
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Liquid AI's LFM2.5-Audio, loaded from the llama.cpp-format GGUF components Liquid publishes. ASR: a FastConformer encoder feeds an LFM2 hybrid short-conv/attention backbone. TTS: the backbone generates audio frames through a depthformer, and an LFM2 detokenizer and ISTFT turn them into 24 kHz audio. S2S: a spoken question goes in as for ASR, and the reply comes out as interleaved text and audio.",
+      "zh": "Liquid AI 的 LFM2.5-Audio，使用 Liquid 发布的 llama.cpp 格式 GGUF 组件加载。ASR：FastConformer 编码器接入 LFM2 混合短卷积/注意力骨干。TTS：骨干通过 depthformer 生成音频帧，再由 LFM2 detokenizer 与 ISTFT 转为 24 kHz 音频。S2S：语音问题按 ASR 方式输入，回复以文本与音频交错输出。"
+    },
+    "options": {
+      "language": {
+        "en": "Must match the checkpoint's language (en or ja) when given; each published checkpoint transcribes and speaks one language.",
+        "zh": "提供时必须与检查点语言一致（en 或 ja）；每个已发布检查点只转写并说一种语言。"
+      },
+      "max_tokens": {
+        "en": "ASR: transcript tokens per audio chunk, 512 by default. TTS: audio frames (80 ms each) per text chunk, 512 by default. S2S: text tokens and audio frames of the reply together, 1024 by default. A transcript, a text chunk's speech or a reply that reaches it is cut off there, with a warning on stderr.",
+        "zh": "ASR：每个音频分块的转写 token 数，默认 512。TTS：每个文本分块的音频帧数（每帧 80 ms），默认 512。S2S：回复的文本 token 与音频帧合计，默认 1024。达到上限的转写、文本分块语音或回复会被截断，并在 stderr 给出警告。"
+      },
+      "audio_chunk_mode": {
+        "en": "Audio chunking mode. auto transcribes input up to audio_chunk_duration_sec whole and splits longer input at pauses found by the bundled VAD (fixed chunks when the VAD model is absent); vad always splits at pauses and skips silence; fixed cuts every audio_chunk_duration_sec; none transcribes the whole input at once.",
+        "zh": "音频分块模式。auto 将不超过 audio_chunk_duration_sec 的输入整体转写，更长输入在内置 VAD 检测到的停顿处切分（缺少 VAD 模型时按固定分块）；vad 始终在停顿处切分并跳过静音；fixed 每 audio_chunk_duration_sec 切分；none 一次转写整个输入。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Longest chunk in seconds, at least 1. With fixed chunks, a final piece shorter than 1 second joins the previous chunk.",
+        "zh": "最长分块时长（秒），至少 1。固定分块时，最后不足 1 秒的片段并入前一分块。"
+      },
+      "temperature": {
+        "en": "TTS and S2S: audio code sampling temperature, 0.8 by default for TTS and 1.0 for S2S; 0 picks the most likely code.",
+        "zh": "TTS 与 S2S：音频 code 采样温度，TTS 默认 0.8，S2S 默认 1.0；0 选择最可能的 code。"
+      },
+      "top_k": {
+        "en": "TTS and S2S: sample audio codes from the k most likely, 64 by default for TTS and 4 for S2S; 0 keeps all, 1 is greedy.",
+        "zh": "TTS 与 S2S：从最可能的 k 个音频 code 中采样，TTS 默认 64，S2S 默认 4；0 保留全部，1 为贪心。"
+      },
+      "text_temperature": {
+        "en": "S2S: text token sampling temperature; 0, the default, picks the most likely token, as liquid-audio's README and demo do.",
+        "zh": "S2S：文本 token 采样温度；默认 0 选择最可能的 token，与 liquid-audio README 和演示一致。"
+      },
+      "text_top_k": {
+        "en": "S2S: with a text_temperature above 0, sample text tokens from the k most likely; 0, the default, keeps all, and 1 is greedy.",
+        "zh": "S2S：text_temperature 大于 0 时，从最可能的 k 个文本 token 中采样；默认 0 保留全部，1 为贪心。"
+      },
+      "seed": {
+        "en": "TTS and S2S: sampling seed; omitted requests choose a random seed. TTS text chunk i uses seed + i. S2S text sampling draws from a stream of its own, so with the same seed a reply follows the greedy-text reply until a text token differs.",
+        "zh": "TTS 与 S2S：采样随机种子；省略时随机选择。TTS 第 i 个文本分块使用 seed + i。S2S 文本采样使用独立随机流，因此在相同种子下，回复会与贪心文本回复一致，直到某个文本 token 不同。"
+      },
+      "text_chunk_mode": {
+        "en": "TTS: long-form text chunking mode; japanese for the Japanese checkpoint and default otherwise when omitted.",
+        "zh": "TTS：长文本分块模式；日语检查点使用 japanese，否则省略时使用 default。"
+      },
+      "text_chunk_size": {
+        "en": "TTS: maximum Unicode codepoints per text chunk, each spoken as its own turn.",
+        "zh": "TTS：每个文本分块的最大 Unicode 码点数，每块作为独立回合朗读。"
+      },
+      "stream_frames_per_event": {
+        "en": "TTS and S2S streaming: audio frames (80 ms each) per event; each event's audio is final. ASR runs offline only.",
+        "zh": "TTS 与 S2S 流式：每个事件的音频帧数（每帧 80 ms）；每个事件的音频都是最终结果。ASR 仅离线运行。"
+      },
+      "return_codes": {
+        "en": "S2S: also return the reply's text tokens and audio codes as an lfm2_audio.reply artifact, to send back as history with the conversation's next turn.",
+        "zh": "S2S：同时返回回复的文本 token 与音频 code，形成 lfm2_audio.reply 产物，可在下一轮对话中作为历史传回。"
+      }
+    }
+  }
+}

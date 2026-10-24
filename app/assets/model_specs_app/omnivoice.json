@@ -33,15 +33,42 @@
         "default": 1.0
       },
       {
+        "name": "duration",
+        "type": "float",
+        "description": "Target output duration in seconds; omitted uses the model's estimated duration.",
+        "min": 0.0
+      },
+      {
+        "name": "guidance_scale",
+        "type": "float",
+        "description": "Classifier-free guidance scale; default 2.0.",
+        "default": 2.0
+      },
+      {
+        "name": "num_inference_steps",
+        "type": "int",
+        "description": "Diffusion language-model inference steps; default 32.",
+        "min": 1,
+        "default": 32
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Generation seed for reproducible output; omitted keeps the session RNG state.",
+        "min": 0
+      },
+      {
         "name": "audio_chunk_duration",
         "type": "float",
         "description": "Model-side automatic chunk duration when framework chunking is not explicitly enabled.",
+        "min": 0.0,
         "default": 15.0
       },
       {
         "name": "audio_chunk_threshold",
         "type": "float",
         "description": "Estimated audio length threshold before model-side chunking is used.",
+        "min": 0.0,
         "default": 30.0
       }
     ]
@@ -355,6 +382,22 @@
       "speed": {
         "en": "Speech speed multiplier.",
         "zh": "语速倍率。"
+      },
+      "duration": {
+        "en": "Target output duration in seconds; omitted uses the model's estimated duration.",
+        "zh": "目标输出时长（秒）；省略时使用模型估算时长。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale; default 2.0.",
+        "zh": "无分类器引导强度；默认 2.0。"
+      },
+      "num_inference_steps": {
+        "en": "Diffusion language-model inference steps; default 32.",
+        "zh": "扩散语言模型推理步数；默认 32。"
+      },
+      "seed": {
+        "en": "Generation seed for reproducible output; omitted keeps the session RNG state.",
+        "zh": "生成随机种子；省略时沿用会话 RNG 状态。"
       },
       "audio_chunk_duration": {
         "en": "Model-side automatic chunk duration when framework chunking is not explicitly enabled.",

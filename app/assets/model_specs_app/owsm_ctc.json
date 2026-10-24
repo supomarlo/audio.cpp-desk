@@ -1,0 +1,407 @@
+{
+  "family": "owsm_ctc",
+  "schema_version": 1,
+  "display_name": "OWSM-CTC",
+  "description": "ESPnet non-autoregressive multilingual speech recognition and speech translation with self-conditioned CTC.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "abk",
+    "afr",
+    "amh",
+    "ara",
+    "asm",
+    "ast",
+    "aze",
+    "bak",
+    "bas",
+    "bel",
+    "ben",
+    "bos",
+    "bre",
+    "bul",
+    "cat",
+    "ceb",
+    "ces",
+    "chv",
+    "ckb",
+    "cmn",
+    "cnh",
+    "cym",
+    "dan",
+    "deu",
+    "dgd",
+    "div",
+    "ell",
+    "eng",
+    "epo",
+    "est",
+    "eus",
+    "fas",
+    "fil",
+    "fin",
+    "fra",
+    "frr",
+    "ful",
+    "gle",
+    "glg",
+    "grn",
+    "guj",
+    "hat",
+    "hau",
+    "heb",
+    "hin",
+    "hrv",
+    "hsb",
+    "hun",
+    "hye",
+    "ibo",
+    "ina",
+    "ind",
+    "isl",
+    "ita",
+    "jav",
+    "jpn",
+    "kab",
+    "kam",
+    "kan",
+    "kat",
+    "kaz",
+    "kea",
+    "khm",
+    "kin",
+    "kir",
+    "kmr",
+    "kor",
+    "lao",
+    "lav",
+    "lga",
+    "lin",
+    "lit",
+    "ltz",
+    "lug",
+    "luo",
+    "mal",
+    "mar",
+    "mas",
+    "mdf",
+    "mhr",
+    "mkd",
+    "mlt",
+    "mon",
+    "mri",
+    "mrj",
+    "mya",
+    "myv",
+    "nan",
+    "nep",
+    "nld",
+    "nno",
+    "nob",
+    "npi",
+    "nso",
+    "nya",
+    "oci",
+    "ori",
+    "orm",
+    "ory",
+    "pan",
+    "pol",
+    "por",
+    "pus",
+    "quy",
+    "roh",
+    "ron",
+    "rus",
+    "sah",
+    "sat",
+    "sin",
+    "skr",
+    "slk",
+    "slv",
+    "sna",
+    "snd",
+    "som",
+    "sot",
+    "spa",
+    "srd",
+    "srp",
+    "sun",
+    "swa",
+    "swe",
+    "swh",
+    "tam",
+    "tat",
+    "tel",
+    "tgk",
+    "tgl",
+    "tha",
+    "tig",
+    "tir",
+    "tok",
+    "tpi",
+    "tsn",
+    "tuk",
+    "tur",
+    "twi",
+    "uig",
+    "ukr",
+    "umb",
+    "urd",
+    "uzb",
+    "vie",
+    "vot",
+    "wol",
+    "xho",
+    "yor",
+    "yue",
+    "zho",
+    "zul"
+  ],
+  "capabilities": {},
+  "dependencies": [],
+  "options": {
+    "request": [
+      {
+        "name": "language",
+        "type": "string",
+        "description": "Input ISO 639-3 language code, such as eng, jpn, or zho. auto uses unknown-language conditioning.",
+        "required": false,
+        "default": "eng"
+      },
+      {
+        "name": "target_language",
+        "type": "string",
+        "description": "Optional OWSM translation target code. Omit for transcription.",
+        "required": false
+      },
+      {
+        "name": "audio_chunk_mode",
+        "type": "enum",
+        "description": "Long-form audio chunking mode.",
+        "values": [
+          "auto",
+          "fixed",
+          "none"
+        ],
+        "required": false,
+        "default": "auto"
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Matmul weight storage override.",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q2_k",
+          "q3_k",
+          "q4_k",
+          "q5_k",
+          "q6_k"
+        ],
+        "required": false,
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/owsm_ctc.md"
+    ],
+    "recommended_package": "owsm_ctc_v4_1b_f32"
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "owsm_ctc_v4_1b_f32",
+      "display_name": "OWSM-CTC v4 1B F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "OWSM-CTC-GGUF",
+      "files": [
+        "OWSM-CTC-GGUF/owsm-ctc-v4-1b-f32.gguf"
+      ],
+      "strip_prefix": "OWSM-CTC-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4046590976,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4046590976,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4046590976,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 4046590976,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "owsm_ctc_v4_1b_q8_0",
+      "display_name": "OWSM-CTC v4 1B Q8_0",
+      "default": false,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "OWSM-CTC-GGUF",
+      "files": [
+        "OWSM-CTC-GGUF/owsm-ctc-v4-1b-q8_0.gguf"
+      ],
+      "strip_prefix": "OWSM-CTC-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1296685184,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1296685184,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1296685184,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1296685184,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer": "model:bpe.model"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    },
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer": "model:bpe.model"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "ESPnet non-autoregressive multilingual speech recognition and speech translation with self-conditioned CTC.",
+      "zh": "ESPnet 非自回归多语言语音识别与语音翻译，采用自条件 CTC。"
+    },
+    "options": {
+      "language": {
+        "en": "Input ISO 639-3 language code, such as eng, jpn, or zho. auto uses unknown-language conditioning.",
+        "zh": "输入 ISO 639-3 语言代码，如 eng、jpn、zho。auto 使用未知语言条件。"
+      },
+      "target_language": {
+        "en": "Optional OWSM translation target code. Omit for transcription.",
+        "zh": "可选的 OWSM 翻译目标代码。转写时省略。"
+      },
+      "audio_chunk_mode": {
+        "en": "Long-form audio chunking mode.",
+        "zh": "长音频分块模式。"
+      }
+    }
+  }
+}

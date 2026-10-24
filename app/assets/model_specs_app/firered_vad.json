@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "family": "firered_vad",
+  "display_name": "FireRed VAD",
+  "description": "DFSMN speech activity detection with offline and causal Stream-VAD checkpoints.",
+  "category": "audio_tools",
+  "status": "experimental",
+  "tasks": [
+    "vad"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "vad": [
+      "speech_segments"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "threshold",
+        "type": "float",
+        "description": "Speech probability threshold; defaults to 0.4 for VAD and 0.5 for Stream-VAD.",
+        "required": false,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "smooth_window_ms",
+        "type": "int",
+        "description": "Trailing probability smoothing window in milliseconds, rounded to the nearest 10 ms. Validation occurs after conversion to 10-ms frames; metadata bounds describe intended settings.",
+        "required": false,
+        "default": 50,
+        "min": 10
+      },
+      {
+        "name": "min_speech_duration_ms",
+        "type": "int",
+        "description": "Speech confirmation duration, rounded to the nearest 10 ms; defaults to 200 ms for VAD and 80 ms for Stream-VAD. Validation occurs after conversion to 10-ms frames; metadata bounds describe intended settings.",
+        "required": false,
+        "min": 10
+      },
+      {
+        "name": "max_speech_duration_sec",
+        "type": "float",
+        "description": "Maximum speech duration in seconds, rounded to the nearest 10 ms. Validation occurs after conversion to 10-ms frames; metadata bounds describe intended settings.",
+        "required": false,
+        "default": 20,
+        "min": 0.02
+      },
+      {
+        "name": "min_silence_duration_ms",
+        "type": "int",
+        "description": "Silence confirmation duration in milliseconds, rounded to the nearest 10 ms. Validation occurs after conversion to 10-ms frames; metadata bounds describe intended settings.",
+        "required": false,
+        "default": 200,
+        "min": 0
+      },
+      {
+        "name": "merge_silence_duration_ms",
+        "type": "int",
+        "description": "Merge shorter internal silence gaps in offline VAD; milliseconds rounded to the nearest 10 ms.",
+        "required": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "name": "speech_pad_ms",
+        "type": "int",
+        "description": "Extend offline VAD segments on each side; milliseconds rounded to the nearest 10 ms.",
+        "required": false,
+        "default": 0,
+        "min": 0
+      },
+      {
+        "name": "speech_start_pad_ms",
+        "type": "int",
+        "description": "Stream-VAD start padding in milliseconds, rounded to the nearest 10 ms and at least the smoothing window.",
+        "required": false,
+        "default": 50,
+        "min": 0
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Maximum network duration per offline chunk in seconds, rounded to the nearest 10 ms; each chunk resets network history, matching upstream.",
+        "required": false,
+        "default": 300,
+        "min": 0.01
+      }
+    ],
+    "session": [],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "firered_vad_f32",
+      "display_name": "FireRed VAD GGUF F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "FireRedVAD-GGUF",
+      "files": [
+        "FireRedVAD-GGUF/firered-vad-f32.gguf"
+      ],
+      "strip_prefix": "FireRedVAD-GGUF",
+      "i18n": {
+        "description": {
+          "en": "FireRed VAD offline checkpoint for speech activity detection on 16 kHz mono audio.",
+          "zh": "FireRed VAD 离线权重，用于整段 16 kHz 单声道音频的语音活动检测。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2368640,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2368640,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2368640,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2368640,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "firered_stream_vad_f32",
+      "display_name": "FireRed Stream-VAD GGUF F32",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "FireRedVAD-GGUF",
+      "files": [
+        "FireRedVAD-GGUF/firered-stream-vad-f32.gguf"
+      ],
+      "strip_prefix": "FireRedVAD-GGUF",
+      "i18n": {
+        "description": {
+          "en": "FireRed Stream-VAD causal checkpoint for streaming speech activity detection with speech-start/end events.",
+          "zh": "FireRed Stream-VAD 因果权重，用于流式语音活动检测，并输出语音开始/结束事件。"
+        }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2285056,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2285056,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2285056,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2285056,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "VAD",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/firered_vad.md"
+    ],
+    "recommended_package": "firered_vad_f32"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "DFSMN speech activity detection with offline and causal Stream-VAD checkpoints.",
+      "zh": "基于 DFSMN 的语音活动检测，提供离线与因果流式（Stream-VAD）权重。"
+    },
+    "options": {
+      "threshold": {
+        "en": "Speech probability threshold; defaults to 0.4 for VAD and 0.5 for Stream-VAD.",
+        "zh": "语音概率阈值；VAD 默认 0.4，Stream-VAD 默认 0.5。"
+      },
+      "smooth_window_ms": {
+        "en": "Trailing probability smoothing window in milliseconds, rounded to the nearest 10 ms. Validation occurs after conversion to 10-ms frames; metadata bounds describe intended settings.",
+        "zh": "尾部概率平滑窗口（毫秒），四舍五入到最近的 10 ms。校验在转换为 10 ms 帧后进行；元数据边界表示推荐设置。"
+      },
+      "min_speech_duration_ms": {
+        "en": "Speech confirmation duration, rounded to the nearest 10 ms; defaults to 200 ms for VAD and 80 ms for Stream-VAD. Validation occurs after conversion to 10-ms frames; metadata bounds describe intended settings.",
+        "zh": "确认语音所需的时长，四舍五入到最近的 10 ms；VAD 默认 200 ms，Stream-VAD 默认 80 ms。校验在转换为 10 ms 帧后进行；元数据边界表示推荐设置。"
+      },
+      "max_speech_duration_sec": {
+        "en": "Maximum speech duration in seconds, rounded to the nearest 10 ms. Validation occurs after conversion to 10-ms frames; metadata bounds describe intended settings.",
+        "zh": "最大语音时长（秒），四舍五入到最近的 10 ms。校验在转换为 10 ms 帧后进行；元数据边界表示推荐设置。"
+      },
+      "min_silence_duration_ms": {
+        "en": "Silence confirmation duration in milliseconds, rounded to the nearest 10 ms. Validation occurs after conversion to 10-ms frames; metadata bounds describe intended settings.",
+        "zh": "确认静音所需的时长（毫秒），四舍五入到最近的 10 ms。校验在转换为 10 ms 帧后进行；元数据边界表示推荐设置。"
+      },
+      "merge_silence_duration_ms": {
+        "en": "Merge shorter internal silence gaps in offline VAD; milliseconds rounded to the nearest 10 ms.",
+        "zh": "离线 VAD 中合并较短的内部静音间隔；毫秒四舍五入到最近的 10 ms。"
+      },
+      "speech_pad_ms": {
+        "en": "Extend offline VAD segments on each side; milliseconds rounded to the nearest 10 ms.",
+        "zh": "向离线 VAD 片段两侧扩展；毫秒四舍五入到最近的 10 ms。"
+      },
+      "speech_start_pad_ms": {
+        "en": "Stream-VAD start padding in milliseconds, rounded to the nearest 10 ms and at least the smoothing window.",
+        "zh": "Stream-VAD 起始填充（毫秒），四舍五入到最近的 10 ms，且不小于平滑窗口。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Maximum network duration per offline chunk in seconds, rounded to the nearest 10 ms; each chunk resets network history, matching upstream.",
+        "zh": "离线分块的最大网络时长（秒），四舍五入到最近的 10 ms；每个分块都会重置网络历史，与上游一致。"
+      }
+    }
+  }
+}

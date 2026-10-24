@@ -1,0 +1,194 @@
+{
+  "ming3_tts": {
+    "reference": "optional",
+    "referenceText": "optional",
+    "instruction": "optional",
+    "instructionWhen": "no-voice",
+    "instructionKey": "instruct",
+    "voiceId": {
+      "values": [
+        "US_Emma",
+        "US_James",
+        "UK_George",
+        "UK_Charlotte"
+      ],
+      "option": "voice_id",
+      "allowEmpty": true
+    },
+    "language": "optional",
+    "languageValues": [
+      "Chinese",
+      "English",
+      "Japanese",
+      "Korean",
+      "German",
+      "French",
+      "Spanish"
+    ],
+    "layout": [
+      { "type": "voice" },
+      { "type": "language" },
+      { "type": "referenceText" },
+      {
+        "type": "grid",
+        "when": "noBuiltinVoice",
+        "minItemWidth": 240,
+        "children": [
+          {
+            "type": "option",
+            "option": "emotion",
+            "exclusiveGroup": "emotion_dialect",
+            "label": { "en": "Emotion", "zh": "情绪" },
+            "values": [
+              { "value": "高兴", "en": "Happy", "zh": "高兴" },
+              { "value": "悲伤", "en": "Sad", "zh": "悲伤" },
+              { "value": "愤怒", "en": "Angry", "zh": "愤怒" },
+              { "value": "恐惧", "en": "Fearful", "zh": "恐惧" },
+              { "value": "厌恶", "en": "Disgusted", "zh": "厌恶" },
+              { "value": "惊讶", "en": "Surprised", "zh": "惊讶" },
+              { "value": "中性", "en": "Neutral", "zh": "中性" }
+            ]
+          },
+          {
+            "type": "option",
+            "option": "dialect",
+            "exclusiveGroup": "emotion_dialect",
+            "label": { "en": "Dialect", "zh": "方言" },
+            "values": [
+              {
+                "value": "chuanyu dialect",
+                "en": "Sichuanese (Chuanyu)",
+                "zh": "川渝话"
+              },
+              {
+                "value": "cantonese",
+                "en": "Cantonese",
+                "zh": "粤语"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "instruction",
+        "whenOptionsEmpty": ["emotion", "dialect"]
+      },
+      { "type": "inputs" }
+    ],
+    "derivedOptions": {
+      "option": "template_name",
+      "default": "tts",
+      "defaultClear": [
+        "voice_id",
+        "speed",
+        "pitch",
+        "volume",
+        "emotion",
+        "dialect"
+      ],
+      "rules": [
+        {
+          "when": {
+            "voice": "builtin"
+          },
+          "set": {
+            "template_name": "ip"
+          },
+          "clear": [
+            "reference_text",
+            "instruct",
+            "speed",
+            "pitch",
+            "volume",
+            "emotion",
+            "dialect"
+          ]
+        },
+        {
+          "when": {
+            "option": "dialect"
+          },
+          "set": {
+            "template_name": "dialect"
+          },
+          "clear": [
+            "reference_text",
+            "instruct",
+            "speed",
+            "pitch",
+            "volume",
+            "emotion",
+            "voice_id"
+          ]
+        },
+        {
+          "when": {
+            "option": "emotion"
+          },
+          "set": {
+            "template_name": "emotion"
+          },
+          "clear": [
+            "reference_text",
+            "instruct",
+            "speed",
+            "pitch",
+            "volume",
+            "dialect",
+            "voice_id"
+          ]
+        },
+        {
+          "when": {
+            "any": [
+              "speed",
+              "pitch",
+              "volume"
+            ]
+          },
+          "set": {
+            "template_name": "basic"
+          },
+          "clear": [
+            "reference_text",
+            "instruct",
+            "emotion",
+            "dialect",
+            "voice_id"
+          ]
+        },
+        {
+          "when": {
+            "option": "instruct",
+            "voice": "none"
+          },
+          "set": {
+            "template_name": "voice_design"
+          },
+          "clear": [
+            "reference_text",
+            "speed",
+            "pitch",
+            "volume",
+            "emotion",
+            "dialect",
+            "voice_id"
+          ]
+        }
+      ]
+    },
+    "hiddenOptions": [
+      "template_name",
+      "voice_id",
+      "speaker_embedding_file",
+      "use_speaker_embedding",
+      "zero_speaker_embedding",
+      "instruction_schema",
+      "raw_text",
+      "text_chunk_size",
+      "text_chunk_mode",
+      "trim_silence"
+    ],
+    "source": "audio.cpp src/models/ming3_tts + app/server; upstream Ming-3.0-tts for emotion/dialect values"
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "family": "open_wake_word",
+  "display_name": "OpenWakeWord",
+  "description": "OpenWakeWord wake-word detection with a shared speech embedding CNN and a converted classifier.",
+  "category": "audio_tools",
+  "status": "experimental",
+  "tasks": [
+    "wake_word"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "en"
+  ],
+  "capabilities": {
+    "wake_word": [
+      "speech_segments",
+      "stream_events"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "threshold",
+        "type": "float",
+        "required": false,
+        "min": 0,
+        "max": 1,
+        "description": "Wake-word detection probability threshold."
+      }
+    ],
+    "session": [
+      {
+        "name": "exec_plan",
+        "type": "string",
+        "required": false,
+        "default": "{}",
+        "description": "JSON component execution plans. Component embedding accepts impl default/ggml/neon and optional backend. Default retains GGML on the session backend; neon requires ENGINE_ENABLE_NEON=ON and an AArch64 NEON CPU session. No artifacts or params are used."
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "open_wake_word_alexa_f32",
+      "display_name": "OpenWakeWord Alexa GGUF F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "OpenWakeWord-GGUF",
+      "files": [
+        "OpenWakeWord-GGUF/open-wake-word-alexa-f32.gguf"
+      ],
+      "strip_prefix": "OpenWakeWord-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2260928,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2260928,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2260928,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 2260928,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "Wake Word",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/models/open_wake_word.md"
+    ],
+    "recommended_package": "open_wake_word_alexa_f32"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "OpenWakeWord wake-word detection with a shared speech embedding CNN and a converted classifier.",
+      "zh": "OpenWakeWord 唤醒词检测，使用共享语音嵌入 CNN 与转换后的分类器。"
+    },
+    "options": {
+      "threshold": {
+        "en": "Wake-word detection probability threshold.",
+        "zh": "唤醒词检测概率阈值。"
+      }
+    }
+  }
+}

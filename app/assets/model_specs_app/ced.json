@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "family": "ced",
+  "display_name": "CED Audio Tagging",
+  "description": "Consistent Ensemble Distillation ViT audio classifiers for 527 AudioSet sound categories.",
+  "category": "speech_analysis",
+  "status": "supported",
+  "tasks": [
+    "classify"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "classify": [
+      "scores"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Number of highest-scoring AudioSet categories returned.",
+        "required": false,
+        "default": 10,
+        "min": 1,
+        "max": 527
+      }
+    ],
+    "session": [
+      {
+        "name": "attention",
+        "type": "enum",
+        "description": "Attention implementation; auto selects a supported fast path.",
+        "required": false,
+        "default": "auto",
+        "values": [
+          "auto",
+          "flash",
+          "eager"
+        ]
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Weight storage override; native preserves packaged tensor types.",
+        "required": false,
+        "default": "native",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_k"
+        ]
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "ced_tiny_f32",
+      "display_name": "CED Tiny F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "default": true,
+      "target_directory": "CED-GGUF",
+      "files": [
+        "CED-GGUF/ced-tiny-f32.gguf"
+      ],
+      "strip_prefix": "CED-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 22130464,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 22130464,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 22130464,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 22130464,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "ced_mini_f32",
+      "display_name": "CED Mini F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "CED-GGUF",
+      "files": [
+        "CED-GGUF/ced-mini-f32.gguf"
+      ],
+      "strip_prefix": "CED-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 38904352,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 38904352,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 38904352,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 38904352,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "ced_small_f32",
+      "display_name": "CED Small F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "CED-GGUF",
+      "files": [
+        "CED-GGUF/ced-small-f32.gguf"
+      ],
+      "strip_prefix": "CED-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 86607904,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 86607904,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 86607904,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 86607904,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "ced_base_f32",
+      "display_name": "CED Base F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "CED-GGUF",
+      "files": [
+        "CED-GGUF/ced-base-f32.gguf"
+      ],
+      "strip_prefix": "CED-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 342964768,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 342964768,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 342964768,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 342964768,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "ced_tiny_f32",
+    "tags": [
+      "Classify",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/ced.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "processor": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "processor": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Consistent Ensemble Distillation ViT audio classifiers for 527 AudioSet sound categories.",
+      "zh": "基于一致性集成蒸馏（CED）的 ViT 音频分类器，覆盖 527 个 AudioSet 声音类别。"
+    },
+    "options": {
+      "top_k": {
+        "en": "Number of highest-scoring AudioSet categories returned.",
+        "zh": "返回得分最高的 AudioSet 类别数量。"
+      }
+    }
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "family": "tone_color_vc",
+  "schema_version": 1,
+  "display_name": "Tone Color VC",
+  "description": "Standalone voice conversion with a reference speaker recording.",
+  "category": "voice_conversion",
+  "status": "experimental",
+  "tasks": [
+    "vc"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "vc": [
+      "speaker_reference"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "seed",
+        "type": "int",
+        "required": false,
+        "description": "Random seed for posterior sampling; -1 chooses a random seed.",
+        "default": 1234,
+        "min": -1
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "required": false,
+        "description": "Posterior sampling noise scale.",
+        "default": 0.3,
+        "min": 0
+      }
+    ],
+    "session": [
+      {
+        "name": "exec_plan",
+        "type": "string",
+        "required": false,
+        "default": "{}",
+        "description": "Component execution plan: decoder accepts default/ggml/neon. Default retains the session backend. The complete NEON HiFi-GAN decoder requires a CPU session and ENGINE_ENABLE_NEON=ON on AArch64. No artifacts or params."
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "tone_color_vc_f32",
+      "display_name": "Tone Color VC F32 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "Tone-Color-VC-GGUF",
+      "files": [
+        "Tone-Color-VC-GGUF/tone-color-vc-f32.gguf"
+      ],
+      "strip_prefix": "Tone-Color-VC-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 131036736,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 131036736,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 131036736,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 131036736,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "tone_color_vc_f16",
+      "display_name": "Tone Color VC F16 GGUF",
+      "default": false,
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "Tone-Color-VC-GGUF",
+      "files": [
+        "Tone-Color-VC-GGUF/tone-color-vc-f16.gguf"
+      ],
+      "strip_prefix": "Tone-Color-VC-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 65644736,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 65644736,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 65644736,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 65644736,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "recommended_package": "tone_color_vc_f32",
+    "tags": [
+      "VC",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/tone_color_vc.md"
+    ]
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Standalone voice conversion with a reference speaker recording.",
+      "zh": "使用参考说话人录音的独立音色转换。"
+    },
+    "options": {
+      "seed": {
+        "en": "Random seed for posterior sampling; -1 chooses a random seed.",
+        "zh": "后验采样随机种子；-1 表示随机选择。"
+      },
+      "temperature": {
+        "en": "Posterior sampling noise scale.",
+        "zh": "后验采样噪声尺度。"
+      }
+    }
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "family": "tf_gridnet",
+  "display_name": "TF-GridNet",
+  "description": "Time-frequency GridNet overlapping speech separation.",
+  "category": "audio_tools",
+  "status": "supported",
+  "tasks": [
+    "sep"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "sep": [
+      "stems"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "audio_chunk_duration_sec",
+        "type": "float",
+        "description": "Separation window duration; zero selects whole-file inference. When enabled, the chunk sample count must exceed n_fft/2.",
+        "min": 0,
+        "default": 2.4,
+        "required": false
+      },
+      {
+        "name": "audio_chunk_overlap_sec",
+        "type": "float",
+        "description": "Nonnegative overlap used to match speaker order and stitch adjacent windows. When chunking is enabled, overlap sample count must be > 0 and smaller than the chunk. Ignored for whole-file inference.",
+        "min": 0,
+        "default": 1.6,
+        "required": false
+      },
+      {
+        "name": "normalize_output",
+        "type": "bool",
+        "description": "Normalize each separated waveform to a peak of 0.9, as in ESPnet's example.",
+        "default": true,
+        "required": false
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Weight storage type.",
+        "required": false,
+        "default": "native",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q2_k",
+          "q3_k",
+          "q4_k",
+          "q5_k",
+          "q6_k"
+        ]
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "tf_gridnet_wsj0_2mix_f32",
+      "display_name": "TF-GridNet WSJ0-2mix F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "TF-GridNet-GGUF",
+      "files": [
+        "TF-GridNet-GGUF/tf-gridnet-wsj0-2mix-f32.gguf"
+      ],
+      "strip_prefix": "TF-GridNet-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 32792096,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 32792096,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 32792096,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 32792096,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/tf_gridnet.md"
+    ],
+    "recommended_package": "tf_gridnet_wsj0_2mix_f32"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        },
+        "frontend": {
+          "source": "weights:",
+          "prefix": "frontend"
+        }
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Time-frequency GridNet overlapping speech separation.",
+      "zh": "时频 GridNet 重叠语音分离。"
+    },
+    "options": {
+      "audio_chunk_duration_sec": {
+        "en": "Separation window duration; zero selects whole-file inference. When enabled, the chunk sample count must exceed n_fft/2.",
+        "zh": "分离窗口时长；0 表示整文件推理。启用时分块采样数必须大于 n_fft/2。"
+      },
+      "audio_chunk_overlap_sec": {
+        "en": "Nonnegative overlap used to match speaker order and stitch adjacent windows. When chunking is enabled, overlap sample count must be > 0 and smaller than the chunk. Ignored for whole-file inference.",
+        "zh": "用于匹配说话人顺序并拼接相邻窗口的非负重叠加。启用分块时重叠采样数必须 > 0 且小于分块。整文件推理时忽略。"
+      },
+      "normalize_output": {
+        "en": "Normalize each separated waveform to a peak of 0.9, as in ESPnet's example.",
+        "zh": "将每条分离波形归一化到峰值 0.9，与 ESPnet 示例一致。"
+      }
+    }
+  }
+}

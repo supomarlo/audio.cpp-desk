@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "family": "ast_audioset",
+  "display_name": "AST AudioSet",
+  "description": "MIT Audio Spectrogram Transformer for multi-label classification across 527 AudioSet sound classes.",
+  "category": "speech_analysis",
+  "status": "supported",
+  "tasks": [
+    "classify"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "classify": [
+      "scores"
+    ]
+  },
+  "dependencies": [],
+  "options": {
+    "request": [
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Number of highest-scoring AudioSet classes to return.",
+        "required": false,
+        "min": 1,
+        "max": 527,
+        "default": 10
+      }
+    ],
+    "session": [
+      {
+        "name": "attention",
+        "type": "enum",
+        "description": "Attention lowering; auto selects a supported fast path.",
+        "values": [
+          "auto",
+          "flash",
+          "eager"
+        ],
+        "required": false,
+        "default": "auto"
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Weight storage override; native preserves the packaged tensor types.",
+        "required": false,
+        "default": "native",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_k"
+        ]
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "ast_audioset_f32",
+    "tags": [
+      "Classify",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/ast_audioset.md"
+    ]
+  },
+  "packages": [
+    {
+      "id": "ast_audioset_f32",
+      "display_name": "AST AudioSet F32 GGUF",
+      "format": "gguf",
+      "precision": "f32",
+      "default": true,
+      "target_directory": "AST-AudioSet-GGUF",
+      "files": [
+        "AST-AudioSet-GGUF/ast-audioset-f32.gguf"
+      ],
+      "strip_prefix": "AST-AudioSet-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 346437760,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 346437760,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 346437760,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 346437760,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "processor": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "processor": "model:preprocessor_config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "MIT Audio Spectrogram Transformer for multi-label classification across 527 AudioSet sound classes.",
+      "zh": "MIT Audio Spectrogram Transformer，用于 527 个 AudioSet 声音类别的多标签分类。"
+    },
+    "options": {
+      "top_k": {
+        "en": "Number of highest-scoring AudioSet classes to return.",
+        "zh": "返回得分最高的 AudioSet 类别数量。"
+      }
+    }
+  }
+}

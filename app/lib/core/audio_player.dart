@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 
 /// 全局音频播放器（底部栏用）。
 class AudioPlayerController extends ChangeNotifier {
@@ -89,6 +90,13 @@ class AudioPlayerController extends ChangeNotifier {
     _completed = false;
     position = Duration.zero;
     notifyListeners();
+  }
+
+  /// 当前载入的是指定文件时才停止；避免删除其它记录时误停播放。
+  Future<void> stopIfPath(String path) async {
+    final current = currentPath;
+    if (current == null || current.isEmpty) return;
+    if (p.equals(p.absolute(current), p.absolute(path))) await stop();
   }
 
   @override

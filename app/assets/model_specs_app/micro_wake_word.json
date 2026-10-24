@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "family": "micro_wake_word",
+  "display_name": "microWakeWord",
+  "description": "Streaming wake-word detection for trained microWakeWord MixedNet TFLite models converted to GGUF.",
+  "category": "audio_tools",
+  "status": "experimental",
+  "tasks": [
+    "wake_word"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "model_dependent"
+  ],
+  "capabilities": {
+    "wake_word": [
+      "speech_segments",
+      "stream_events"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf",
+      "stream"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "threshold",
+        "type": "float",
+        "description": "Override the converted model manifest's wake-word probability cutoff.",
+        "required": false,
+        "min": 0,
+        "max": 1
+      },
+      {
+        "name": "sliding_window_size",
+        "type": "int",
+        "description": "Override the converted model manifest's prediction smoothing window.",
+        "required": false,
+        "min": 1
+      }
+    ],
+    "session": [
+      {
+        "name": "exec_plan",
+        "type": "string",
+        "description": "JSON component execution plans. Component network accepts impl ggml/neon (default ggml). GGML retains the session backend; neon runs the stateful CNN on CPU and requires ENGINE_ENABLE_NEON=ON and AArch64 NEON. Frontend and detection logic are unchanged. No artifacts or params are used.",
+        "required": false,
+        "default": "{}"
+      }
+    ],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "micro_wake_word_okay_nabu_f32",
+      "display_name": "microWakeWord Okay Nabu GGUF F32",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "MicroWakeWord-GGUF",
+      "files": [
+        "MicroWakeWord-GGUF/micro-wake-word-okay-nabu-f32.gguf"
+      ],
+      "strip_prefix": "MicroWakeWord-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 187264,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 187264,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 187264,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 187264,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "Wake Word",
+      "GGUF",
+      "Stream"
+    ],
+    "docs": [
+      "docs/models/micro_wake_word.md"
+    ],
+    "recommended_package": "micro_wake_word_okay_nabu_f32"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Streaming wake-word detection for trained microWakeWord MixedNet TFLite models converted to GGUF.",
+      "zh": "流式唤醒词检测，支持 microWakeWord MixedNet TFLite 模型转换为 GGUF。"
+    },
+    "options": {
+      "threshold": {
+        "en": "Override the converted model manifest's wake-word probability cutoff.",
+        "zh": "覆盖转换后模型清单中的唤醒词概率阈值。"
+      },
+      "sliding_window_size": {
+        "en": "Override the converted model manifest's prediction smoothing window.",
+        "zh": "覆盖转换后模型清单中的预测平滑窗口。"
+      }
+    }
+  }
+}

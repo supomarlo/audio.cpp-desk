@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import 'app_paths.dart';
+import 'variant_key.dart';
 import '../models/model_catalog_entry.dart';
 import '../models/model_spec.dart';
 
@@ -84,13 +85,16 @@ class ModelLibraryStore {
 
   List<ModelCatalogEntry> _recomputeActiveVersion(
       List<ModelCatalogEntry> list) {
-    final byFamily = <String, List<ModelCatalogEntry>>{};
+    // 当前版本按「同族同功能变体」选择：BF16 / Q8_0 是同一变体，
+    // Base / CustomVoice / VoiceDesign 等功能变体各自保留一个当前版本。
+    final byVariant = <String, List<ModelCatalogEntry>>{};
     for (final e in list) {
       if (!e.installed || e.family.isEmpty) continue;
-      byFamily.putIfAbsent(e.family, () => []).add(e);
+      final key = '${e.family}|${VariantKey.of(e.packageId)}';
+      byVariant.putIfAbsent(key, () => []).add(e);
     }
     final activeIds = <String>{};
-    for (final pkgs in byFamily.values) {
+    for (final pkgs in byVariant.values) {
       pkgs.sort((a, b) {
         final r = (a.isDefault ? 0 : 1).compareTo(b.isDefault ? 0 : 1);
         if (r != 0) return r;

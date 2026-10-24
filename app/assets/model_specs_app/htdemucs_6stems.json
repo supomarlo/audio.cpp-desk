@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "family": "htdemucs_6stems",
+  "display_name": "HTDemucs 6-stem",
+  "description": "Hybrid Transformer Demucs 6-stem source-separation model that combines waveform and spectrogram processing with Transformer layers to split mixtures into drums, bass, vocals, other, guitar, and piano.",
+  "category": "audio_tools",
+  "status": "supported",
+  "tasks": [
+    "sep"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "language_agnostic"
+  ],
+  "capabilities": {
+    "sep": [
+      "stems"
+    ]
+  },
+  "options": {
+    "request": [],
+    "session": [
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "HTDemucs 6-stem weight storage type; default is f32 for host graph planning, f16 on CUDA, otherwise native.",
+        "preset": "weight_type_full",
+        "required": false
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "recommended_package": "htdemucs_6stems_q8_0",
+    "tags": [
+      "Sep",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/audio_tools.md",
+      "docs/gguf.md"
+    ]
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "htdemucs_6stems_q8_0",
+      "display_name": "HTDemucs 6-stem Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "HTDemucs-6stems-GGUF",
+      "files": [
+        "HTDemucs-6stems-GGUF/htdemucs-6stems-q8_0.gguf"
+      ],
+      "strip_prefix": "HTDemucs-6stems-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 42477600,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 42477600,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 42477600,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 42477600,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "htdemucs_6stems_f16",
+      "display_name": "HTDemucs 6-stem F16 GGUF",
+      "format": "gguf",
+      "precision": "f16",
+      "target_directory": "HTDemucs-6stems-GGUF",
+      "files": [
+        "HTDemucs-6stems-GGUF/htdemucs-6stems-f16.gguf"
+      ],
+      "strip_prefix": "HTDemucs-6stems-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 54919200,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 54919200,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 54919200,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 54919200,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "manifest": "model:manifest.json",
+        "submodel_config": "model:5c90dfd2/config.json"
+      },
+      "tensors": {
+        "submodel_weights": {
+          "source": "weights:",
+          "prefix": "submodel_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": ".",
+        "submodel": "5c90dfd2"
+      },
+      "files": {
+        "manifest": "model:manifest.json",
+        "submodel_config": "submodel:config.json"
+      },
+      "tensors": {
+        "submodel_weights": "submodel:model.safetensors"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Hybrid Transformer Demucs 6-stem source-separation model that combines waveform and spectrogram processing with Transformer layers to split mixtures into drums, bass, vocals, other, guitar, and piano.",
+      "zh": "Hybrid Transformer Demucs 六轨分离模型，结合波形与频谱处理及 Transformer 层，将混音分离为鼓、贝斯、人声、其它、吉他和钢琴。"
+    },
+    "options": {}
+  }
+}

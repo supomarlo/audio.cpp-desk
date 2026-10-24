@@ -29,7 +29,8 @@ class VoiceIdRule {
       this.isDynamic = false,
       this.option = '',
       this.voiceLanguage = const {},
-      this.voiceDesc = const {}});
+      this.voiceDesc = const {},
+      this.allowEmpty = false});
 
   final List<String>? values;
   final String defaultValue;
@@ -43,6 +44,10 @@ class VoiceIdRule {
 
   /// 音色 → 多语言描述（键为音色名或前缀；值为 {语言: 文本}）。
   final Map<String, Map<String, String>> voiceDesc;
+
+  /// 允许“不选内置音色”（默认走参考音频/默认音色）。
+  /// 为 true 时不会把第一个内置音色当作默认值。
+  final bool allowEmpty;
 
   static T? _match<T>(Map<String, T> map, String voice) {
     if (voice.isEmpty || map.isEmpty) return null;
@@ -89,7 +94,8 @@ class VoiceIdRule {
           isDynamic: true,
           option: option,
           voiceLanguage: langs,
-          voiceDesc: descs);
+          voiceDesc: descs,
+          allowEmpty: json['allowEmpty'] == true);
     }
     final raw = json['values'];
     return VoiceIdRule(
@@ -98,6 +104,155 @@ class VoiceIdRule {
       option: option,
       voiceLanguage: langs,
       voiceDesc: descs,
+      allowEmpty: json['allowEmpty'] == true,
+    );
+  }
+}
+
+/// 派生选项的条件（通用；模型差异由规则声明）。
+class DerivedWhen {
+  const DerivedWhen({
+    this.voice = '',
+    this.option = '',
+    this.any = const <String>[],
+    this.notEmpty = true,
+  });
+
+  /// `builtin` / `reference` / `none`；空表示不限制。
+  final String voice;
+
+  /// 指定 option 非空（或按 [notEmpty] 取反）。
+  final String option;
+
+  /// 任一 option 非空（或按 [notEmpty] 取反）。
+  final List<String> any;
+
+  final bool notEmpty;
+
+  bool matches(
+    Map<String, dynamic> options, {
+    required bool builtinVoice,
+    required bool referenceVoice,
+  }) {
+    if (voice.isNotEmpty) {
+      final ok = switch (voice) {
+        'builtin' => builtinVoice,
+        'reference' => referenceVoice,
+        'none' => !builtinVoice && !referenceVoice,
+        _ => true,
+      };
+      if (!ok) return false;
+    }
+    if (option.isNotEmpty) {
+      final value = options[option]?.toString() ?? '';
+      if (notEmpty ? value.isEmpty : value.isNotEmpty) return false;
+    }
+    if (any.isNotEmpty) {
+      final has = any.any((key) => (options[key]?.toString() ?? '').isNotEmpty);
+      if (notEmpty ? !has : has) return false;
+    }
+    return true;
+  }
+
+  static DerivedWhen fromJson(Map<String, dynamic> json) => DerivedWhen(
+        voice: json['voice'] as String? ?? '',
+        option: json['option'] as String? ?? '',
+        any: (json['any'] as List<dynamic>? ?? const [])
+            .map((e) => e.toString())
+            .toList(),
+        notEmpty: json['notEmpty'] as bool? ?? true,
+      );
+}
+
+/// 单条派生规则：条件命中后写入 [set]，并清理 [clear] 中的字段。
+class DerivedRule {
+  const DerivedRule({
+    required this.when,
+    this.set = const <String, String>{},
+    this.clear = const <String>[],
+  });
+
+  final DerivedWhen when;
+  final Map<String, String> set;
+  final List<String> clear;
+
+  static DerivedRule? fromJson(dynamic raw) {
+    if (raw is! Map) return null;
+    final when = raw['when'];
+    return DerivedRule(
+      when: when is Map
+          ? DerivedWhen.fromJson(Map<String, dynamic>.from(when))
+          : const DerivedWhen(),
+      set: raw['set'] is Map
+          ? (raw['set'] as Map)
+              .map((k, v) => MapEntry(k.toString(), v.toString()))
+          : const <String, String>{},
+      clear: (raw['clear'] as List<dynamic>? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+    );
+  }
+}
+
+class DerivedResult {
+  const DerivedResult({required this.set, required this.clear});
+
+  final Map<String, String> set;
+  final List<String> clear;
+}
+
+/// 按已选控件推导目标 option（如 template_name），并清理冲突字段。
+/// 全部由规则声明；代码不认识具体模型 / 模板 / 音色。
+class DerivedOptionsRule {
+  const DerivedOptionsRule({
+    required this.option,
+    this.defaultTemplate = '',
+    this.defaultClear = const <String>[],
+    this.rules = const <DerivedRule>[],
+  });
+
+  final String option;
+  final String defaultTemplate;
+  final List<String> defaultClear;
+  final List<DerivedRule> rules;
+
+  DerivedResult? resolve(
+    Map<String, dynamic> options, {
+    required bool builtinVoice,
+    required bool referenceVoice,
+  }) {
+    for (final rule in rules) {
+      if (rule.when.matches(
+        options,
+        builtinVoice: builtinVoice,
+        referenceVoice: referenceVoice,
+      )) {
+        return DerivedResult(set: rule.set, clear: rule.clear);
+      }
+    }
+    if (defaultTemplate.isEmpty && defaultClear.isEmpty) return null;
+    return DerivedResult(
+      set: defaultTemplate.isEmpty
+          ? const <String, String>{}
+          : <String, String>{option: defaultTemplate},
+      clear: defaultClear,
+    );
+  }
+
+  static DerivedOptionsRule? fromJson(dynamic raw) {
+    if (raw is! Map) return null;
+    final option = raw['option'] as String? ?? '';
+    if (option.isEmpty) return null;
+    return DerivedOptionsRule(
+      option: option,
+      defaultTemplate: raw['default'] as String? ?? '',
+      defaultClear: (raw['defaultClear'] as List<dynamic>? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+      rules: (raw['rules'] as List<dynamic>? ?? const [])
+          .map(DerivedRule.fromJson)
+          .whereType<DerivedRule>()
+          .toList(),
     );
   }
 }
@@ -256,8 +411,8 @@ class EmotionRule {
     return null;
   }
 
-  int get maxDimensions =>
-      modes.fold(0, (a, m) => m.dimensions.length > a ? m.dimensions.length : a);
+  int get maxDimensions => modes.fold(
+      0, (a, m) => m.dimensions.length > a ? m.dimensions.length : a);
 
   static EmotionRule? fromJson(dynamic json) {
     if (json is! Map) return null;
@@ -331,6 +486,35 @@ class InputSpec {
   }
 }
 
+/// 通用下拉控件的一个取值：提交 [value] 原值，按界面语言显示 [en] / [zh]。
+class OptionChoice {
+  const OptionChoice({required this.value, this.en = '', this.zh = ''});
+
+  final String value;
+  final String en;
+  final String zh;
+
+  String label(String locale) {
+    final v = locale == 'zh' ? zh : en;
+    if (v.isNotEmpty) return v;
+    return en.isNotEmpty ? en : value;
+  }
+
+  static OptionChoice? fromJson(dynamic json) {
+    if (json is String) return OptionChoice(value: json);
+    if (json is Map) {
+      final value = json['value']?.toString() ?? '';
+      if (value.isEmpty) return null;
+      return OptionChoice(
+        value: value,
+        en: json['en']?.toString() ?? '',
+        zh: json['zh']?.toString() ?? '',
+      );
+    }
+    return null;
+  }
+}
+
 /// 「分组属性」指令（`instructionType: attributes`）中的一个可选值。
 class InstructionOption {
   const InstructionOption({required this.value, this.en = '', this.zh = ''});
@@ -364,10 +548,7 @@ class InstructionOption {
 /// 「分组属性」指令的一个类别（类别内单选，类别间可组合）。
 class InstructionGroup {
   const InstructionGroup(
-      {required this.id,
-      this.en = '',
-      this.zh = '',
-      this.values = const []});
+      {required this.id, this.en = '', this.zh = '', this.values = const []});
 
   final String id;
   final String en;
@@ -399,7 +580,7 @@ class InstructionGroup {
 /// 工作台布局节点（声明式、可递归）。
 ///
 /// 容器：`column` / `row` / `grid`（按 `minItemWidth` 自适应列数）
-/// 控件：`voice` / `referenceText` / `emotion` / `instruction` /
+/// 控件：`voice` / `referenceText` / `emotion` / `option` / `instruction` /
 /// `language` / `inputs`；`spacer` 为占位。
 class LayoutNode {
   const LayoutNode({
@@ -411,6 +592,10 @@ class LayoutNode {
     this.columns = 0,
     this.flex = 1,
     this.group = '',
+    this.option = '',
+    this.values = const [],
+    this.exclusiveGroup = '',
+    this.whenOptionsEmpty = const [],
     this.labelEn = '',
     this.labelZh = '',
     this.children = const [],
@@ -421,7 +606,19 @@ class LayoutNode {
   /// `instructionGroup`：分组属性的组 id。
   final String group;
 
-  /// `fieldset`：容器标题。
+  /// `option`：提交到的 request option 名。
+  final String option;
+
+  /// `option`：可选值（提交原值，按界面语言显示 en/zh）。
+  final List<OptionChoice> values;
+
+  /// `option`：互斥组。选中非空值时，重置同组其它控件的值。
+  final String exclusiveGroup;
+
+  /// 仅当这些 option 都为空时显示；与 [when] 同时生效。
+  final List<String> whenOptionsEmpty;
+
+  /// `fieldset`：容器标题；`option`：控件标题。
   final String labelEn;
   final String labelZh;
 
@@ -460,6 +657,15 @@ class LayoutNode {
       columns: (json['columns'] as num?)?.toInt() ?? 0,
       flex: (json['flex'] as num?)?.toInt() ?? 1,
       group: json['group']?.toString() ?? '',
+      option: json['option']?.toString() ?? '',
+      values: (json['values'] as List<dynamic>? ?? [])
+          .map(OptionChoice.fromJson)
+          .whereType<OptionChoice>()
+          .toList(),
+      exclusiveGroup: json['exclusiveGroup']?.toString() ?? '',
+      whenOptionsEmpty: (json['whenOptionsEmpty'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
       labelEn: lv('en'),
       labelZh: lv('zh'),
       children: (json['children'] as List<dynamic>? ?? [])
@@ -496,10 +702,11 @@ class WorkbenchRule {
     this.optionTypes = const {},
     this.optionExtensions = const {},
     this.fields = const {},
-        this.language = 'hidden',
-        this.languageDefault = '',
-        this.languageKey = '',
-        this.languageValues = const [],
+    this.derivedOptions,
+    this.language = 'hidden',
+    this.languageDefault = '',
+    this.languageKey = '',
+    this.languageValues = const [],
     this.requiredInputs = const [],
     this.source = '',
   });
@@ -538,7 +745,8 @@ class WorkbenchRule {
 
   /// 自定义 tooltip 文案（按界面语言；空则回退完整标题）。
   String instructionLabelTooltip(String locale) {
-    final v = locale == 'zh' ? instructionLabelTooltipZh : instructionLabelTooltipEn;
+    final v =
+        locale == 'zh' ? instructionLabelTooltipZh : instructionLabelTooltipEn;
     if (v.isNotEmpty) return v;
     return instructionLabelTooltipEn.isNotEmpty
         ? instructionLabelTooltipEn
@@ -575,9 +783,30 @@ class WorkbenchRule {
   /// 缺省用软件内置的通用名（如 referenceText→reference_text）。
   final Map<String, String> fields;
 
+  /// 按已选控件推导目标 option（如 template_name）；为空则不做任何推导。
+  final DerivedOptionsRule? derivedOptions;
+
   /// 取某控制项对应的提交字段名（规则覆盖优先）。
   String fieldFor(String control, String fallback) =>
       fields[control] ?? fallback;
+
+  /// 布局树里所有 `option` 控件（按出现顺序）。
+  List<LayoutNode> get layoutOptionNodes {
+    final out = <LayoutNode>[];
+    void visit(List<LayoutNode> nodes) {
+      for (final n in nodes) {
+        if (n.type == 'option' && n.option.isNotEmpty) out.add(n);
+        visit(n.children);
+      }
+    }
+
+    visit(layout);
+    return out;
+  }
+
+  /// 布局树里所有 `option` 控件的 request option 名。
+  Set<String> get layoutOptionNames =>
+      layoutOptionNodes.map((n) => n.option).toSet();
 
   /// required | optional | hidden
   final String language;
@@ -638,8 +867,10 @@ class WorkbenchRule {
             (json['instructionLabelWidth'] as num?)?.toDouble() ?? 84,
         instructionLabelTooltipMode:
             _tooltipCfg(json['instructionLabelTooltip']).mode,
-        instructionLabelTooltipEn: _tooltipCfg(json['instructionLabelTooltip']).en,
-        instructionLabelTooltipZh: _tooltipCfg(json['instructionLabelTooltip']).zh,
+        instructionLabelTooltipEn:
+            _tooltipCfg(json['instructionLabelTooltip']).en,
+        instructionLabelTooltipZh:
+            _tooltipCfg(json['instructionLabelTooltip']).zh,
         instructionOptions: json['instructionOptions'] is Map
             ? (json['instructionOptions'] as Map)
                 .map((k, v) => MapEntry(k.toString(), v.toString()))
@@ -672,6 +903,7 @@ class WorkbenchRule {
             ? (json['fields'] as Map)
                 .map((k, v) => MapEntry(k.toString(), v.toString()))
             : const {},
+        derivedOptions: DerivedOptionsRule.fromJson(json['derivedOptions']),
         language: json['language'] as String? ?? 'hidden',
         languageDefault: json['languageDefault'] as String? ?? '',
         languageKey: json['languageKey'] as String? ?? '',

@@ -1,0 +1,478 @@
+{
+  "schema_version": 1,
+  "family": "crisperwhisper",
+  "display_name": "CrisperWhisper 2.0",
+  "description": "Whisper-based verbatim and intended speech transcription.",
+  "category": "asr",
+  "status": "supported",
+  "tasks": [
+    "asr",
+    "align"
+  ],
+  "modes": [
+    "offline",
+    "streaming"
+  ],
+  "languages": [
+    "af",
+    "am",
+    "ar",
+    "as",
+    "az",
+    "ba",
+    "be",
+    "bg",
+    "bn",
+    "bo",
+    "br",
+    "bs",
+    "ca",
+    "cs",
+    "cy",
+    "da",
+    "de",
+    "el",
+    "en",
+    "es",
+    "et",
+    "eu",
+    "fa",
+    "fi",
+    "fo",
+    "fr",
+    "gl",
+    "gu",
+    "ha",
+    "haw",
+    "he",
+    "hi",
+    "hr",
+    "ht",
+    "hu",
+    "hy",
+    "id",
+    "is",
+    "it",
+    "ja",
+    "jw",
+    "ka",
+    "kk",
+    "km",
+    "kn",
+    "ko",
+    "la",
+    "lb",
+    "ln",
+    "lo",
+    "lt",
+    "lv",
+    "mg",
+    "mi",
+    "mk",
+    "ml",
+    "mn",
+    "mr",
+    "ms",
+    "mt",
+    "my",
+    "ne",
+    "nl",
+    "nn",
+    "no",
+    "oc",
+    "pa",
+    "pl",
+    "ps",
+    "pt",
+    "ro",
+    "ru",
+    "sa",
+    "sd",
+    "si",
+    "sk",
+    "sl",
+    "sn",
+    "so",
+    "sq",
+    "sr",
+    "su",
+    "sv",
+    "sw",
+    "ta",
+    "te",
+    "tg",
+    "th",
+    "tk",
+    "tl",
+    "tr",
+    "tt",
+    "uk",
+    "ur",
+    "uz",
+    "vi",
+    "yi",
+    "yo",
+    "zh"
+  ],
+  "capabilities": {
+    "align": [
+      "word_timestamps"
+    ],
+    "asr": [
+      "word_timestamps",
+      "partial_results"
+    ]
+  },
+  "dependencies": [],
+  "options": {
+    "request": [
+      {
+        "name": "return_timestamps",
+        "required": false,
+        "type": "bool",
+        "description": "Return word-level timestamps.",
+        "default": false
+      },
+      {
+        "name": "audio_chunk_mode",
+        "required": false,
+        "type": "enum",
+        "values": [
+          "auto",
+          "fixed",
+          "none"
+        ],
+        "description": "Continuation window planning. None requires audio no longer than 30 seconds.",
+        "default": "auto"
+      },
+      {
+        "name": "audio_chunk_duration_sec",
+        "required": false,
+        "type": "float",
+        "description": "Duration of each encoder window in seconds. Must be positive and greater than overlap.",
+        "max": 30,
+        "default": 30
+      },
+      {
+        "name": "audio_chunk_overlap_sec",
+        "required": false,
+        "type": "float",
+        "description": "Audio overlap between continuation windows in seconds. Must be smaller than chunk duration.",
+        "min": 0,
+        "default": 4
+      },
+      {
+        "name": "language",
+        "required": false,
+        "type": "string",
+        "description": "Audio language code.",
+        "default": "en"
+      },
+      {
+        "name": "transcription_mode",
+        "required": false,
+        "type": "enum",
+        "description": "Verbatim speech, intended clean text, or transcript-conditioned verbatimize.",
+        "values": [
+          "verbatim",
+          "intended",
+          "verbatimize"
+        ],
+        "default": "verbatim"
+      },
+      {
+        "name": "max_tokens",
+        "required": false,
+        "type": "int",
+        "description": "Maximum generated tokens per window. Positive budget, additionally bounded by remaining checkpoint text positions after the prompt.",
+        "min": 1,
+        "default": 256
+      }
+    ],
+    "session": [
+      {
+        "name": "weight_type",
+        "required": false,
+        "type": "enum",
+        "values": [
+          "native",
+          "f32",
+          "f16",
+          "bf16",
+          "q8_0",
+          "q4_0",
+          "q4_1",
+          "q5_0",
+          "q5_1",
+          "q2_k",
+          "q3_k",
+          "q4_k",
+          "q5_k",
+          "q6_k",
+          "i8"
+        ],
+        "description": "Matmul weight storage type.",
+        "default": "native"
+      }
+    ],
+    "load": []
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "ui": {
+    "tags": [
+      "ASR",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/crisperwhisper.md"
+    ],
+    "recommended_package": "crisperwhisper_2_large_q8_0"
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "crisperwhisper_2_large_bf16",
+      "display_name": "CrisperWhisper 2.0 Large GGUF BF16",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "CrisperWhisper2.0-GGUF",
+      "files": [
+        "CrisperWhisper2.0-GGUF/crisperwhisper-2-large-bf16.gguf"
+      ],
+      "strip_prefix": "CrisperWhisper2.0-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3092563712,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3092563712,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 3092563712,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 3092563712,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "crisperwhisper_2_large_q8_0",
+      "display_name": "CrisperWhisper 2.0 Large GGUF Q8_0",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "CrisperWhisper2.0-GGUF",
+      "files": [
+        "CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q8_0.gguf"
+      ],
+      "strip_prefix": "CrisperWhisper2.0-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1716306528,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1716306528,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1716306528,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1716306528,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "crisperwhisper_2_large_q4_k",
+      "display_name": "CrisperWhisper 2.0 Large GGUF Q4_K",
+      "format": "gguf",
+      "precision": "q4_k",
+      "target_directory": "CrisperWhisper2.0-GGUF",
+      "files": [
+        "CrisperWhisper2.0-GGUF/crisperwhisper-2-large-q4_k.gguf"
+      ],
+      "strip_prefix": "CrisperWhisper2.0-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 982302624,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 982302624,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 982302624,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 982302624,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "tokenizer": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt"
+      },
+      "tensors": {
+        "weights": "model:model.safetensors"
+      }
+    },
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "generation_config": "model:generation_config.json",
+        "tokenizer": "model:tokenizer.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt"
+      },
+      "tensors": {
+        "weights": "weights:"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Whisper-based verbatim and intended speech transcription.",
+      "zh": "基于 Whisper 的逐字转写与意图文本转写。"
+    },
+    "options": {
+      "return_timestamps": {
+        "en": "Return word-level timestamps.",
+        "zh": "返回词级时间戳。"
+      },
+      "audio_chunk_mode": {
+        "en": "Continuation window planning. None requires audio no longer than 30 seconds.",
+        "zh": "续接窗口规划。none 要求音频不超过 30 秒。"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Duration of each encoder window in seconds. Must be positive and greater than overlap.",
+        "zh": "每个编码器窗口的时长（秒）；必须为正且大于重叠时长。"
+      },
+      "audio_chunk_overlap_sec": {
+        "en": "Audio overlap between continuation windows in seconds. Must be smaller than chunk duration.",
+        "zh": "续接窗口之间的音频重叠时长（秒）；必须小于分块时长。"
+      },
+      "language": {
+        "en": "Audio language code.",
+        "zh": "音频语言代码。"
+      },
+      "transcription_mode": {
+        "en": "Verbatim speech, intended clean text, or transcript-conditioned verbatimize.",
+        "zh": "逐字转写、意图清理文本，或基于转写结果的逐字化。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated tokens per window. Positive budget, additionally bounded by remaining checkpoint text positions after the prompt.",
+        "zh": "每个窗口生成的最大 token 数。预算必须为正，并受提示之后剩余文本位置限制。"
+      }
+    }
+  }
+}

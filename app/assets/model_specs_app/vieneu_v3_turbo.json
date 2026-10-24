@@ -1,0 +1,591 @@
+{
+  "family": "vieneu_v3_turbo",
+  "display_name": "VieNeu-TTS v3 Turbo",
+  "description": "On-device Vietnamese/English TTS (48 kHz) with instant voice cloning from 3-5 s of reference audio, by Phạm Nguyễn Ngọc Bảo (pnnbao97). Takes SEA-G2P phonemes as text input.",
+  "category": "tts",
+  "status": "community",
+  "tasks": [
+    "tts",
+    "clone"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "vi",
+    "en"
+  ],
+  "capabilities": {
+    "clone": [
+      "speaker_reference"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "auto_frame_cap",
+        "type": "bool",
+        "description": "Cap the generation budget using the chunk's phoneme count. Legacy frame_cap remains accepted.",
+        "required": false,
+        "default": true
+      },
+      {
+        "name": "text_chunk_min_size",
+        "type": "int",
+        "description": "Phoneme-string chunks shorter than this character count join a neighbour. Legacy text_chunk_min remains accepted.",
+        "required": false,
+        "default": 20
+      },
+      {
+        "name": "speaker_embedding_file",
+        "type": "path",
+        "description": "File containing a comma-separated 192-dimensional speaker embedding.",
+        "required": false
+      },
+      {
+        "name": "speaker_embedding",
+        "type": "string",
+        "description": "Inline comma-separated 192-dimensional speaker embedding.",
+        "required": false
+      },
+      {
+        "name": "reference_codes",
+        "type": "string",
+        "description": "Pre-encoded reference codes in row-major order, comma- or space-separated; codebooks per frame come from the checkpoint.",
+        "required": false
+      },
+      {
+        "name": "reference_codes_file",
+        "type": "path",
+        "description": "Pre-encoded reference codes, one frame per line. Replaces audio encoding and can be used with a speaker embedding instead of reference audio.",
+        "required": false
+      },
+      {
+        "name": "x_vector_only_mode",
+        "type": "bool",
+        "description": "Clone using only the speaker embedding. Defaults to true for embedding-only input, otherwise false.",
+        "required": false
+      },
+      {
+        "name": "encode_reference_only",
+        "type": "bool",
+        "description": "Encode reference audio and return an acoustic-tokens artifact without generating speech.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "max_tokens",
+        "type": "int",
+        "description": "Maximum generated frames per text chunk; uses the checkpoint max_new_tokens setting (300 fallback). Each frame represents 80 ms.",
+        "required": false,
+        "min": 1
+      },
+      {
+        "name": "do_sample",
+        "type": "bool",
+        "description": "Enable sampling for all codebooks unless subtalker_do_sample overrides later codebooks.",
+        "required": false,
+        "default": true
+      },
+      {
+        "name": "temperature",
+        "type": "float",
+        "description": "Sampling temperature for all codebooks unless overridden for the subtalker.",
+        "required": false,
+        "default": 0.8
+      },
+      {
+        "name": "top_k",
+        "type": "int",
+        "description": "Top-k sampling limit for all codebooks unless overridden for the subtalker.",
+        "required": false,
+        "default": 25
+      },
+      {
+        "name": "top_p",
+        "type": "float",
+        "description": "Nucleus cutoff within top-k candidates, unless overridden for the subtalker.",
+        "required": false,
+        "default": 0.95
+      },
+      {
+        "name": "repetition_penalty",
+        "type": "float",
+        "description": "Repetition penalty applied independently to each codebook.",
+        "required": false,
+        "default": 1.2
+      },
+      {
+        "name": "repetition_window",
+        "type": "int",
+        "description": "Recent frames remembered per codebook for repetition penalties; zero uses all history.",
+        "required": false,
+        "min": 0,
+        "default": 64
+      },
+      {
+        "name": "babble_retries",
+        "type": "int",
+        "description": "Regenerations for short chunks that exceed their text; zero disables the guard.",
+        "required": false,
+        "min": 0,
+        "default": 2
+      },
+      {
+        "name": "subtalker_temperature",
+        "type": "float",
+        "description": "Temperature override for later codebooks; omitted or negative inherits temperature.",
+        "required": false
+      },
+      {
+        "name": "subtalker_top_k",
+        "type": "int",
+        "description": "Top-k override for later codebooks; omitted or negative inherits top_k.",
+        "required": false
+      },
+      {
+        "name": "subtalker_top_p",
+        "type": "float",
+        "description": "Nucleus cutoff override for later codebooks; omitted or negative inherits top_p.",
+        "required": false
+      },
+      {
+        "name": "subtalker_do_sample",
+        "type": "bool",
+        "description": "Sampling override for later codebooks; inherits do_sample when omitted.",
+        "required": false
+      },
+      {
+        "name": "seed",
+        "type": "int",
+        "description": "Sampling seed; omitted draws a random seed.",
+        "required": false,
+        "min": 0,
+        "max": 4294967295
+      },
+      {
+        "name": "text_chunk_size",
+        "type": "int",
+        "description": "Maximum character budget per phoneme-string chunk; must be positive.",
+        "required": false,
+        "min": 1,
+        "default": 200
+      }
+    ],
+    "session": [
+      {
+        "name": "g2p_dict_file",
+        "type": "path",
+        "description": "SEA-G2P dictionary file (sea_g2p.bin). When set, input is Vietnamese/English text rather than precomputed phonemes.",
+        "required": false
+      },
+      {
+        "name": "g2p_library",
+        "type": "path",
+        "description": "SEA-G2P shared library used with g2p_dict_file; searched by library name when omitted.",
+        "required": false
+      },
+      {
+        "name": "mem_saver",
+        "type": "bool",
+        "description": "Release the talker cached-step graph after each request.",
+        "required": false,
+        "default": false
+      },
+      {
+        "name": "voice_prompt_cache_slots",
+        "type": "int",
+        "description": "Prepared voice-prompt cache slots; zero disables caching.",
+        "required": false,
+        "min": 0,
+        "default": 1
+      },
+      {
+        "name": "weight_type",
+        "type": "enum",
+        "description": "Shared talker matmul storage.",
+        "required": false,
+        "preset": "weight_type_full",
+        "default": "native"
+      },
+      {
+        "name": "conv_weight_type",
+        "type": "enum",
+        "description": "Speaker encoder convolution weight storage.",
+        "required": false,
+        "values": [
+          "native",
+          "f32",
+          "f16"
+        ],
+        "default": "f32"
+      },
+      {
+        "name": "talker_weight_type",
+        "type": "enum",
+        "description": "Talker matmul storage; inherits weight_type when omitted.",
+        "required": false,
+        "preset": "weight_type_full"
+      },
+      {
+        "name": "talker_graph_arena_mb",
+        "type": "int",
+        "description": "Talker graph metadata arena. Size in MiB; must be positive.",
+        "required": false,
+        "min": 1,
+        "default": 256
+      },
+      {
+        "name": "speech_decoder_graph_arena_mb",
+        "type": "int",
+        "description": "Codec decoder graph metadata arena. Size in MiB; must be positive.",
+        "required": false,
+        "min": 1,
+        "default": 32
+      },
+      {
+        "name": "speaker_encoder_graph_arena_mb",
+        "type": "int",
+        "description": "Speaker encoder graph metadata arena. Size in MiB; must be positive.",
+        "required": false,
+        "min": 1,
+        "default": 32
+      },
+      {
+        "name": "talker_constant_context_mb",
+        "type": "int",
+        "description": "Talker constant metadata context. Size in MiB; must be positive.",
+        "required": false,
+        "min": 1,
+        "default": 4096
+      },
+      {
+        "name": "code_predictor_constant_context_mb",
+        "type": "int",
+        "description": "Code predictor constant metadata context. Size in MiB; must be positive.",
+        "required": false,
+        "min": 1,
+        "default": 1536
+      },
+      {
+        "name": "speech_decoder_constant_context_mb",
+        "type": "int",
+        "description": "Codec decoder constant metadata context. Size in MiB; must be positive.",
+        "required": false,
+        "min": 1,
+        "default": 1536
+      }
+    ],
+    "load": []
+  },
+  "ui": {
+    "recommended_package": "vieneu_v3_turbo_q8_0",
+    "tags": [
+      "TTS",
+      "Clone",
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/vieneu_v3_turbo.md",
+      "docs/tts.md",
+      "docs/gguf.md"
+    ]
+  },
+  "packages": [
+    {
+      "id": "vieneu_v3_turbo_q8_0",
+      "display_name": "VieNeu-TTS v3 Turbo Q8_0 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "VieNeu-TTS-v3-Turbo-GGUF",
+      "files": [
+        "gguf/vieneu-v3-turbo-q8_0.gguf",
+        "gguf/voices/manifest.json",
+        "gguf/voices/minh_quan_pro/ref_codes.txt",
+        "gguf/voices/minh_quan_pro/speaker.emb.txt"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo"
+      },
+      "strip_prefix": "gguf",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 187928073,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 187928073,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 187928073,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "vieneu_v3_turbo_bf16",
+      "display_name": "VieNeu-TTS v3 Turbo BF16 GGUF",
+      "format": "gguf",
+      "precision": "bf16",
+      "target_directory": "VieNeu-TTS-v3-Turbo-GGUF",
+      "files": [
+        "gguf/vieneu-v3-turbo-bf16.gguf",
+        "gguf/voices/manifest.json",
+        "gguf/voices/minh_quan_pro/ref_codes.txt",
+        "gguf/voices/minh_quan_pro/speaker.emb.txt"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo"
+      },
+      "strip_prefix": "gguf",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 292035113,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "pnnbao-ump/VieNeu-TTS-v3-Turbo",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 292035113,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/pnnbao-ump/VieNeu-TTS-v3-Turbo"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 292035113,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "vietneu_tts_v3_turbo_q8_0",
+      "display_name": "VieNeu-TTS v3 Turbo Q8_0 GGUF (first community port, July 2026 weights)",
+      "format": "gguf",
+      "precision": "q8_0",
+      "target_directory": "VieNeu-TTS-v3-Turbo-GGUF-2026-07",
+      "files": [
+        "model.gguf"
+      ],
+      "download": {
+        "kind": "huggingface_snapshot",
+        "repo": "phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 170482368,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 170482368,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/phuocnguyen90/VieNeu-TTS-v3-Turbo-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 170482368,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "speech_tokenizer_config": "model:speech_tokenizer/config.json"
+      },
+      "optional_files": {
+        "generation_config": "model:generation_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt",
+        "tokenizer_json": "model:tokenizer.json",
+        "special_tokens_map": "model:special_tokens_map.json"
+      },
+      "tensors": {
+        "model_weights": {
+          "source": "weights:",
+          "prefix": "model_weights"
+        },
+        "speech_tokenizer_weights": {
+          "source": "weights:",
+          "prefix": "speech_tokenizer_weights"
+        }
+      }
+    },
+    {
+      "format": "safetensors",
+      "roots": {
+        "model": "."
+      },
+      "files": {
+        "config": "model:config.json",
+        "tokenizer_config": "model:tokenizer_config.json",
+        "speech_tokenizer_config": "model:speech_tokenizer/config.json"
+      },
+      "optional_files": {
+        "generation_config": "model:generation_config.json",
+        "vocab": "model:vocab.json",
+        "merges": "model:merges.txt",
+        "tokenizer_json": "model:tokenizer.json",
+        "special_tokens_map": "model:special_tokens_map.json"
+      },
+      "tensors": {
+        "model_weights": "model:model.safetensors",
+        "speech_tokenizer_weights": "model:speech_tokenizer/model.safetensors"
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "On-device Vietnamese/English TTS (48 kHz) with instant voice cloning from 3-5 s of reference audio, by Phạm Nguyễn Ngọc Bảo (pnnbao97). Takes SEA-G2P phonemes as text input.",
+      "zh": "面向设备的越南语/英语 TTS（48 kHz），可用 3–5 秒参考音频即时克隆音色，作者 Phạm Nguyễn Ngọc Bảo（pnnbao97）。文本输入采用 SEA-G2P 音素。"
+    },
+    "options": {
+      "auto_frame_cap": {
+        "en": "Cap the generation budget using the chunk's phoneme count. Legacy frame_cap remains accepted.",
+        "zh": "按分块音素数量限制生成预算。仍接受旧字段 frame_cap。"
+      },
+      "text_chunk_min_size": {
+        "en": "Phoneme-string chunks shorter than this character count join a neighbour. Legacy text_chunk_min remains accepted.",
+        "zh": "音素字符串分块短于该字符数时并入相邻分块。仍接受旧字段 text_chunk_min。"
+      },
+      "speaker_embedding_file": {
+        "en": "File containing a comma-separated 192-dimensional speaker embedding.",
+        "zh": "包含逗号分隔的 192 维说话人嵌入的文件。"
+      },
+      "speaker_embedding": {
+        "en": "Inline comma-separated 192-dimensional speaker embedding.",
+        "zh": "内联的逗号分隔 192 维说话人嵌入。"
+      },
+      "reference_codes": {
+        "en": "Pre-encoded reference codes in row-major order, comma- or space-separated; codebooks per frame come from the checkpoint.",
+        "zh": "预编码参考 code，按行优先、逗号或空格分隔；每帧 codebook 数由检查点决定。"
+      },
+      "reference_codes_file": {
+        "en": "Pre-encoded reference codes, one frame per line. Replaces audio encoding and can be used with a speaker embedding instead of reference audio.",
+        "zh": "预编码参考 code，每行一帧。替代音频编码，可与说话人嵌入一起使用。"
+      },
+      "x_vector_only_mode": {
+        "en": "Clone using only the speaker embedding. Defaults to true for embedding-only input, otherwise false.",
+        "zh": "仅使用说话人嵌入克隆。仅嵌入输入时默认 true，否则 false。"
+      },
+      "encode_reference_only": {
+        "en": "Encode reference audio and return an acoustic-tokens artifact without generating speech.",
+        "zh": "编码参考音频并返回声学 token 产物，不生成语音。"
+      },
+      "max_tokens": {
+        "en": "Maximum generated frames per text chunk; uses the checkpoint max_new_tokens setting (300 fallback). Each frame represents 80 ms.",
+        "zh": "每个文本分块生成的最大帧数；使用检查点 max_new_tokens 设置（回退 300）。每帧表示 80 ms。"
+      },
+      "do_sample": {
+        "en": "Enable sampling for all codebooks unless subtalker_do_sample overrides later codebooks.",
+        "zh": "为所有 codebook 启用采样，除非后续 codebook 被 subtalker_do_sample 覆盖。"
+      },
+      "temperature": {
+        "en": "Sampling temperature for all codebooks unless overridden for the subtalker.",
+        "zh": "所有 codebook 的采样温度，除非 subtalker 覆盖。"
+      },
+      "top_k": {
+        "en": "Top-k sampling limit for all codebooks unless overridden for the subtalker.",
+        "zh": "所有 codebook 的 top-k 采样上限，除非 subtalker 覆盖。"
+      },
+      "top_p": {
+        "en": "Nucleus cutoff within top-k candidates, unless overridden for the subtalker.",
+        "zh": "top-k 候选内的核采样截断，除非 subtalker 覆盖。"
+      },
+      "repetition_penalty": {
+        "en": "Repetition penalty applied independently to each codebook.",
+        "zh": "对每个 codebook 独立应用的重复惩罚。"
+      },
+      "repetition_window": {
+        "en": "Recent frames remembered per codebook for repetition penalties; zero uses all history.",
+        "zh": "每个 codebook 为重复惩罚记住的最近帧数；0 使用全部历史。"
+      },
+      "babble_retries": {
+        "en": "Regenerations for short chunks that exceed their text; zero disables the guard.",
+        "zh": "对超出文本长度的短分块重新生成次数；0 关闭该保护。"
+      },
+      "subtalker_temperature": {
+        "en": "Temperature override for later codebooks; omitted or negative inherits temperature.",
+        "zh": "后续 codebook 的温度覆盖；省略或负值继承 temperature。"
+      },
+      "subtalker_top_k": {
+        "en": "Top-k override for later codebooks; omitted or negative inherits top_k.",
+        "zh": "后续 codebook 的 top-k 覆盖；省略或负值继承 top_k。"
+      },
+      "subtalker_top_p": {
+        "en": "Nucleus cutoff override for later codebooks; omitted or negative inherits top_p.",
+        "zh": "后续 codebook 的核采样截断覆盖；省略或负值继承 top_p。"
+      },
+      "subtalker_do_sample": {
+        "en": "Sampling override for later codebooks; inherits do_sample when omitted.",
+        "zh": "后续 codebook 的采样覆盖；省略时继承 do_sample。"
+      },
+      "seed": {
+        "en": "Sampling seed; omitted draws a random seed.",
+        "zh": "采样随机种子；省略时随机抽取。"
+      },
+      "text_chunk_size": {
+        "en": "Maximum character budget per phoneme-string chunk; must be positive.",
+        "zh": "每个音素字符串分块的最大字符预算；必须为正。"
+      }
+    }
+  }
+}

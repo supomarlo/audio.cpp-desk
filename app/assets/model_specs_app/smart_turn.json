@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "family": "smart_turn",
+  "display_name": "Smart Turn v3.2",
+  "description": "Audio-native conversational turn-completion detection using a Whisper-Tiny encoder and attention-pooling classifier.",
+  "category": "audio_tools",
+  "status": "supported",
+  "tasks": [
+    "turn"
+  ],
+  "modes": [
+    "offline"
+  ],
+  "languages": [
+    "auto"
+  ],
+  "capabilities": {
+    "turn": [
+      "turn_decision"
+    ]
+  },
+  "runtime": {
+    "tags": [
+      "gguf"
+    ]
+  },
+  "options": {
+    "request": [
+      {
+        "name": "threshold",
+        "type": "float",
+        "description": "Completion probability threshold; a decision is complete only when probability exceeds this value.",
+        "required": false,
+        "default": 0.5,
+        "min": 0,
+        "max": 1
+      }
+    ],
+    "session": [],
+    "load": []
+  },
+  "package_defaults": {
+    "download": {
+      "kind": "huggingface_snapshot",
+      "repo": "audio-cpp/audio.cpp-gguf",
+      "revision": "main",
+      "gated": false
+    }
+  },
+  "packages": [
+    {
+      "id": "smart_turn_v3_2_f32",
+      "display_name": "Smart Turn v3.2 F32 GGUF",
+      "default": true,
+      "format": "gguf",
+      "precision": "f32",
+      "target_directory": "Smart-Turn-v3-GGUF",
+      "files": [
+        "Smart-Turn-v3-GGUF/smart-turn-v3.2-f32.gguf"
+      ],
+      "strip_prefix": "Smart-Turn-v3-GGUF",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 32014304,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 32014304,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+          "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 32014304,
+          "checked_at": "2026-10-24T02:58:11.982047",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 32014304,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      }
+    }
+  ],
+  "dependencies": [],
+  "ui": {
+    "tags": [
+      "GGUF"
+    ],
+    "docs": [
+      "docs/models/smart_turn.md"
+    ],
+    "recommended_package": "smart_turn_v3_2_f32"
+  },
+  "sources": [
+    {
+      "format": "gguf",
+      "roots": {
+        "model": ".",
+        "weights": "$gguf"
+      },
+      "tensors": {
+        "weights": {
+          "source": "weights:",
+          "prefix": "weights"
+        }
+      }
+    }
+  ],
+  "i18n": {
+    "description": {
+      "en": "Audio-native conversational turn-completion detection using a Whisper-Tiny encoder and attention-pooling classifier.",
+      "zh": "基于 Whisper-Tiny 编码器与注意力池化分类器的音频原生对话轮次完成检测。"
+    },
+    "options": {
+      "threshold": {
+        "en": "Completion probability threshold; a decision is complete only when probability exceeds this value.",
+        "zh": "完成概率阈值；只有概率超过该值时决策才为完成。"
+      }
+    }
+  }
+}
