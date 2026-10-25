@@ -43,6 +43,9 @@ The main features of the following models have been tested at a basic level:
 | Qwen3-ASR 1.7B | ASR / speech recognition |
 | MeanVC2 | VC / voice conversion |
 
+> The adapted model is **Ming 3.0 TTS 0.5B**. Ming 3.0 Audio Tiny is a different
+> model and is not included in this adaptation.
+
 > Other models run through the same generic console but are not yet tested;
 > instruction adherence varies by model. Feedback and adaptation requests are
 > welcome.

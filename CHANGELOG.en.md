@@ -3,7 +3,7 @@
 ## 0.1.4
 
 **Model support**
-- Added Ming 3.0 TTS 0.5B support.
+- Added Ming 3.0 TTS 0.5B support (Ming 3.0 Audio Tiny is not included).
 
 **Improvements**
 - Show task numbers in the workbench and history to distinguish repeated generations of the same text.
