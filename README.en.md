@@ -39,7 +39,7 @@ The main features of the following models have been tested at a basic level:
 | Qwen3-TTS 1.7B CustomVoice | TTS / built-in voices |
 | Qwen3-TTS 1.7B VoiceDesign | TTS / voice design |
 | IndexTTS-2.5 | TTS / clone / emotion control |
-| Ming 3.0 TTS 0.5B | TTS / built-in voices / emotion / dialect |
+| Ming 3.0 TTS 0.5B | TTS / clone / voice design / emotion / dialect / built-in voices |
 | Qwen3-ASR 1.7B | ASR / speech recognition |
 | MeanVC2 | VC / voice conversion |
 

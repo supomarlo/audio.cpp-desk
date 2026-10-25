@@ -35,7 +35,7 @@
 | Qwen3-TTS 1.7B CustomVoice | TTS / 内置音色 |
 | Qwen3-TTS 1.7B VoiceDesign | TTS / 语音设计 |
 | IndexTTS-2.5 | TTS / 克隆 / 情感控制 |
-| Ming 3.0 TTS 0.5B | TTS / 内置音色 / 情绪 / 方言 |
+| Ming 3.0 TTS 0.5B | TTS / 克隆 / 语音设计 / 情绪 / 方言 / 内置音色 |
 | Qwen3-ASR 1.7B | ASR / 语音识别 |
 | MeanVC2 | VC / 语音转换 |
 
