@@ -12,6 +12,7 @@ class ModelCatalogEntry {
     this.sizeBytes,
     this.estMemoryBytes,
     this.estVramBytes,
+    this.vramLowerBound = false,
     this.localRevision = '',
     this.remoteRevision = '',
     required this.addedAt,
@@ -31,6 +32,7 @@ class ModelCatalogEntry {
     this.downloads = const [],
     this.activeVersion = false,
     this.task = '',
+    this.licenses = const [],
   });
 
   final String packageId;
@@ -41,6 +43,7 @@ class ModelCatalogEntry {
   final int? sizeBytes;
   final int? estMemoryBytes;
   final int? estVramBytes;
+  final bool vramLowerBound;
   final String localRevision;
   final String remoteRevision;
   final DateTime addedAt;
@@ -62,6 +65,8 @@ class ModelCatalogEntry {
 
   /// 注册到服务端的 task 覆盖（如 `vdes`；空则用 family 首个 task）。
   final String task;
+
+  final List<ModelLicense> licenses;
 
   bool get isSupported => status == 'supported';
   bool get isExperimental => !isSupported;
@@ -93,6 +98,7 @@ class ModelCatalogEntry {
     int? sizeBytes,
     int? estMemoryBytes,
     int? estVramBytes,
+    bool? vramLowerBound,
     String? localRevision,
     String? remoteRevision,
     String? status,
@@ -111,6 +117,7 @@ class ModelCatalogEntry {
     List<DownloadEndpoint>? downloads,
     bool? activeVersion,
     String? task,
+    List<ModelLicense>? licenses,
   }) {
     return ModelCatalogEntry(
       packageId: packageId,
@@ -121,6 +128,7 @@ class ModelCatalogEntry {
       sizeBytes: sizeBytes ?? this.sizeBytes,
       estMemoryBytes: estMemoryBytes ?? this.estMemoryBytes,
       estVramBytes: estVramBytes ?? this.estVramBytes,
+      vramLowerBound: vramLowerBound ?? this.vramLowerBound,
       localRevision: localRevision ?? this.localRevision,
       remoteRevision: remoteRevision ?? this.remoteRevision,
       addedAt: addedAt,
@@ -140,6 +148,7 @@ class ModelCatalogEntry {
       downloads: downloads ?? this.downloads,
       activeVersion: activeVersion ?? this.activeVersion,
       task: task ?? this.task,
+      licenses: licenses ?? this.licenses,
     );
   }
 
@@ -153,6 +162,7 @@ class ModelCatalogEntry {
       'size_bytes': sizeBytes,
       'est_memory_bytes': estMemoryBytes,
       'est_vram_bytes': estVramBytes,
+      'vram_lower_bound': vramLowerBound,
       'local_revision': localRevision,
       'remote_revision': remoteRevision,
       'added_at_ms': addedAt.millisecondsSinceEpoch,
@@ -172,6 +182,7 @@ class ModelCatalogEntry {
       'downloads': downloads.map((e) => e.toJson()).toList(),
       'active_version': activeVersion,
       'task': task,
+      'licenses': licenses.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -185,6 +196,7 @@ class ModelCatalogEntry {
       sizeBytes: (json['size_bytes'] as num?)?.toInt(),
       estMemoryBytes: (json['est_memory_bytes'] as num?)?.toInt(),
       estVramBytes: (json['est_vram_bytes'] as num?)?.toInt(),
+      vramLowerBound: json['vram_lower_bound'] as bool? ?? false,
       localRevision: json['local_revision'] as String? ?? '',
       remoteRevision: json['remote_revision'] as String? ?? '',
       addedAt: DateTime.fromMillisecondsSinceEpoch(
@@ -214,6 +226,11 @@ class ModelCatalogEntry {
           .toList(),
       activeVersion: json['active_version'] as bool? ?? false,
       task: json['task'] as String? ?? '',
+      licenses: (json['licenses'] as List<dynamic>? ?? [])
+          .whereType<Map>()
+          .map((e) => ModelLicense.fromJson(Map<String, dynamic>.from(e)))
+          .whereType<ModelLicense>()
+          .toList(),
     );
   }
 }

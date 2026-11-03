@@ -34,7 +34,7 @@
 | Qwen3-TTS 1.7B Base | TTS / 克隆 |
 | Qwen3-TTS 1.7B CustomVoice | TTS / 内置音色 |
 | Qwen3-TTS 1.7B VoiceDesign | TTS / 语音设计 |
-| IndexTTS-2.5 | TTS / 克隆 / 情感控制 |
+| IndexTTS-2.0 / 2.5 | TTS / 克隆 / 情感控制 |
 | Ming 3.0 TTS 0.5B | TTS / 克隆 / 语音设计 / 情绪 / 方言 / 内置音色 |
 | Qwen3-ASR 1.7B | ASR / 语音识别 |
 | MeanVC2 | VC / 语音转换 |
@@ -48,7 +48,7 @@
 - Windows 10/11（x64）。当前仅面向 Windows。
 - 预编译的发布包已自带 Microsoft Visual C++ 运行库，**无需单独安装 VC++ Redistributable**。
   （从源码构建仍需 MSVC 工具链。）
-- 一份 **audio.cpp** 构建：把含 `audiocpp_server.exe` 的版本目录放到应用根目录下的
+- 一份 **audio.cpp 0.9.3 或更高版本** 的构建：把含 `audiocpp_server.exe` 的版本目录放到应用根目录下的
   `audio.cpp/<版本>/`。获取地址：<https://github.com/0xShug0/audio.cpp>。
 - 构建里**必须保留 `model_specs/` 目录**（`audio.cpp/<版本>/model_specs/`）：应用通过它
   获知**该版本 audio.cpp 支持哪些模型**，从而**兼容不同版本的后端**。缺少它，将无法

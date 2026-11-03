@@ -1,123 +1,62 @@
 {
-  "schema_version": 1,
   "family": "kroko_asr",
-  "display_name": "Kroko Community ASR",
-  "description": "Native Zipformer2 RNN-T transcription for the public free Kroko Community single-language packages, with offline and stateful streaming inference, greedy and modified beam decoding, hotwords, endpoint segments, partial results, and word timestamps.",
-  "category": "asr",
-  "status": "community",
-  "tasks": [
-    "asr"
-  ],
-  "modes": [
-    "offline",
-    "streaming"
-  ],
-  "languages": [
-    "de",
-    "en",
-    "es",
-    "fr",
-    "it",
-    "he",
-    "nl",
-    "pt",
-    "sv",
-    "tr"
-  ],
-  "capabilities": {
-    "asr": [
-      "word_timestamps",
-      "partial_results",
-      "segments"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "language",
-        "type": "string",
-        "description": "Language code matching the selected single-language Kroko package; default auto uses the package language.",
-        "required": false,
-        "default": "auto"
-      },
-      {
-        "name": "hotwords",
-        "type": "string",
-        "description": "Slash- or newline-separated natural-text phrases; requires modified beam search.",
-        "required": false
-      }
-    ],
-    "session": [],
-    "load": []
-  },
-  "runtime": {
-    "tags": [
-      "gguf",
-      "stream"
-    ]
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokens": "model:tokens.txt"
-      },
-      "tensors": {
-        "weights": "weights:"
-      }
+  "i18n": {
+    "description": {
+      "en": "Native Zipformer2 RNN-T transcription for the public free Kroko Community single-language packages, with offline and stateful streaming inference, greedy and modified beam decoding, hotwords, endpoint segments, partial results, and word timestamps.",
+      "zh": "为公开免费的 Kroko Community 单语言包提供的原生 Zipformer2 RNN-T 转写，支持离线与有状态流式推理、贪心与改进束解码、热词、端点分段、部分结果与词级时间戳。"
     },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": "."
+    "options": {
+      "language": {
+        "en": "Language code matching the selected single-language Kroko package; default auto uses the package language.",
+        "zh": "与所选单语言 Kroko 包匹配的语言代码；默认 auto 使用该包的语言。"
       },
-      "files": {
-        "config": "model:config.json",
-        "tokens": "model:tokens.txt"
+      "hotwords": {
+        "en": "Slash- or newline-separated natural-text phrases; requires modified beam search.",
+        "zh": "以斜杠或换行分隔的自然语言短语；需要改进型 beam 搜索。"
       },
-      "tensors": {
-        "weights": "model:model.safetensors"
+      "decoding_method": {
+        "en": "RNN-T decoding method; greedy search remains the parity-tested default.",
+        "zh": "RNN-T 解码方法；贪心搜索仍是经过一致性测试的默认值。"
+      },
+      "num_beams": {
+        "en": "Maximum active hypotheses retained by modified beam search.",
+        "zh": "修改版 beam search 保留的最大活跃假设数。"
+      },
+      "blank_penalty": {
+        "en": "Non-negative score subtracted from the RNN-T blank logit.",
+        "zh": "从 RNN-T blank logit 中减去的非负分数。"
+      },
+      "hotwords_score": {
+        "en": "Non-negative per-token context boost for hotword phrases.",
+        "zh": "热词短语的逐 token 非负上下文加权。"
+      },
+      "enable_endpoint": {
+        "en": "Enable automatic endpoint speech segments.",
+        "zh": "启用自动端点语音分段。"
+      },
+      "rule1_min_trailing_silence_sec": {
+        "en": "Endpoint timeout in seconds even when no speech token was decoded.",
+        "zh": "即使未解码到语音 token，端点超时也按该秒数触发。"
+      },
+      "rule2_min_trailing_silence_sec": {
+        "en": "Endpoint silence in seconds after a speech token was decoded.",
+        "zh": "解码到语音 token 后，端点静音秒数。"
+      },
+      "rule3_min_utterance_length_sec": {
+        "en": "Maximum utterance duration in seconds before an endpoint.",
+        "zh": "触发端点前的最大话语时长（秒）。"
       }
     }
-  ],
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/audio.cpp-gguf",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "dependencies": [],
-  "ui": {
-    "recommended_package": "kroko_asr_community_q8_0",
-    "tags": [
-      "ASR",
-      "GGUF"
-    ],
-    "docs": [
-      "docs/asr.md",
-      "docs/community_models/kroko_asr.md",
-      "docs/gguf.md"
-    ]
   },
   "packages": [
     {
       "id": "kroko_asr_community_q8_0",
-      "display_name": "Kroko Community ASR Q8_0 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "Kroko-ASR-GGUF",
-      "files": [
-        "Kroko-ASR-GGUF/kroko-en-community-64-l-q8_0.gguf"
-      ],
-      "strip_prefix": "Kroko-ASR-GGUF",
+      "sizes": {
+        "size_bytes": 167756928,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 1409286144,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -153,29 +92,19 @@
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
-      "sizes": {
-        "size_bytes": 167756928,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 1409286144,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
+      ]
     }
   ],
-  "i18n": {
-    "description": {
-      "en": "Native Zipformer2 RNN-T transcription for the public free Kroko Community single-language packages, with offline and stateful streaming inference, greedy and modified beam decoding, hotwords, endpoint segments, partial results, and word timestamps.",
-      "zh": "为公开免费的 Kroko Community 单语言包提供的原生 Zipformer2 RNN-T 转写，支持离线与有状态流式推理、贪心与改进束解码、热词、端点分段、部分结果与词级时间戳。"
-    },
-    "options": {
-      "language": {
-        "en": "Language code matching the selected single-language Kroko package; default auto uses the package language.",
-        "zh": "与所选单语言 Kroko 包匹配的语言代码；默认 auto 使用该包的语言。"
-      },
-      "hotwords": {
-        "en": "Slash- or newline-separated natural-text phrases; requires modified beam search.",
-        "zh": "以斜杠或换行分隔的自然语言短语；需要改进型 beam 搜索。"
-      }
+  "licenses": [
+    {
+      "name": "CC-BY-SA",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "Stated in the model card text only: the LICENSE file is empty and no version is named. Applies to the community models; Kroko's commercial models are licensed separately.",
+      "checked_at": "2026-09-21",
+      "source_urls": [
+        "https://huggingface.co/Banafo/Kroko-ASR"
+      ]
     }
-  }
+  ]
 }

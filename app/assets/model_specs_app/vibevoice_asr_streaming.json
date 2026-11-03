@@ -1,493 +1,5 @@
 {
   "family": "vibevoice_asr_streaming",
-  "display_name": "VibeVoice ASR Streaming",
-  "description": "Microsoft VibeVoice ASR Streaming models (7B and 1.5B) for chunked streaming speech-to-text with persistent decoder state.",
-  "category": "asr",
-  "status": "supported",
-  "tasks": [
-    "asr"
-  ],
-  "modes": [
-    "offline",
-    "streaming"
-  ],
-  "languages": [
-    "en",
-    "zh",
-    "es",
-    "pt",
-    "de",
-    "ja",
-    "ko",
-    "fr",
-    "ru",
-    "it"
-  ],
-  "capabilities": {
-    "asr": [
-      "speaker_turns",
-      "vad_chunking"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "language",
-        "type": "string",
-        "description": "ASR language label.",
-        "required": false,
-        "default": "auto"
-      },
-      {
-        "name": "context",
-        "type": "string",
-        "description": "Extra context or hotwords injected into the streaming prompt.",
-        "required": false,
-        "default": ""
-      },
-      {
-        "name": "max_tokens",
-        "type": "int",
-        "description": "Maximum generated transcript tokens per chunk.",
-        "required": false,
-        "min": 1,
-        "default": 256
-      },
-      {
-        "name": "temperature",
-        "type": "float",
-        "description": "Sampling temperature; 0 uses deterministic decoding.",
-        "required": false,
-        "min": 0,
-        "default": 0
-      },
-      {
-        "name": "top_p",
-        "type": "float",
-        "description": "Nucleus sampling probability.",
-        "required": false,
-        "min": 0.001,
-        "max": 1,
-        "default": 1
-      },
-      {
-        "name": "top_k",
-        "type": "int",
-        "description": "Top-k sampling limit; 0 disables top-k filtering.",
-        "required": false,
-        "min": 0,
-        "default": 0
-      },
-      {
-        "name": "repetition_penalty",
-        "type": "float",
-        "description": "Generation repetition penalty.",
-        "required": false,
-        "min": 0.001,
-        "default": 1
-      },
-      {
-        "name": "seed",
-        "type": "int",
-        "description": "Acoustic latent sampling seed.",
-        "required": false,
-        "default": 42
-      },
-      {
-        "name": "audio_chunk_mode",
-        "type": "enum",
-        "description": "Offline audio chunking mode: auto, fixed, vad, or none.",
-        "values": [
-          "auto",
-          "fixed",
-          "vad",
-          "none"
-        ],
-        "required": false,
-        "default": "auto"
-      },
-      {
-        "name": "audio_chunk_duration_sec",
-        "type": "float",
-        "description": "Audio chunk duration in seconds for fixed and VAD chunking.",
-        "required": false,
-        "min": 0.001,
-        "default": 1200
-      }
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf"
-    ]
-  },
-  "ui": {
-    "recommended_package": "vibevoice_asr_streaming_7b_q8_0",
-    "tags": [
-      "ASR",
-      "Streaming",
-      "GGUF"
-    ],
-    "docs": [
-      "docs/asr.md",
-      "docs/gguf.md"
-    ]
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "tokenizer_json": "model:tokenizer.json",
-        "tokenizer_vocab": "model:vocab.json",
-        "tokenizer_merges": "model:merges.txt"
-      },
-      "optional_files": {
-        "preprocessor_config": "model:preprocessor_config.json"
-      },
-      "tensors": {
-        "model_weights": "weights:"
-      }
-    },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": "."
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "tokenizer_json": "model:tokenizer.json",
-        "tokenizer_vocab": "model:vocab.json",
-        "tokenizer_merges": "model:merges.txt"
-      },
-      "optional_files": {
-        "preprocessor_config": "model:preprocessor_config.json"
-      },
-      "tensors": {
-        "model_weights": "model:model.safetensors.index.json"
-      }
-    }
-  ],
-  "packages": [
-    {
-      "id": "vibevoice_asr_streaming_7b_q8_0",
-      "display_name": "VibeVoice ASR Streaming 7B Q8_0 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "VibeVoice-ASR-Streaming-7B-GGUF",
-      "files": [
-        "vibevoice-asr-streaming-7b-q8_0.gguf"
-      ],
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 9858232896,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 9858232896,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "mit",
-          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        },
-        {
-          "source": "modelscope",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 9858232896,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://www.modelscope.cn/models/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 9858232896,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 9865003008,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    },
-    {
-      "id": "vibevoice_asr_streaming_7b_bf16",
-      "display_name": "VibeVoice ASR Streaming 7B BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "VibeVoice-ASR-Streaming-7B-GGUF",
-      "files": [
-        "vibevoice-asr-streaming-7b-bf16.gguf"
-      ],
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 17360678976,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 17360678976,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "mit",
-          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        },
-        {
-          "source": "modelscope",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 17360678976,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://www.modelscope.cn/models/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 17360678976,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 17381195776,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    },
-    {
-      "id": "vibevoice_asr_streaming_7b_q4_k",
-      "display_name": "VibeVoice ASR Streaming 7B Q4_K GGUF",
-      "format": "gguf",
-      "precision": "q4_k",
-      "target_directory": "VibeVoice-ASR-Streaming-7B-GGUF",
-      "files": [
-        "vibevoice-asr-streaming-7b-q4_k.gguf"
-      ],
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 5859083328,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 5859083328,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "mit",
-          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        },
-        {
-          "source": "modelscope",
-          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 5859083328,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://www.modelscope.cn/models/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 5859083328,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 5838471168,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    },
-    {
-      "id": "vibevoice_asr_streaming_1_5b_q8_0",
-      "display_name": "VibeVoice ASR Streaming 1.5B Q8_0 GGUF",
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "VibeVoice-ASR-Streaming-1.5B-GGUF",
-      "files": [
-        "vibevoice-asr-streaming-1.5b-q8_0.gguf"
-      ],
-      "download": {
-        "kind": "huggingface_snapshot",
-        "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-        "revision": "main",
-        "gated": false
-      },
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 3343199488,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 3343199488,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "mit",
-          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 3343199488,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 3355443200,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    },
-    {
-      "id": "vibevoice_asr_streaming_1_5b_bf16",
-      "display_name": "VibeVoice ASR Streaming 1.5B BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "VibeVoice-ASR-Streaming-1.5B-GGUF",
-      "files": [
-        "vibevoice-asr-streaming-1.5b-bf16.gguf"
-      ],
-      "download": {
-        "kind": "huggingface_snapshot",
-        "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-        "revision": "main",
-        "gated": false
-      },
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 5644319488,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 5644319488,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "mit",
-          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 5644319488,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 5637144576,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    },
-    {
-      "id": "vibevoice_asr_streaming_1_5b_q4_k",
-      "display_name": "VibeVoice ASR Streaming 1.5B Q4_K GGUF",
-      "format": "gguf",
-      "precision": "q4_k",
-      "target_directory": "VibeVoice-ASR-Streaming-1.5B-GGUF",
-      "files": [
-        "vibevoice-asr-streaming-1.5b-q4_k.gguf"
-      ],
-      "download": {
-        "kind": "huggingface_snapshot",
-        "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-        "revision": "main",
-        "gated": false
-      },
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 2117525248,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "mit",
-          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 2117525248,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "mit",
-          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 2117525248,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 2147483648,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    }
-  ],
   "i18n": {
     "description": {
       "en": "Microsoft VibeVoice ASR Streaming models (7B and 1.5B) for chunked streaming speech-to-text with persistent decoder state.",
@@ -495,8 +7,8 @@
     },
     "options": {
       "language": {
-        "en": "ASR language label.",
-        "zh": "ASR 语言标记。"
+        "en": "ASR language label; empty unless provided in the request.",
+        "zh": "ASR 语言标签；除非请求中提供，否则为空。"
       },
       "context": {
         "en": "Extra context or hotwords injected into the streaming prompt.",
@@ -515,25 +27,287 @@
         "zh": "核采样概率。"
       },
       "top_k": {
-        "en": "Top-k sampling limit; 0 disables top-k filtering.",
-        "zh": "top-k 采样上限；0 表示关闭 top-k 过滤。"
+        "en": "Top-k sampling limit; default 50. Zero disables top-k filtering.",
+        "zh": "Top-k采样限制；默认值 50。零禁用 top-k 过滤。"
       },
       "repetition_penalty": {
         "en": "Generation repetition penalty.",
         "zh": "生成重复惩罚。"
       },
       "seed": {
-        "en": "Acoustic latent sampling seed.",
-        "zh": "声学隐变量采样的随机种子。"
+        "en": "Acoustic latent sampling seed; default 1234.",
+        "zh": "声学潜伏采样种子；默认 1234。"
       },
       "audio_chunk_mode": {
-        "en": "Offline audio chunking mode: auto, fixed, vad, or none.",
-        "zh": "离线音频分块模式：auto、fixed、vad 或 none。"
+        "en": "Compatibility-only; ignored in offline and streaming modes. Processor chunk/lookahead settings determine segmentation.",
+        "zh": "仅兼容性；在离线和流媒体模式下被忽略。处理器块/前瞻设置决定分段。"
       },
       "audio_chunk_duration_sec": {
-        "en": "Audio chunk duration in seconds for fixed and VAD chunking.",
-        "zh": "fixed 与 VAD 分块时的音频分块时长（秒）。"
+        "en": "Compatibility-only; ignored in offline and streaming modes. Processor settings determine segmentation.",
+        "zh": "仅兼容性；在离线和流媒体模式下被忽略。处理器设置决定分段。"
+      },
+      "num_beams": {
+        "en": "Compatibility-only; this checkpoint ignores beam search and uses its incremental decoder.",
+        "zh": "仅兼容；该检查点忽略 beam search，使用增量解码器。"
       }
     }
-  }
+  },
+  "packages": [
+    {
+      "id": "vibevoice_asr_streaming_7b_q8_0",
+      "sizes": {
+        "size_bytes": 9858232896,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 9865003008,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 9858232896,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 9858232896,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 9858232896,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        }
+      ]
+    },
+    {
+      "id": "vibevoice_asr_streaming_7b_bf16",
+      "sizes": {
+        "size_bytes": 17360678976,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 17381195776,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 17360678976,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 17360678976,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 17360678976,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        }
+      ]
+    },
+    {
+      "id": "vibevoice_asr_streaming_7b_q4_k",
+      "sizes": {
+        "size_bytes": 5859083328,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5838471168,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5859083328,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5859083328,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 5859083328,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/VibeVoice-ASR-Streaming-7B-GGUF"
+        }
+      ]
+    },
+    {
+      "id": "vibevoice_asr_streaming_1_5b_q8_0",
+      "sizes": {
+        "size_bytes": 3343199488,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3355443200,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 3343199488,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 3343199488,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
+        }
+      ]
+    },
+    {
+      "id": "vibevoice_asr_streaming_1_5b_bf16",
+      "sizes": {
+        "size_bytes": 5644319488,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5637144576,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 5644319488,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 5644319488,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
+        }
+      ]
+    },
+    {
+      "id": "vibevoice_asr_streaming_1_5b_q4_k",
+      "sizes": {
+        "size_bytes": 2117525248,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2147483648,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2117525248,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "mit",
+          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2117525248,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "mit",
+          "license_url": "https://huggingface.co/christopherthompson81/VibeVoice-ASR-Streaming-1.5B-GGUF"
+        }
+      ]
+    }
+  ],
+  "licenses": [
+    {
+      "name": "MIT",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "",
+      "checked_at": "2026-09-21",
+      "source_urls": [
+        "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-7B",
+        "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B"
+      ]
+    }
+  ]
 }

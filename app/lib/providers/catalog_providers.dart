@@ -8,7 +8,6 @@ import '../core/model_spec_loader.dart';
 import '../core/version_scanner.dart';
 import '../models/audio_cpp_version.dart';
 import '../models/model_spec.dart';
-import '../models/workbench_rule.dart';
 import 'app_providers.dart';
 
 final versionsProvider = FutureProvider<List<AudioCppVersion>>((ref) async {
@@ -54,7 +53,3 @@ final specsProvider = FutureProvider<List<ModelSpec>>((ref) async {
     overlayDir: overlayDir.existsSync() ? overlayDir : null,
   );
 });
-
-/// 各 family / 变体的工作台字段规则。
-final workbenchRulesProvider = FutureProvider<Map<String, WorkbenchRule>>(
-    (ref) => WorkbenchRules.load());

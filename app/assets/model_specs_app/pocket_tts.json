@@ -1,197 +1,70 @@
 {
   "family": "pocket_tts",
-  "display_name": "PocketTTS",
-  "description": "Kyutai 100M-parameter CPU-friendly TTS package set for real-time local synthesis and small-footprint voice cloning in English, German, Italian, Portuguese, and Spanish.",
-  "category": "tts",
-  "status": "supported",
-  "tasks": [
-    "tts",
-    "clone"
-  ],
-  "modes": [
-    "offline",
-    "streaming"
-  ],
-  "languages": [
-    "en",
-    "de",
-    "it",
-    "pt",
-    "es"
-  ],
-  "capabilities": {
-    "clone": [
-      "speaker_reference"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "max_steps",
-        "type": "int",
-        "description": "Maximum generated steps."
-      },
-      {
-        "name": "max_tokens",
-        "type": "int",
-        "description": "Maximum generated tokens."
-      },
-      {
-        "name": "temperature",
-        "type": "float",
-        "description": "Sampling temperature."
-      },
-      {
-        "name": "seed",
-        "type": "int",
-        "description": "Sampling seed; random if omitted."
-      },
-      {
-        "name": "truncate_clone_audio",
-        "type": "bool",
-        "description": "Truncate the clone reference audio."
-      },
-      {
-        "name": "voice_clone_text",
-        "type": "string",
-        "description": "Text used for voice cloning."
-      },
-      {
-        "name": "language",
-        "type": "string",
-        "description": "Text language."
-      }
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf"
-    ]
-  },
-  "ui": {
-    "recommended_package": "pocket_tts_english_q8_0",
-    "default_voice": "alba",
-    "builtin_voices": [
-      "alba"
-    ],
-    "tags": [
-      "TTS",
-      "Clone",
-      "GGUF"
-    ],
-    "docs": [
-      "docs/tts.md",
-      "docs/gguf.md"
-    ]
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/audio.cpp-gguf",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "tokenizer": "model:tokenizer.model"
-      },
-      "optional_files": {
-        "config": "model:config.yaml"
-      },
-      "tensors": {
-        "weights": "weights:"
-      }
+  "i18n": {
+    "description": {
+      "en": "Kyutai 100M-parameter CPU-friendly TTS package set for real-time local synthesis and small-footprint voice cloning in English, French, German, Italian, Portuguese, and Spanish.",
+      "zh": "Kyutai 100M 参数、面向 CPU 的轻量 TTS 包，支持英语、法语、德语、意大利语、葡萄牙语和西班牙语的本地实时合成与小体积音色克隆。"
     },
-    {
-      "format": "safetensors",
-      "roots": {
-        "language": "languages/english"
+    "options": {
+      "temperature": {
+        "en": "Positive flow noise temperature; defaults to the model configuration. Captured during session preparation.",
+        "zh": "正流噪声温度；默认为模型配置。在会议准备期间捕获。"
       },
-      "files": {
-        "tokenizer": "language:tokenizer.model"
+      "seed": {
+        "en": "Noise seed; omitted chooses a random seed. Captured during session preparation.",
+        "zh": "噪声种子；省略选择随机种子。在会议准备期间捕获。"
       },
-      "optional_files": {
-        "config": "language:config.yaml"
+      "truncate_clone_audio": {
+        "en": "Truncate voice clone audio. Captured during session preparation.",
+        "zh": "截断语音克隆音频。在会议准备期间捕获。"
       },
-      "tensors": {
-        "weights": "language:model.safetensors"
+      "frames_after_eos": {
+        "en": "Extra frames after EOS; -1 uses the model-derived value.",
+        "zh": "EOS 后额外保留的帧数；-1 使用模型推导值。"
+      },
+      "max_frames": {
+        "en": "Maximum generated audio frames; zero estimates the cap from text length. Captured during session preparation.",
+        "zh": "生成音频帧上限；0 表示按文本长度估算上限。在会话准备阶段捕获。"
+      },
+      "text_chunk_tokens": {
+        "en": "Tokenizer tokens per text chunk; must be positive, default 50. Set during preparation and overridable per request.",
+        "zh": "每个文本分块的 tokenizer token 数；必须为正，默认 50。准备阶段设置，可被单次请求覆盖。"
+      },
+      "noise_clamp": {
+        "en": "Noise clamp; a negative value disables clamping. Captured during session preparation.",
+        "zh": "噪声裁剪值；负值关闭裁剪。在会话准备阶段捕获。"
+      },
+      "eos_threshold": {
+        "en": "EOS detection threshold. Captured during session preparation.",
+        "zh": "EOS 检测阈值。在会话准备阶段捕获。"
+      },
+      "noise_file": {
+        "en": "Precomputed noise schedule file. Captured during session preparation.",
+        "zh": "预计算噪声序列文件。在会话准备阶段捕获。"
+      },
+      "voice_embedding_file": {
+        "en": "Precomputed voice-state embedding path. Captured during session preparation.",
+        "zh": "预计算 voice-state 嵌入路径。在会话准备阶段捕获。"
+      },
+      "text_chunk_size": {
+        "en": "Optional per-request character chunk size; otherwise use sentence/token budgeting.",
+        "zh": "可选的单请求字符分块大小；否则使用句子/token 预算。"
+      },
+      "export_voice_state_file": {
+        "en": "Export the prepared voice state during session preparation.",
+        "zh": "在会话准备阶段导出已准备的 voice state。"
       }
     }
-  ],
+  },
   "packages": [
     {
       "id": "pocket_tts_english_q8_0",
-      "display_name": "PocketTTS English Q8_0 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "PocketTTS-GGUF/english",
-      "files": [
-        "PocketTTS-GGUF/english/pocket-tts-english-q8_0.gguf",
-        "PocketTTS-GGUF/english/embeddings/alba.safetensors"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/english",
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 134051128,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 134051128,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "modelscope",
-          "repo": "HereIsMark/audio.cpp-gguf",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 134051128,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
-        }
-      ],
       "sizes": {
         "size_bytes": 134051128,
         "est_memory_bytes": null,
         "est_vram_bytes": 2013265920,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "pocket_tts_english_bf16",
-      "display_name": "PocketTTS English BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "PocketTTS-GGUF/english",
-      "files": [
-        "PocketTTS-GGUF/english/pocket-tts-english-bf16.gguf",
-        "PocketTTS-GGUF/english/embeddings/alba.safetensors"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/english",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -200,7 +73,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 225290488,
+          "size_bytes": 134051128,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -210,7 +83,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 225290488,
+          "size_bytes": 134051128,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -223,28 +96,20 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 225290488,
+          "size_bytes": 134051128,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "pocket_tts_english_bf16",
       "sizes": {
         "size_bytes": 225290488,
         "est_memory_bytes": null,
         "est_vram_bytes": 2147483648,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "pocket_tts_german_q8_0",
-      "display_name": "PocketTTS German Q8_0 GGUF",
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "PocketTTS-GGUF/german",
-      "files": [
-        "PocketTTS-GGUF/german/pocket-tts-german-q8_0.gguf"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/german",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -253,7 +118,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 127857184,
+          "size_bytes": 225290488,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -263,7 +128,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 127857184,
+          "size_bytes": 225290488,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -276,28 +141,106 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 127857184,
+          "size_bytes": 225290488,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
+      ]
+    },
+    {
+      "id": "pocket_tts_french_q8_0",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 134361560,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 134361560,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 134361560,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
       ],
+      "sizes": {
+        "size_bytes": 134361560,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf/HEAD; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "pocket_tts_french_bf16",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 225600920,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 225600920,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "gated": false,
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 225600920,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 225600920,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf/HEAD; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "pocket_tts_german_q8_0",
       "sizes": {
         "size_bytes": 127857184,
         "est_memory_bytes": null,
         "est_vram_bytes": 2013265920,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "pocket_tts_german_bf16",
-      "display_name": "PocketTTS German BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "PocketTTS-GGUF/german",
-      "files": [
-        "PocketTTS-GGUF/german/pocket-tts-german-bf16.gguf"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/german",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -306,7 +249,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 219096544,
+          "size_bytes": 127857184,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -316,7 +259,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 219096544,
+          "size_bytes": 127857184,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -329,28 +272,20 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 219096544,
+          "size_bytes": 127857184,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "pocket_tts_german_bf16",
       "sizes": {
         "size_bytes": 219096544,
         "est_memory_bytes": null,
         "est_vram_bytes": 2080374784,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "pocket_tts_italian_q8_0",
-      "display_name": "PocketTTS Italian Q8_0 GGUF",
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "PocketTTS-GGUF/italian",
-      "files": [
-        "PocketTTS-GGUF/italian/pocket-tts-italian-q8_0.gguf"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/italian",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -359,7 +294,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 127857440,
+          "size_bytes": 219096544,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -369,7 +304,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 127857440,
+          "size_bytes": 219096544,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -382,28 +317,20 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 127857440,
+          "size_bytes": 219096544,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "pocket_tts_italian_q8_0",
       "sizes": {
         "size_bytes": 127857440,
         "est_memory_bytes": null,
         "est_vram_bytes": 2013265920,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "pocket_tts_italian_bf16",
-      "display_name": "PocketTTS Italian BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "PocketTTS-GGUF/italian",
-      "files": [
-        "PocketTTS-GGUF/italian/pocket-tts-italian-bf16.gguf"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/italian",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -412,7 +339,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 219096800,
+          "size_bytes": 127857440,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -422,7 +349,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 219096800,
+          "size_bytes": 127857440,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -435,28 +362,20 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 219096800,
+          "size_bytes": 127857440,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "pocket_tts_italian_bf16",
       "sizes": {
         "size_bytes": 219096800,
         "est_memory_bytes": null,
         "est_vram_bytes": 2080374784,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "pocket_tts_portuguese_q8_0",
-      "display_name": "PocketTTS Portuguese Q8_0 GGUF",
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "PocketTTS-GGUF/portuguese",
-      "files": [
-        "PocketTTS-GGUF/portuguese/pocket-tts-portuguese-q8_0.gguf"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/portuguese",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -465,7 +384,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 127858368,
+          "size_bytes": 219096800,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -475,7 +394,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 127858368,
+          "size_bytes": 219096800,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -488,28 +407,20 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 127858368,
+          "size_bytes": 219096800,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "pocket_tts_portuguese_q8_0",
       "sizes": {
         "size_bytes": 127858368,
         "est_memory_bytes": null,
         "est_vram_bytes": 2013265920,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "pocket_tts_portuguese_bf16",
-      "display_name": "PocketTTS Portuguese BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "PocketTTS-GGUF/portuguese",
-      "files": [
-        "PocketTTS-GGUF/portuguese/pocket-tts-portuguese-bf16.gguf"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/portuguese",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -518,7 +429,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 219097728,
+          "size_bytes": 127858368,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -528,7 +439,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 219097728,
+          "size_bytes": 127858368,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -541,28 +452,20 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 219097728,
+          "size_bytes": 127858368,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "pocket_tts_portuguese_bf16",
       "sizes": {
         "size_bytes": 219097728,
         "est_memory_bytes": null,
         "est_vram_bytes": 2080374784,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "pocket_tts_spanish_q8_0",
-      "display_name": "PocketTTS Spanish Q8_0 GGUF",
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "PocketTTS-GGUF/spanish",
-      "files": [
-        "PocketTTS-GGUF/spanish/pocket-tts-spanish-q8_0.gguf"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/spanish",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -571,7 +474,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 127858240,
+          "size_bytes": 219097728,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -581,7 +484,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 127858240,
+          "size_bytes": 219097728,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -594,28 +497,65 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 127858240,
+          "size_bytes": 219097728,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "pocket_tts_spanish_q8_0",
       "sizes": {
         "size_bytes": 127858240,
         "est_memory_bytes": null,
         "est_vram_bytes": 2013265920,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 127858240,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 127858240,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 127858240,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ]
     },
     {
       "id": "pocket_tts_spanish_bf16",
-      "display_name": "PocketTTS Spanish BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "PocketTTS-GGUF/spanish",
-      "files": [
-        "PocketTTS-GGUF/spanish/pocket-tts-spanish-bf16.gguf"
-      ],
-      "strip_prefix": "PocketTTS-GGUF/spanish",
+      "sizes": {
+        "size_bytes": 219097600,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2080374784,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -651,54 +591,15 @@
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
-      "sizes": {
-        "size_bytes": 219097600,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 2080374784,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
+      ]
     },
     {
       "id": "pocket_tts_english_safetensors",
-      "display_name": "PocketTTS English Safetensors",
-      "format": "safetensors",
-      "precision": "native",
-      "target_directory": "pocket-tts",
-      "files": [
-        "languages/english/embeddings/alba.safetensors",
-        "languages/english/embeddings/anna.safetensors",
-        "languages/english/embeddings/azelma.safetensors",
-        "languages/english/embeddings/bill_boerst.safetensors",
-        "languages/english/embeddings/caro_davy.safetensors",
-        "languages/english/embeddings/charles.safetensors",
-        "languages/english/embeddings/cosette.safetensors",
-        "languages/english/embeddings/eponine.safetensors",
-        "languages/english/embeddings/estelle.safetensors",
-        "languages/english/embeddings/eve.safetensors",
-        "languages/english/embeddings/fantine.safetensors",
-        "languages/english/embeddings/george.safetensors",
-        "languages/english/embeddings/giovanni.safetensors",
-        "languages/english/embeddings/jane.safetensors",
-        "languages/english/embeddings/javert.safetensors",
-        "languages/english/embeddings/jean.safetensors",
-        "languages/english/embeddings/juergen.safetensors",
-        "languages/english/embeddings/lola.safetensors",
-        "languages/english/embeddings/marius.safetensors",
-        "languages/english/embeddings/mary.safetensors",
-        "languages/english/embeddings/michael.safetensors",
-        "languages/english/embeddings/paul.safetensors",
-        "languages/english/embeddings/peter_yearsley.safetensors",
-        "languages/english/embeddings/rafael.safetensors",
-        "languages/english/embeddings/stuart_bell.safetensors",
-        "languages/english/embeddings/vera.safetensors",
-        "languages/english/model.safetensors",
-        "languages/english/tokenizer.model"
-      ],
-      "download": {
-        "kind": "huggingface_snapshot",
-        "repo": "kyutai/pocket-tts",
-        "gated": true
+      "sizes": {
+        "size_bytes": 385122871,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 2281701376,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
       },
       "downloads": [
         {
@@ -736,49 +637,20 @@
           "license": "cc-by-4.0",
           "license_url": "https://www.modelscope.cn/models/kyutai/pocket-tts"
         }
-      ],
-      "sizes": {
-        "size_bytes": 385122871,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 2281701376,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
+      ]
     }
   ],
-  "i18n": {
-    "description": {
-      "en": "Kyutai 100M-parameter CPU-friendly TTS package set for real-time local synthesis and small-footprint voice cloning in English, German, Italian, Portuguese, and Spanish.",
-      "zh": "Kyutai 100M 参数、CPU 友好的 TTS 包集合，面向英语、德语、意大利语、葡萄牙语与西班牙语的实时本地合成与轻量音色克隆。"
-    },
-    "options": {
-      "max_steps": {
-        "en": "Maximum generated steps.",
-        "zh": "最多生成的步数。"
-      },
-      "max_tokens": {
-        "en": "Maximum generated tokens.",
-        "zh": "最多生成的 token 数。"
-      },
-      "temperature": {
-        "en": "Sampling temperature.",
-        "zh": "采样温度。"
-      },
-      "seed": {
-        "en": "Sampling seed; random if omitted.",
-        "zh": "采样随机种子；省略时随机。"
-      },
-      "truncate_clone_audio": {
-        "en": "Truncate the clone reference audio.",
-        "zh": "裁剪克隆参考音频。"
-      },
-      "voice_clone_text": {
-        "en": "Text used for voice cloning.",
-        "zh": "音色克隆使用的文本。"
-      },
-      "language": {
-        "en": "Text language.",
-        "zh": "文本语言。"
-      }
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "Packaged language checkpoints, including the six-layer French model, share the upstream model-card license. Attribution required.",
+      "checked_at": "2026-10-14",
+      "source_urls": [
+        "https://huggingface.co/kyutai/pocket-tts",
+        "https://huggingface.co/kyutai/pocket-tts/tree/main/languages/french"
+      ]
     }
-  }
+  ]
 }

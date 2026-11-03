@@ -1,74 +1,26 @@
 {
-  "schema_version": 1,
   "family": "open_wake_word",
-  "display_name": "OpenWakeWord",
-  "description": "OpenWakeWord wake-word detection with a shared speech embedding CNN and a converted classifier.",
-  "category": "audio_tools",
-  "status": "experimental",
-  "tasks": [
-    "wake_word"
-  ],
-  "modes": [
-    "offline",
-    "streaming"
-  ],
-  "languages": [
-    "en"
-  ],
-  "capabilities": {
-    "wake_word": [
-      "speech_segments",
-      "stream_events"
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf",
-      "stream"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "threshold",
-        "type": "float",
-        "required": false,
-        "min": 0,
-        "max": 1,
-        "description": "Wake-word detection probability threshold."
+  "i18n": {
+    "description": {
+      "en": "OpenWakeWord wake-word detection with a shared speech embedding CNN and a converted classifier.",
+      "zh": "OpenWakeWord 唤醒词检测，使用共享语音嵌入 CNN 与转换后的分类器。"
+    },
+    "options": {
+      "threshold": {
+        "en": "Wake-word detection probability threshold.",
+        "zh": "唤醒词检测概率阈值。"
       }
-    ],
-    "session": [
-      {
-        "name": "exec_plan",
-        "type": "string",
-        "required": false,
-        "default": "{}",
-        "description": "JSON component execution plans. Component embedding accepts impl default/ggml/neon and optional backend. Default retains GGML on the session backend; neon requires ENGINE_ENABLE_NEON=ON and an AArch64 NEON CPU session. No artifacts or params are used."
-      }
-    ],
-    "load": []
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/audio.cpp-gguf",
-      "revision": "main",
-      "gated": false
     }
   },
   "packages": [
     {
       "id": "open_wake_word_alexa_f32",
-      "display_name": "OpenWakeWord Alexa GGUF F32",
-      "default": true,
-      "format": "gguf",
-      "precision": "f32",
-      "target_directory": "OpenWakeWord-GGUF",
-      "files": [
-        "OpenWakeWord-GGUF/open-wake-word-alexa-f32.gguf"
-      ],
-      "strip_prefix": "OpenWakeWord-GGUF",
+      "sizes": {
+        "size_bytes": 2260928,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -104,52 +56,19 @@
           "checked_at": "2026-10-24T02:58:11.982047",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
-      "sizes": {
-        "size_bytes": 2260928,
-        "est_memory_bytes": null,
-        "est_vram_bytes": null,
-        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
-      }
+      ]
     }
   ],
-  "dependencies": [],
-  "ui": {
-    "tags": [
-      "Wake Word",
-      "GGUF",
-      "Stream"
-    ],
-    "docs": [
-      "docs/models/open_wake_word.md"
-    ],
-    "recommended_package": "open_wake_word_alexa_f32"
-  },
-  "sources": [
+  "licenses": [
     {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json"
-      },
-      "tensors": {
-        "weights": "weights:"
-      }
+      "name": "CC-BY-NC-SA-4.0",
+      "url": "",
+      "commercial_use": "no",
+      "notes": "Upstream pretrained-model license (https://github.com/dscripka/openWakeWord#license); the Apache-2.0 code license does not cover these weights.",
+      "checked_at": "2026-10-17",
+      "source_urls": [
+        "https://github.com/dscripka/openWakeWord/releases/tag/v0.5.1"
+      ]
     }
-  ],
-  "i18n": {
-    "description": {
-      "en": "OpenWakeWord wake-word detection with a shared speech embedding CNN and a converted classifier.",
-      "zh": "OpenWakeWord 唤醒词检测，使用共享语音嵌入 CNN 与转换后的分类器。"
-    },
-    "options": {
-      "threshold": {
-        "en": "Wake-word detection probability threshold.",
-        "zh": "唤醒词检测概率阈值。"
-      }
-    }
-  }
+  ]
 }

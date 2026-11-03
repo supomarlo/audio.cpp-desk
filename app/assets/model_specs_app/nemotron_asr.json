@@ -1,286 +1,5 @@
 {
   "family": "nemotron_asr",
-  "display_name": "Nemotron 3.5 ASR",
-  "description": "NVIDIA 600M streaming ASR model for low-latency and batch transcription across 40 language-locales, with native punctuation, capitalization, automatic language detection, and configurable chunk sizes.",
-  "category": "asr",
-  "status": "supported",
-  "tasks": [
-    "asr"
-  ],
-  "modes": [
-    "offline",
-    "streaming"
-  ],
-  "languages": [
-    "ar-AR",
-    "bg-BG",
-    "cs-CZ",
-    "da-DK",
-    "de-DE",
-    "el-GR",
-    "en-GB",
-    "en-US",
-    "es-ES",
-    "es-US",
-    "et-EE",
-    "fi-FI",
-    "fr-CA",
-    "fr-FR",
-    "he-IL",
-    "hi-IN",
-    "hr-HR",
-    "hu-HU",
-    "it-IT",
-    "ja-JP",
-    "ko-KR",
-    "lt-LT",
-    "lv-LV",
-    "mt-MT",
-    "nb-NO",
-    "nl-NL",
-    "nn-NO",
-    "pl-PL",
-    "pt-BR",
-    "pt-PT",
-    "ro-RO",
-    "ru-RU",
-    "sk-SK",
-    "sl-SI",
-    "sv-SE",
-    "th-TH",
-    "tr-TR",
-    "uk-UA",
-    "vi-VN",
-    "zh-CN"
-  ],
-  "capabilities": {},
-  "options": {
-    "request": [
-      {
-        "name": "language",
-        "type": "string",
-        "description": "ASR prompt language such as en-US, da-DK, or auto."
-      },
-      {
-        "name": "max_tokens",
-        "type": "int",
-        "description": "Maximum RNNT generated tokens; 0 uses the model-derived limit."
-      }
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf",
-      "stream"
-    ]
-  },
-  "ui": {
-    "recommended_package": "nemotron_asr_q8_0",
-    "tags": [
-      "ASR",
-      "GGUF",
-      "Stream"
-    ],
-    "docs": [
-      "docs/asr.md",
-      "docs/gguf.md"
-    ]
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/audio.cpp-gguf",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json",
-        "processor_config": "model:processor_config.json",
-        "tokenizer_json": "model:tokenizer.json"
-      },
-      "tensors": {
-        "weights": "weights:"
-      }
-    },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": "."
-      },
-      "files": {
-        "config": "model:config.json",
-        "processor_config": "model:processor_config.json",
-        "tokenizer_json": "model:tokenizer.json"
-      },
-      "tensors": {
-        "weights": "model:model.safetensors"
-      }
-    }
-  ],
-  "packages": [
-    {
-      "id": "nemotron_asr_q8_0",
-      "display_name": "Nemotron 3.5 ASR Streaming 0.6B Q8_0 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "Nemotron-3.5-ASR-Streaming-0.6B-GGUF",
-      "files": [
-        "Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-q8_0.gguf"
-      ],
-      "strip_prefix": "Nemotron-3.5-ASR-Streaming-0.6B-GGUF",
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 930620256,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 930620256,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "modelscope",
-          "repo": "HereIsMark/audio.cpp-gguf",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": false,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 930620256,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 4227858432,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "nemotron_asr_f16",
-      "display_name": "Nemotron 3.5 ASR Streaming 0.6B F16 GGUF",
-      "format": "gguf",
-      "precision": "f16",
-      "target_directory": "Nemotron-3.5-ASR-Streaming-0.6B-GGUF",
-      "files": [
-        "Nemotron-3.5-ASR-Streaming-0.6B-GGUF/nemotron-3.5-asr-streaming-0.6b-f16.gguf"
-      ],
-      "strip_prefix": "Nemotron-3.5-ASR-Streaming-0.6B-GGUF",
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 1277710880,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 1277710880,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "modelscope",
-          "repo": "HereIsMark/audio.cpp-gguf",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": false,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 1277710880,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 5368709120,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "nemotron_asr_safetensors",
-      "display_name": "Nemotron 3.5 ASR Streaming 0.6B Safetensors",
-      "format": "safetensors",
-      "precision": "native",
-      "target_directory": "nemotron-3.5-asr-streaming-0.6b",
-      "files": [
-        "config.json",
-        "model.safetensors",
-        "processor_config.json",
-        "tokenizer.json"
-      ],
-      "download": {
-        "kind": "huggingface_snapshot",
-        "repo": "nvidia/nemotron-3.5-asr-streaming-0.6b"
-      },
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "nvidia/nemotron-3.5-asr-streaming-0.6b",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 2552818890,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "nvidia/nemotron-3.5-asr-streaming-0.6b",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 2552818890,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 2552818890,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 5368709120,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    }
-  ],
   "i18n": {
     "description": {
       "en": "NVIDIA 600M streaming ASR model for low-latency and batch transcription across 40 language-locales, with native punctuation, capitalization, automatic language detection, and configurable chunk sizes.",
@@ -288,13 +7,186 @@
     },
     "options": {
       "language": {
-        "en": "ASR prompt language such as en-US, da-DK, or auto.",
-        "zh": "ASR 提示语言，如 en-US、da-DK 或 auto。"
+        "en": "ASR prompt language such as en-US, da-DK, or auto; default is the model's default prompt.",
+        "zh": "ASR 提示语言，例如 en-US、da-DK 或 auto； default 是模型的默认提示。"
       },
       "max_tokens": {
-        "en": "Maximum RNNT generated tokens; 0 uses the model-derived limit.",
-        "zh": "RNNT 最多生成的 token 数；0 表示使用按模型推算的上限。"
+        "en": "Maximum RNNT generated tokens; 0 or omitted uses the model-derived limit.",
+        "zh": "RNNT 生成代币的最大数量； 0 或省略使用模型导出的限制。"
+      },
+      "lookahead_tokens": {
+        "en": "Chunk-limited encoder right context in 80 ms frames; supported values and the default come from processor_config (0, 3, 6 or 13; default 3 for the published model). In masked speaker mode, omission derives lookahead from diarizer geometry (13 fallback).",
+        "zh": "以 80 ms 帧计的受限编码器右上下文；支持值与默认值来自 processor_config（0、3、6 或 13；发布模型默认 3）。masked speaker 模式下，省略时按 diarizer 几何推导 lookahead（回退 13）。"
+      },
+      "keep_language_tags": {
+        "en": "Keep language tag tokens in decoded text; default false.",
+        "zh": "在解码文本中保留语言标签 token；默认 false。"
+      },
+      "return_timestamps": {
+        "en": "Compatibility/advisory flag; false does not suppress decoder token timestamps.",
+        "zh": "兼容/提示标志；false 不会抑制解码器 token 时间戳。"
+      },
+      "streaming": {
+        "en": "Request a streaming run; must be false for offline sessions.",
+        "zh": "请求流式运行；离线会话必须为 false。"
+      },
+      "speaker_probabilities": {
+        "en": "nemotron_3_diar speaker_probabilities.safetensors for the same audio (diarize with return_frame_probabilities=true). Setting it enables speaker-tagged output: speaker turns with text and a SegLST artifact.",
+        "zh": "同一音频的 nemotron_3_diar speaker_probabilities.safetensors（使用 return_frame_probabilities=true 进行 diarize）。设置后启用带说话人标签的输出：说话人轮次、文本与 SegLST 产物。"
+      },
+      "speaker_mode": {
+        "en": "masked runs one ASR stream per active speaker on speaker-masked features (NeMo masked multitalker ASR) and transcribes overlapping speech; attribution assigns each word of one transcript to the most active speaker and is cheaper.",
+        "zh": "masked 模式在说话人遮罩特征上为每个活跃说话人运行一条 ASR 流（NeMo masked multitalker ASR），可转写重叠语音；attribution 将单条转写的每个词归给最活跃说话人，开销更低。"
+      },
+      "speaker_mask": {
+        "en": "Masked mode only: mask log-mel features (NeMo mask_features) or zero the waveform of inactive 80 ms frames.",
+        "zh": "仅 masked 模式：遮罩 log-mel 特征（NeMo mask_features）或将非活跃 80 ms 帧的波形置零。"
+      },
+      "speaker_segment_gap_sec": {
+        "en": "Start a new segment for a speaker after a pause longer than this; default 1.0 (NeMo sent_break_sec).",
+        "zh": "说话人停顿超过该值时开始新片段；默认 1.0（NeMo sent_break_sec）。"
+      },
+      "speaker_segment_max_sec": {
+        "en": "Streaming only: force-close a speaker-turn event after this many seconds; the final result keeps the full segments. Default 10. Must be positive.",
+        "zh": "仅流式：超过该秒数后强制关闭说话人轮次事件；最终结果保留完整片段。默认 10，必须为正。"
       }
     }
-  }
+  },
+  "packages": [
+    {
+      "id": "nemotron_asr_q8_0",
+      "sizes": {
+        "size_bytes": 930620256,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 4227858432,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 930620256,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 930620256,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ]
+    },
+    {
+      "id": "nemotron_asr_f16",
+      "sizes": {
+        "size_bytes": 1277710880,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5368709120,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1277710880,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1277710880,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": false,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ]
+    },
+    {
+      "id": "nemotron_asr_safetensors",
+      "sizes": {
+        "size_bytes": 2552818890,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5368709120,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "nvidia/nemotron-3.5-asr-streaming-0.6b",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2552818890,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "nvidia/nemotron-3.5-asr-streaming-0.6b",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2552818890,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"
+        }
+      ]
+    }
+  ],
+  "licenses": [
+    {
+      "name": "OpenMDW-1.1",
+      "url": "https://openmdw.ai/license/1-1/",
+      "commercial_use": "yes",
+      "notes": "",
+      "checked_at": "2026-09-21",
+      "source_urls": [
+        "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b"
+      ]
+    }
+  ]
 }

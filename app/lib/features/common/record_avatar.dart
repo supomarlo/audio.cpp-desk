@@ -11,7 +11,7 @@ IconData recordTypeIcon(String type) => switch (type) {
 
 /// 记录头像字符：ASR 取转写文本，其它取生成时记录的音色/角色名。
 String? recordGlyph(GenerationRecord r) => firstGlyph(
-      r.type == RecordType.asr ? r.text : (r.inputs['voice_name'] ?? ''),
+      r.type == RecordType.asr ? r.displayText : (r.inputs['voice_name'] ?? ''),
     );
 
 /// 任务 / 记录 / 历史的前导：截取到首字则显示圆形头像（仿头像），

@@ -1,3 +1,0 @@
-{
-  "breeze_tts": {"reference":"optional","referenceText":"optional","instruction":"optional","instructionWhen":"no-voice","instructionKey":"instruction","language":"hidden","source":"docs/models/breeze_tts.md"}
-}

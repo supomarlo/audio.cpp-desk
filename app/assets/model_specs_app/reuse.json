@@ -1,79 +1,30 @@
 {
-  "schema_version": 1,
   "family": "reuse",
-  "display_name": "RE-USE",
-  "description": "Sample-rate-independent speech restoration with bidirectional Mamba.",
-  "category": "audio_tools",
-  "status": "supported",
-  "tasks": [
-    "s2s"
-  ],
-  "modes": [
-    "offline"
-  ],
-  "languages": [
-    "language_agnostic"
-  ],
-  "capabilities": {
-    "s2s": [
-      "audio_enhancement"
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "audio_chunk_duration_sec",
-        "type": "float",
-        "description": "Chunk duration in seconds; zero processes the whole recording. When enabled, the chunk sample count must exceed sample_rate/50. Chunking changes bidirectional and normalization context. Native batching requires zero; positive chunk durations are supported only for single requests.",
-        "min": 0,
-        "default": 0,
-        "required": false
+  "i18n": {
+    "description": {
+      "en": "Sample-rate-independent speech restoration with bidirectional Mamba.",
+      "zh": "基于双向 Mamba 的采样率无关语音修复。"
+    },
+    "options": {
+      "audio_chunk_duration_sec": {
+        "en": "Chunk duration in seconds; zero processes the whole recording. When enabled, the chunk sample count must exceed sample_rate/50. Chunking changes bidirectional and normalization context. Native batching requires zero; positive chunk durations are supported only for single requests.",
+        "zh": "分块时长（秒）；0 表示处理整段录音。启用时分块采样数必须大于 sample_rate/50。分块会改变双向与归一化上下文。原生批处理要求为 0；正值分块仅支持单请求。"
       },
-      {
-        "name": "audio_chunk_overlap_sec",
-        "type": "float",
-        "description": "Hann-weighted overlap in seconds, shorter than the chunk duration. Applies only to single-request chunking; native batching ignores this setting.",
-        "min": 0,
-        "default": 1,
-        "required": false
+      "audio_chunk_overlap_sec": {
+        "en": "Hann-weighted overlap in seconds, shorter than the chunk duration. Applies only to single-request chunking; native batching ignores this setting.",
+        "zh": "Hann 加权重叠时长（秒），需小于分块时长。仅适用于单请求分块；原生批处理忽略此设置。"
       }
-    ],
-    "session": [
-      {
-        "name": "weight_type",
-        "type": "enum",
-        "description": "Weight storage type; native preserves GGUF tensor types.",
-        "preset": "weight_type_full",
-        "default": "native",
-        "required": false
-      }
-    ],
-    "load": []
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/RE-USE-GGUF",
-      "revision": "main",
-      "gated": false
     }
   },
   "packages": [
     {
       "id": "reuse_f32",
-      "display_name": "RE-USE F32 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "f32",
-      "target_directory": "RE-USE-GGUF",
-      "files": [
-        "reuse-f32.gguf"
-      ],
+      "sizes": {
+        "size_bytes": 39642144,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -109,24 +60,16 @@
           "checked_at": "2026-10-24T05:52:04.534280",
           "license_url": "https://www.modelscope.cn/models/audio-cpp/RE-USE-GGUF"
         }
-      ],
-      "sizes": {
-        "size_bytes": 39642144,
-        "est_memory_bytes": null,
-        "est_vram_bytes": null,
-        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
-      }
+      ]
     },
     {
       "id": "reuse_f16",
-      "display_name": "RE-USE F16 GGUF",
-      "default": false,
-      "format": "gguf",
-      "precision": "f16",
-      "target_directory": "RE-USE-GGUF",
-      "files": [
-        "reuse-f16.gguf"
-      ],
+      "sizes": {
+        "size_bytes": null,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -151,25 +94,27 @@
           "gated": false,
           "license_url": "https://huggingface.co/audio-cpp/RE-USE-GGUF",
           "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/RE-USE-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": null,
+          "checked_at": "2026-11-02T00:00:00",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/RE-USE-GGUF"
         }
-      ],
-      "sizes": {
-        "size_bytes": null,
-        "est_memory_bytes": null,
-        "est_vram_bytes": null,
-        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
-      }
+      ]
     },
     {
       "id": "reuse_q8_0",
-      "display_name": "RE-USE Q8_0 GGUF",
-      "default": false,
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "RE-USE-GGUF",
-      "files": [
-        "reuse-q8_0.gguf"
-      ],
+      "sizes": {
+        "size_bytes": null,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -194,60 +139,30 @@
           "gated": false,
           "license_url": "https://huggingface.co/audio-cpp/RE-USE-GGUF",
           "license": "other"
+        },
+        {
+          "source": "modelscope",
+          "repo": "audio-cpp/RE-USE-GGUF",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": null,
+          "checked_at": "2026-11-02T00:00:00",
+          "license_url": "https://www.modelscope.cn/models/audio-cpp/RE-USE-GGUF"
         }
-      ],
-      "sizes": {
-        "size_bytes": null,
-        "est_memory_bytes": null,
-        "est_vram_bytes": null,
-        "basis": "size=tree@hf-mirror; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
-      }
+      ]
     }
   ],
-  "dependencies": [],
-  "ui": {
-    "recommended_package": "reuse_f32",
-    "tags": [
-      "GGUF"
-    ],
-    "docs": [
-      "docs/models/reuse.md",
-      "docs/audio_tools.md",
-      "docs/gguf.md"
-    ]
-  },
-  "sources": [
+  "licenses": [
     {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json"
-      },
-      "tensors": {
-        "weights": {
-          "source": "weights:",
-          "prefix": "weights"
-        }
-      }
+      "name": "NVIDIA One-Way Noncommercial License (NSCLv1)",
+      "url": "https://github.com/NVlabs/HMAR/blob/main/LICENSE",
+      "commercial_use": "no",
+      "notes": "Research and noncommercial use only.",
+      "checked_at": "2026-09-27",
+      "source_urls": [
+        "https://huggingface.co/nvidia/RE-USE"
+      ]
     }
-  ],
-  "i18n": {
-    "description": {
-      "en": "Sample-rate-independent speech restoration with bidirectional Mamba.",
-      "zh": "基于双向 Mamba 的采样率无关语音修复。"
-    },
-    "options": {
-      "audio_chunk_duration_sec": {
-        "en": "Chunk duration in seconds; zero processes the whole recording. When enabled, the chunk sample count must exceed sample_rate/50. Chunking changes bidirectional and normalization context. Native batching requires zero; positive chunk durations are supported only for single requests.",
-        "zh": "分块时长（秒）；0 表示处理整段录音。启用时分块采样数必须大于 sample_rate/50。分块会改变双向与归一化上下文。原生批处理要求为 0；正值分块仅支持单请求。"
-      },
-      "audio_chunk_overlap_sec": {
-        "en": "Hann-weighted overlap in seconds, shorter than the chunk duration. Applies only to single-request chunking; native batching ignores this setting.",
-        "zh": "Hann 加权重叠时长（秒），需小于分块时长。仅适用于单请求分块；原生批处理忽略此设置。"
-      }
-    }
-  }
+  ]
 }

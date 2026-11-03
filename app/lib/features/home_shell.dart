@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/onboarding.dart';
+import '../core/server_version.dart';
+import '../models/server_snapshot.dart';
 import '../providers/app_providers.dart';
 import '../providers/catalog_providers.dart';
 import '../providers/library_providers.dart';
@@ -22,6 +24,14 @@ class HomeShell extends ConsumerStatefulWidget {
 }
 
 class _HomeShellState extends ConsumerState<HomeShell> {
+  String? _versionNoticeKey;
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? _versionSnackBar;
+
+  void _dismissVersionSnackBar() {
+    _versionSnackBar?.close();
+    _versionSnackBar = null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +66,49 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   Widget build(BuildContext context) {
     final dict = ref.watch(stringsProvider);
     final index = ref.watch(homeTabProvider);
+    ref.listen<ServerSnapshot>(serverControllerProvider, (_, next) {
+      if (!(next.isRunning && next.healthy)) {
+        _versionNoticeKey = null;
+        _dismissVersionSnackBar();
+        return;
+      }
+      final status = serverVersionStatus(next.version);
+      if (status == ServerVersionStatus.supported) {
+        _versionNoticeKey = null;
+        _dismissVersionSnackBar();
+        return;
+      }
+      final key = '${status.name}:${next.version}';
+      if (_versionNoticeKey == key) return;
+      _versionNoticeKey = key;
+      final message = switch (status) {
+        ServerVersionStatus.tooOld => (dict['server.version.tooOld'] ??
+                'The audio.cpp server is below the minimum {min}. Upgrade the server.')
+            .replaceAll('{min}', kMinimumAudioCppVersion),
+        _ => dict['server.version.unknown'] ??
+            'The audio.cpp server version could not be identified; compatibility was not checked.',
+      };
+      final tooOld = status == ServerVersionStatus.tooOld;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.hideCurrentSnackBar();
+        final controller = messenger.showSnackBar(
+          SnackBar(
+            content: Text(message),
+            duration:
+                tooOld ? const Duration(hours: 24) : const Duration(seconds: 6),
+            showCloseIcon: tooOld,
+          ),
+        );
+        _versionSnackBar = controller;
+        controller.closed.then((_) {
+          if (identical(_versionSnackBar, controller)) {
+            _versionSnackBar = null;
+          }
+        });
+      });
+    });
     return Scaffold(
       body: Row(
         children: [

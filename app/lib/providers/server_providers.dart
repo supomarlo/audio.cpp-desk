@@ -6,6 +6,7 @@ import '../core/gpu_probe.dart';
 import '../core/server_client.dart';
 import '../core/server_controller.dart';
 import '../core/task_timeout.dart';
+import '../features/workbench/workbench_contract.dart';
 import '../models/audio_cpp_version.dart';
 import '../models/model_catalog_entry.dart';
 import '../models/model_spec.dart';
@@ -78,6 +79,14 @@ final availableBackendsProvider = FutureProvider<List<String>>((ref) async {
   return GpuProbe.listRegisteredBackends(serverExe: version.serverExe.path);
 });
 
+/// 服务端可注册的任务（clone/design 是 TTS 模式，不单独注册）。
+const List<String> _serverTasks = ['tts', 'asr', 'vc', 'align', 's2s'];
+
+List<String> _serverTasksOf(List<String> tasks) => [
+      for (final task in _serverTasks)
+        if (tasks.contains(task)) task,
+    ];
+
 /// 依据已安装且为当前版本的模型构建服务端模型条目。
 List<Map<String, dynamic>> buildServerModelsFrom({
   required List<ModelSpec> specs,
@@ -85,22 +94,44 @@ List<Map<String, dynamic>> buildServerModelsFrom({
   required List<ModelCatalogEntry> entries,
 }) {
   final specByFamily = {for (final s in specs) s.family: s};
-  return [
-    for (final e in entries.where((e) => e.installed && e.activeVersion))
-      {
-        'id': e.packageId,
-        'family': e.family,
-        'path': e.localModelPath(modelsDir),
-        // 规格按包声明的 task 优先（如 qwen3 VoiceDesign 变体为 vdes），
-        // 否则回退 family 首个 task / 分类。
-        'task': e.task.isNotEmpty
-            ? e.task
-            : ((specByFamily[e.family]?.tasks.isNotEmpty ?? false)
-                ? specByFamily[e.family]!.tasks.first
-                : (e.category.isEmpty ? 'tts' : e.category)),
-        'mode': 'offline',
-      },
-  ];
+  String? forcedAlignerPath;
+  for (final e in entries) {
+    if (e.installed && e.activeVersion && e.family == 'qwen3_forced_aligner') {
+      forcedAlignerPath = e.localModelPath(modelsDir);
+      break;
+    }
+  }
+  final out = <Map<String, dynamic>>[];
+  for (final e in entries.where((e) => e.installed && e.activeVersion)) {
+    final spec = specByFamily[e.family];
+    final tasks = _serverTasksOf(spec?.tasks ?? const <String>[]);
+    final path = e.localModelPath(modelsDir);
+    Map<String, dynamic> entry(String id, String task) => {
+          'id': id,
+          'family': e.family,
+          'path': path,
+          'task': task,
+          'mode': 'offline',
+          if (e.family == 'qwen3_asr' && forcedAlignerPath != null)
+            'session_options': {
+              'qwen3_asr.forced_aligner_path': forcedAlignerPath,
+            },
+        };
+    // 规格按包声明的 task 优先（如 qwen3 VoiceDesign 变体 → vdes）。
+    if (e.task.isNotEmpty) {
+      out.add(entry(e.packageId, e.task));
+      continue;
+    }
+    if (tasks.isEmpty) {
+      final fallback = e.category.isEmpty ? 'tts' : e.category;
+      out.add(entry(e.packageId, fallback));
+      continue;
+    }
+    for (final task in tasks) {
+      out.add(entry(workbenchModelId(e.packageId, task, spec), task));
+    }
+  }
+  return out;
 }
 
 /// 依据当前配置与已安装模型构建服务端模型条目。
@@ -174,6 +205,8 @@ Future<void> _ensureServerCore(
 Future<void> ensureServerStarted(WidgetRef ref,
     {String? requireModelId}) async {
   final versions = await ref.read(versionsProvider.future);
+  // 多能力模型的 server 条目依赖规格 tasks；启动前等规格就绪。
+  await ref.read(specsProvider.future);
   final models = buildServerModels(ref);
   final cfg = ref.read(appConfigProvider);
   await _ensureServerCore(
@@ -188,6 +221,7 @@ Future<void> ensureServerStarted(WidgetRef ref,
 /// 同 [ensureServerStarted]，供 provider 内部（Ref）调用。
 Future<void> ensureServerStartedRef(Ref ref, {String? requireModelId}) async {
   final versions = await ref.read(versionsProvider.future);
+  await ref.read(specsProvider.future);
   final models = _buildModelsRef(ref);
   final cfg = ref.read(appConfigProvider);
   await _ensureServerCore(

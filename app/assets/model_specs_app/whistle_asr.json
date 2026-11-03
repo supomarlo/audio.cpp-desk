@@ -1,71 +1,26 @@
 {
-  "schema_version": 1,
   "family": "whistle_asr",
-  "display_name": "Whistle ASR",
-  "description": "Whistle offline speech recognition with FP32 GGUF weights, a GGML encoder and a host decoder.",
-  "category": "asr",
-  "status": "experimental",
-  "tasks": [
-    "asr"
-  ],
-  "modes": [
-    "offline"
-  ],
-  "languages": [
-    "en",
-    "de",
-    "fr",
-    "es",
-    "it",
-    "nl",
-    "pl"
-  ],
-  "runtime": {
-    "tags": [
-      "gguf"
-    ]
-  },
-  "capabilities": {},
-  "options": {
-    "request": [
-      {
-        "name": "language",
-        "type": "string",
-        "description": "Force one supported language; omit to detect the language.",
-        "required": false
+  "i18n": {
+    "description": {
+      "en": "Whistle offline speech recognition with FP32 GGUF weights, a GGML encoder and a host decoder.",
+      "zh": "Whistle 离线语音识别，使用 FP32 GGUF 权重、GGML 编码器与宿主解码器。"
+    },
+    "options": {
+      "language": {
+        "en": "Force one supported language; omit to detect the language.",
+        "zh": "强制使用一种受支持语言；省略时自动检测。"
       }
-    ],
-    "session": [
-      {
-        "name": "exec_plan",
-        "type": "string",
-        "description": "JSON component execution plans. Component decoder accepts impl host/neon (default host), both on CPU independently of the encoder backend. The experimental neon implementation accelerates the vocabulary projection with the framework NEON library and requires ENGINE_ENABLE_NEON=ON and AArch64 NEON. No artifacts or params are used.",
-        "required": false,
-        "default": "{}"
-      }
-    ],
-    "load": []
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/audio.cpp-gguf",
-      "revision": "main",
-      "gated": false
     }
   },
   "packages": [
     {
       "id": "whistle_asr_f32",
-      "display_name": "Whistle ASR GGUF F32",
-      "default": true,
-      "format": "gguf",
-      "precision": "f32",
-      "target_directory": "Whistle-GGUF",
-      "files": [
-        "Whistle-GGUF/whistle-f32.gguf"
-      ],
-      "strip_prefix": "Whistle-GGUF",
+      "sizes": {
+        "size_bytes": 220833184,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -101,71 +56,19 @@
           "checked_at": "2026-10-24T02:58:11.982047",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
-      "sizes": {
-        "size_bytes": 220833184,
-        "est_memory_bytes": null,
-        "est_vram_bytes": null,
-        "basis": "size=files API@modelscope; hf_mirror=assumed; est_memory=n/a; est_vram=n/a"
-      }
+      ]
     }
   ],
-  "dependencies": [],
-  "ui": {
-    "tags": [
-      "ASR",
-      "GGUF"
-    ],
-    "docs": [
-      "docs/models/whistle_asr.md"
-    ],
-    "recommended_package": "whistle_asr_f32"
-  },
-  "sources": [
+  "licenses": [
     {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_blob": "model:tokenizer.blob",
-        "mel_filterbank": "model:mel_filterbank_80.f32",
-        "hadamard_perm1": "model:hadamard_perm1.f32",
-        "hadamard_perm2": "model:hadamard_perm2.f32"
-      },
-      "tensors": {
-        "weights": "weights:"
-      }
-    },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": "."
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_blob": "model:tokenizer.blob",
-        "mel_filterbank": "model:mel_filterbank_80.f32",
-        "hadamard_perm1": "model:hadamard_perm1.f32",
-        "hadamard_perm2": "model:hadamard_perm2.f32"
-      },
-      "tensors": {
-        "weights": "model:whistle.safetensors"
-      }
+      "name": "Apache-2.0",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "Pinned release includes the tokenizer, mel filterbank, and Hadamard permutations; the converter embeds its LICENSE. Independent asset provenance remains unverified. No reference code is bundled; see [provenance](../tools/community_models/whistle_asr/PROVENANCE.md).",
+      "checked_at": "2026-10-06",
+      "source_urls": [
+        "https://huggingface.co/Cactus-Compute/whistle/tree/b358ddadd89b7a713b5aa131f23032d3cca1b251"
+      ]
     }
-  ],
-  "i18n": {
-    "description": {
-      "en": "Whistle offline speech recognition with FP32 GGUF weights, a GGML encoder and a host decoder.",
-      "zh": "Whistle 离线语音识别，使用 FP32 GGUF 权重、GGML 编码器与宿主解码器。"
-    },
-    "options": {
-      "language": {
-        "en": "Force one supported language; omit to detect the language.",
-        "zh": "强制使用一种受支持语言；省略时自动检测。"
-      }
-    }
-  }
+  ]
 }

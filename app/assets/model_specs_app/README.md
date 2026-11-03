@@ -1,9 +1,11 @@
-# model_specs_app（产物，供 desk 消费）
+# model_specs_app（生成器产物 / desk overlay）
 
-本目录是**生成器产物**：由工作区的本地库 `../model_specs/` 导出，供 desk（App）消费。
+本目录是生成器的**增强 overlay 产物**，由生成器根据 `../model_specs/`（上次生成基线）与 `../model_specs_audio.cpp/`（最新上游）生成，供 desk 消费。
 
-- **不要在此手改**；重新导出会覆盖。
-- 生成器**只写本目录**，**绝不直接覆盖 desk 侧的 `model_specs_app`**（由 desk 自行从本产物同步）。
-- 具体格式（是否带 `manifest.json`、字段适配）在 App 改造阶段确定。
+- 只包含 `family`、`i18n`、`packages[].id/i18n/sizes/downloads/task`；
+- 不含运行时字段；desk 运行时以服务端 / 所选版本的 `model_specs` 为准；
+- 默认由生成器维护；用户手改并**主动通知**的翻译 / 文案视为**权威**，生成 / 合并时必须保留，不得自动覆盖；
+- 未通知的差异先询问用户，不得自动覆盖或擅自视为权威；
+- 生成器只写本目录，**绝不直接覆盖 desk 侧的 `model_specs_app`**（由 desk 自行同步）。
 
 规则见 [../SPEC.md](../SPEC.md)。

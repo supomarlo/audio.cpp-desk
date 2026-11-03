@@ -1,240 +1,102 @@
 {
-  "schema_version": 1,
   "family": "liveavatar",
-  "display_name": "LiveAvatar",
-  "description": "LiveAvatar audio-driven avatar video generation using the Wan2.2 S2V architecture.",
-  "category": "audio_generation",
-  "status": "experimental",
-  "tasks": [
-    "sfx"
-  ],
-  "modes": [
-    "offline",
-    "streaming"
-  ],
-  "languages": [
-    "auto"
-  ],
-  "runtime": {
-    "tags": [
-      "cuda",
-      "gguf",
-      "stream"
-    ]
-  },
-  "capabilities": {
-    "sfx": [
-      "prompt_generation"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "reference_image_path",
-        "type": "string",
-        "description": "Reference image path used as the identity/appearance condition.",
-        "required": true
-      },
-      {
-        "name": "height",
-        "type": "int",
-        "description": "Generated frame height.",
-        "required": false,
-        "min": 16,
-        "default": 704
-      },
-      {
-        "name": "width",
-        "type": "int",
-        "description": "Generated frame width.",
-        "required": false,
-        "min": 16,
-        "default": 1024
-      },
-      {
-        "name": "num_frames",
-        "type": "int",
-        "description": "Frames generated per LiveAvatar segment.",
-        "required": false,
-        "min": 1,
-        "default": 48
-      },
-      {
-        "name": "num_clips",
-        "type": "int",
-        "description": "Maximum LiveAvatar clips to generate from the input audio.",
-        "required": false,
-        "min": 1,
-        "default": 1
-      },
-      {
-        "name": "num_inference_steps",
-        "type": "int",
-        "description": "Euler denoising steps; the LiveAvatar DMD adapter is designed for 4 steps.",
-        "required": false,
-        "min": 1,
-        "default": 4
-      },
-      {
-        "name": "guidance_scale",
-        "type": "float",
-        "description": "Classifier-free guidance scale; LiveAvatar blockwise generation requires 0.",
-        "required": false,
-        "min": 0.0,
-        "default": 0.0
-      },
-      {
-        "name": "shift",
-        "type": "float",
-        "description": "Euler flow scheduler shift.",
-        "required": false,
-        "min": 0.0,
-        "default": 3.0
-      },
-      {
-        "name": "negative_prompt",
-        "type": "string",
-        "description": "Negative prompt for classifier-free guidance.",
-        "required": false
-      },
-      {
-        "name": "seed",
-        "type": "int",
-        "description": "Generation seed.",
-        "required": false,
-        "min": 0,
-        "default": 420
-      }
-    ],
-    "session": [
-      {
-        "name": "denoiser_weight_streaming",
-        "type": "bool",
-        "description": "Keep denoiser transformer blocks in host memory and stage layer groups on the accelerator.",
-        "required": false,
-        "default": false
-      },
-      {
-        "name": "support_gguf",
-        "type": "string",
-        "description": "Support GGUF containing text_encoder/audio_encoder tensors and the embedded tokenizer sidecar.",
-        "required": false,
-        "default": "Wan2.2-S2V-Support-Q4_K_S-F16.gguf"
-      },
-      {
-        "name": "vae_gguf",
-        "type": "string",
-        "description": "Wan video VAE component GGUF file relative to the model root.",
-        "required": false,
-        "default": "Wan2.2-S2V-VAE-F16.gguf"
-      },
-      {
-        "name": "denoiser_gguf",
-        "type": "string",
-        "description": "Denoiser DiT GGUF file relative to the model root.",
-        "required": false,
-        "default": "Wan2.2-S2V-14B-NVFP4-LORA.gguf"
-      }
-    ],
-    "load": [
-      {
-        "name": "support_gguf",
-        "type": "string",
-        "description": "Support GGUF containing text_encoder/audio_encoder tensors and the embedded tokenizer sidecar.",
-        "required": false,
-        "default": "Wan2.2-S2V-Support-Q4_K_S-F16.gguf"
-      },
-      {
-        "name": "vae_gguf",
-        "type": "string",
-        "description": "Wan video VAE component GGUF file relative to the model root.",
-        "required": false,
-        "default": "Wan2.2-S2V-VAE-F16.gguf"
-      },
-      {
-        "name": "denoiser_gguf",
-        "type": "string",
-        "description": "Denoiser DiT GGUF file relative to the model root.",
-        "required": false,
-        "default": "Wan2.2-S2V-14B-NVFP4-LORA.gguf"
-      }
-    ]
-  },
-  "dependencies": [],
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/LiveAvatar-GGUF",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": "."
-      },
-      "files": {
-        "tokenizer_model": "model:tokenizer/spiece.model"
-      },
-      "tensors": {
-        "text_encoder_weights": {
-          "source": "model:Wan2.2-S2V-Support-Q4_K_S-F16.gguf",
-          "prefix": "text_encoder"
-        },
-        "audio_encoder_weights": {
-          "source": "model:Wan2.2-S2V-Support-Q4_K_S-F16.gguf",
-          "prefix": "audio_encoder"
-        }
-      }
+  "i18n": {
+    "description": {
+      "en": "LiveAvatar audio-driven avatar video generation using the Wan2.2 S2V architecture.",
+      "zh": "LiveAvatar 基于 Wan2.2 S2V 架构的音频驱动虚拟形象视频生成。"
     },
-    {
-      "format": "gguf",
-      "roots": {
-        "model": "."
+    "options": {
+      "height": {
+        "en": "Generated frame height; must be a positive multiple of 16.",
+        "zh": "生成的框架高度；必须是 16 的正倍数。"
       },
-      "tensors": {
-        "vae_weights": {
-          "source": "model:Wan2.2-S2V-VAE-F16.gguf",
-          "prefix": "vae"
-        }
-      }
-    },
-    {
-      "format": "gguf",
-      "roots": {
-        "model": "."
+      "width": {
+        "en": "Generated frame width; must be a positive multiple of 16.",
+        "zh": "生成的帧宽度；必须是 16 的正倍数。"
       },
-      "tensors": {
-        "denoiser_weights": {
-          "source": "model:Wan2.2-S2V-14B-NVFP4-LORA.gguf"
-        }
+      "num_frames": {
+        "en": "Frames generated per LiveAvatar segment; must be positive and a multiple of 4 in blockwise mode (streaming or generation_mode=liveavatar).",
+        "zh": "每个 LiveAvatar 片段生成的帧数；必须为正数且在块模式下为 4 的倍数（流式传输或 Generation_mode=liveavatar）。"
+      },
+      "num_clips": {
+        "en": "Maximum LiveAvatar clips to generate from the input audio.",
+        "zh": "从输入音频最多生成的 LiveAvatar 片段数。"
+      },
+      "num_inference_steps": {
+        "en": "Denoising steps; offline generation uses UniPC, blockwise generation uses Euler. The LiveAvatar DMD adapter is designed for 4 steps.",
+        "zh": "去噪步骤；离线生成使用UniPC，块式生成使用Euler。 LiveAvatar DMD 适配器的设计分为 4 个步骤。"
+      },
+      "guidance_scale": {
+        "en": "Classifier-free guidance scale; LiveAvatar blockwise generation requires 0.",
+        "zh": "无分类器引导强度；LiveAvatar 分块生成要求为 0。"
+      },
+      "shift": {
+        "en": "Flow scheduler shift; must be > 0.",
+        "zh": "流量调度器移位；必须 > 0。"
+      },
+      "negative_prompt": {
+        "en": "Negative prompt for classifier-free guidance.",
+        "zh": "无分类器引导的负向提示。"
+      },
+      "seed": {
+        "en": "Generation seed.",
+        "zh": "生成随机种子。"
+      },
+      "reference_image_file": {
+        "en": "Reference image path used as the identity/appearance condition.",
+        "zh": "用作身份/外观条件的参考图像路径。"
+      },
+      "generation_mode": {
+        "en": "Use whole-clip generation or LiveAvatar blockwise generation.",
+        "zh": "使用整段生成或 LiveAvatar 分块生成。"
+      },
+      "batched_cfg": {
+        "en": "Run classifier-free guidance in one denoiser graph.",
+        "zh": "在一个去噪器图中运行无分类器引导。"
+      },
+      "sage_attention": {
+        "en": "Use CUDA SageAttention when the backend supports it.",
+        "zh": "后端支持时使用 CUDA SageAttention。"
+      },
+      "mem_saver": {
+        "en": "Reuse immutable condition data and temporary denoiser graph storage across sequential blocks.",
+        "zh": "在顺序块之间复用不可变条件数据与临时去噪器图存储。"
+      },
+      "denoiser_layerwise": {
+        "en": "Run the denoiser in layerwise mode. Offline generation requires batched_cfg=true and guidance_scale > 1.",
+        "zh": "以分层模式运行去噪器。离线生成要求 batched_cfg=true 且 guidance_scale>1。"
+      },
+      "denoiser_layerwise_batch": {
+        "en": "Layer group size used by layerwise denoising.",
+        "zh": "分层去噪使用的层组大小。"
+      },
+      "vae_encoder_chunk_size": {
+        "en": "Cached VAE encoder chunk size.",
+        "zh": "缓存的 VAE 编码器分块大小。"
+      },
+      "vae_decoder_tile_size": {
+        "en": "Opt-in VAE decoder spatial tile size for large outputs; 0 disables tiling. Enabled tile sizes must be multiples of 8 and larger than the 64-pixel overlap.",
+        "zh": "大输出时可选的 VAE 解码器空间 tile 大小；0 关闭 tiling。启用的 tile 必须是 8 的倍数且大于 64 像素重叠。"
+      },
+      "target_cache_blocks": {
+        "en": "Target KV cache window in block units; 0 keeps the full clip cache.",
+        "zh": "以块为单位的 KV 缓存窗口；0 保留完整片段缓存。"
+      },
+      "vae_cache_f16": {
+        "en": "Store cached VAE encoder state in F16.",
+        "zh": "使用 F16 存储缓存的 VAE 编码器状态。"
       }
     }
-  ],
-  "ui": {
-    "recommended_package": "liveavatar_nvfp4_lora",
-    "tags": [
-      "SFX",
-      "GGUF",
-      "Stream"
-    ],
-    "docs": []
   },
   "packages": [
     {
       "id": "liveavatar_nvfp4_lora",
-      "display_name": "LiveAvatar NVFP4 LoRA GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "native",
-      "target_directory": "LiveAvatar-GGUF",
-      "files": [
-        "Wan2.2-S2V-Support-Q4_K_S-F16.gguf",
-        "Wan2.2-S2V-VAE-F16.gguf",
-        "Wan2.2-S2V-14B-NVFP4-LORA.gguf"
-      ],
+      "sizes": {
+        "size_bytes": 18242420032,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 18253611008,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -271,61 +133,20 @@
           "license": "apache-2.0",
           "license_url": "https://www.modelscope.cn/models/audio-cpp/LiveAvatar-GGUF"
         }
-      ],
-      "sizes": {
-        "size_bytes": 18242420032,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 18253611008,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
+      ]
     }
   ],
-  "i18n": {
-    "description": {
-      "en": "LiveAvatar audio-driven avatar video generation using the Wan2.2 S2V architecture.",
-      "zh": "LiveAvatar 基于 Wan2.2 S2V 架构的音频驱动虚拟形象视频生成。"
-    },
-    "options": {
-      "reference_image_path": {
-        "en": "Reference image path used as the identity/appearance condition.",
-        "zh": "用作身份/外观条件的参考图像路径。"
-      },
-      "height": {
-        "en": "Generated frame height.",
-        "zh": "生成画面的高度。"
-      },
-      "width": {
-        "en": "Generated frame width.",
-        "zh": "生成画面的宽度。"
-      },
-      "num_frames": {
-        "en": "Frames generated per LiveAvatar segment.",
-        "zh": "每个 LiveAvatar 片段生成的帧数。"
-      },
-      "num_clips": {
-        "en": "Maximum LiveAvatar clips to generate from the input audio.",
-        "zh": "从输入音频最多生成的 LiveAvatar 片段数。"
-      },
-      "num_inference_steps": {
-        "en": "Euler denoising steps; the LiveAvatar DMD adapter is designed for 4 steps.",
-        "zh": "Euler 去噪步数；LiveAvatar 的 DMD 适配器按 4 步设计。"
-      },
-      "guidance_scale": {
-        "en": "Classifier-free guidance scale; LiveAvatar blockwise generation requires 0.",
-        "zh": "无分类器引导强度；LiveAvatar 分块生成要求为 0。"
-      },
-      "shift": {
-        "en": "Euler flow scheduler shift.",
-        "zh": "Euler 流调度器的 shift。"
-      },
-      "negative_prompt": {
-        "en": "Negative prompt for classifier-free guidance.",
-        "zh": "无分类器引导的负向提示。"
-      },
-      "seed": {
-        "en": "Generation seed.",
-        "zh": "生成随机种子。"
-      }
+  "licenses": [
+    {
+      "name": "Apache-2.0",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "",
+      "checked_at": "2026-09-21",
+      "source_urls": [
+        "https://huggingface.co/Quark-Vision/Live-Avatar",
+        "https://huggingface.co/Wan-AI/Wan2.2-S2V-14B"
+      ]
     }
-  }
+  ]
 }

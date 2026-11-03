@@ -15,6 +15,9 @@ import '../../providers/catalog_providers.dart';
 import '../../providers/download_providers.dart';
 import '../../providers/library_providers.dart';
 
+String _vramLabelKey(ModelCatalogEntry entry) =>
+    entry.vramLowerBound ? 'models.vramAtLeast' : 'models.vram';
+
 class ModelsPage extends ConsumerStatefulWidget {
   const ModelsPage({super.key});
 
@@ -26,6 +29,7 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
   final GlobalKey _tabBarKey = GlobalKey();
   final TextEditingController _searchCtrl = TextEditingController();
   String _query = '';
+  String _licenseFilter = '';
   bool _refreshing = false;
   // 「已安装」区域折叠状态：首次进入默认展开，不持久化。
   bool _installedCollapsed = false;
@@ -61,6 +65,10 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
     final q = _query.trim().toLowerCase();
     final entries = lib.entries.where((e) {
       if (!showExp && e.isExperimental) return false;
+      if (_licenseFilter.isNotEmpty &&
+          _licenseStatusOf(e.licenses) != _licenseFilter) {
+        return false;
+      }
       if (q.isEmpty) return true;
       final hay = '${e.displayName} ${e.packageId} ${e.family}'.toLowerCase();
       final words = q.split(RegExp(r'\s+'));
@@ -118,8 +126,8 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
       String q) {
     final dict = ref.watch(stringsProvider);
     final versionsAsync = ref.watch(versionsProvider);
-    final noServer = !versionsAsync.isLoading &&
-        (versionsAsync.value ?? const []).isEmpty;
+    final noServer =
+        !versionsAsync.isLoading && (versionsAsync.value ?? const []).isEmpty;
     final noSpecs = !noServer &&
         q.isEmpty &&
         ref.watch(hasVersionSpecsProvider).value == false;
@@ -139,6 +147,49 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
                   prefixIcon: const Icon(Icons.search),
                   border: const OutlineInputBorder(),
                   isDense: true,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            SizedBox(
+              width: 160,
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _licenseFilter,
+                    isExpanded: true,
+                    isDense: true,
+                    focusColor: Colors.transparent,
+                    items: [
+                      DropdownMenuItem(
+                        value: '',
+                        child: Text(
+                          dict['models.license.all'] ?? 'All licenses',
+                        ),
+                      ),
+                      for (final status in const [
+                        'yes',
+                        'conditional',
+                        'no',
+                        'unclear',
+                        'missing',
+                      ])
+                        DropdownMenuItem(
+                          value: status,
+                          child: Text(
+                            dict['models.license.$status'] ?? status,
+                          ),
+                        ),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => _licenseFilter = value ?? ''),
+                  ),
                 ),
               ),
             ),
@@ -169,15 +220,19 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
                       const SizedBox(height: 12),
                       Text(
                         q.isEmpty
-                            ? (noServer
-                                ? (dict['models.noServer.title'] ??
-                                    'audio.cpp server not found')
-                                : (noSpecs
-                                    ? (dict['models.noSpecs.title'] ??
-                                        'The current audio.cpp version provides no model specs')
-                                    : (dict['models.empty'] ?? 'No models loaded')))
-                            : trF(ref, 'models.emptyFiltered',
-                                {'query': _query}),
+                            ? (_licenseFilter.isNotEmpty
+                                ? (dict['models.license.empty'] ??
+                                    'No models match this license filter')
+                                : (noServer
+                                    ? (dict['models.noServer.title'] ??
+                                        'audio.cpp server not found')
+                                    : (noSpecs
+                                        ? (dict['models.noSpecs.title'] ??
+                                            'The current audio.cpp version provides no model specs')
+                                        : (dict['models.empty'] ??
+                                            'No models loaded'))))
+                            : trF(
+                                ref, 'models.emptyFiltered', {'query': _query}),
                         textAlign: TextAlign.center,
                       ),
                       if (noServer) ...[
@@ -188,14 +243,12 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
                             dict['models.noServer.hint'] ??
                                 'No audiocpp_server.exe was found. Configure the audio.cpp version on the Server page first.',
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -210,24 +263,27 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Text(
-                            trF(ref, 'models.noSpecs.hint', {'path': versionPath}),
+                            trF(ref, 'models.noSpecs.hint',
+                                {'path': versionPath}),
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
                           ),
                         ),
                       ],
                     ],
                   ),
                 )
-              : _buildCatalogList(context, groups, installedGroups,
-                  notInstalledGroups, q.isNotEmpty),
+              : _buildCatalogList(
+                  context,
+                  groups,
+                  installedGroups,
+                  notInstalledGroups,
+                  q.isNotEmpty || _licenseFilter.isNotEmpty),
         ),
       ],
     );
@@ -246,8 +302,8 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
               title: trF(ref, 'models.section.installed',
                   {'count': '${installedGroups.length}'}),
               collapsed: _installedCollapsed,
-              onTap: () => setState(
-                  () => _installedCollapsed = !_installedCollapsed)),
+              onTap: () =>
+                  setState(() => _installedCollapsed = !_installedCollapsed)),
           if (!_installedCollapsed)
             for (final g in installedGroups)
               _ModelCard(
@@ -275,7 +331,8 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
     final manager = ref.watch(downloadManagerProvider);
     final tasks = manager.tasks.values.toList();
     if (tasks.isEmpty) {
-      return Center(child: Text(dict['models.download.empty'] ?? 'No download tasks'));
+      return Center(
+          child: Text(dict['models.download.empty'] ?? 'No download tasks'));
     }
     final processing = tasks.where((t) => t.processing).toList();
     final finished = tasks.where((t) => !t.processing).toList();
@@ -389,6 +446,14 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
           r'\s+(Q8_0|BF16|F16|Original-Dtype|Original|Safetensors)(\s+GGUF)?$'),
       '');
 
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {}
+  }
+
   void _showDetail(BuildContext context, _ModelGroup g) {
     var descExpanded = false;
     final desc = ref.read(localeProvider) == AppLocale.zh &&
@@ -409,249 +474,296 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
         builder: (ctx, ref, _) {
           final dict = ref.watch(stringsProvider);
           return StatefulBuilder(
-          builder: (ctx, setDialogState) => AlertDialog(
-            title: Text(g.name),
-            content: SizedBox(
-              width: 520,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (desc.isNotEmpty) ...[
-                      InkWell(
-                        canRequestFocus: false,
-                        onTap: () =>
-                            setDialogState(() => descExpanded = !descExpanded),
-                        child: Text(
-                          desc,
-                          maxLines: descExpanded ? null : 3,
-                          overflow: descExpanded ? null : TextOverflow.ellipsis,
-                          style: Theme.of(ctx).textTheme.bodyMedium,
+            builder: (ctx, setDialogState) => AlertDialog(
+              title: Text(g.name),
+              content: SizedBox(
+                width: 520,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (desc.isNotEmpty) ...[
+                        InkWell(
+                          canRequestFocus: false,
+                          onTap: () => setDialogState(
+                              () => descExpanded = !descExpanded),
+                          child: Text(
+                            desc,
+                            maxLines: descExpanded ? null : 3,
+                            overflow:
+                                descExpanded ? null : TextOverflow.ellipsis,
+                            style: Theme.of(ctx).textTheme.bodyMedium,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                    for (final p in g.packages) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                 Expanded(
-                                   flex: 2,
-                                   child: Column(
-                                     crossAxisAlignment:
-                                         CrossAxisAlignment.start,
-                                     children: [
-                                       Text(
-                                         p.packageId,
-                                         maxLines: 1,
-                                         overflow: TextOverflow.ellipsis,
-                                         style: Theme.of(ctx)
-                                             .textTheme
-                                             .bodyMedium,
-                                       ),
-                                       const SizedBox(height: 2),
-                                       Text(
-                                         [
-                                           if (p.sizeBytes != null)
-                                             formatBytes(p.sizeBytes),
-                                           if (p.estMemoryBytes != null)
-                                             trF(ref, 'models.memory', {
-                                               'size': formatBytes(
-                                                   p.estMemoryBytes)
-                                             }),
-                                           if (p.estVramBytes != null)
-                                             trF(ref, 'models.vram', {
-                                               'size': formatBytes(
-                                                   p.estVramBytes)
-                                             }),
-                                         ].join('  ·  '),
-                                         maxLines: 1,
-                                         overflow: TextOverflow.ellipsis,
-                                         style: Theme.of(ctx)
-                                             .textTheme
-                                             .bodySmall
-                                             ?.copyWith(
-                                               color: Theme.of(ctx)
-                                                   .colorScheme
-                                                   .onSurfaceVariant,
-                                             ),
-                                       ),
-                                       if (p.localRevision.isNotEmpty ||
-                                           p.remoteRevision.isNotEmpty) ...[
-                                         const SizedBox(height: 2),
-                                         Text(
-                                           [
-                                             if (p.localRevision.isNotEmpty)
-                                               trF(
-                                                   ref,
-                                                   'models.revision.local',
-                                                   {'rev': p.localRevision}),
-                                             if (p.remoteRevision.isNotEmpty)
-                                               trF(
-                                                   ref,
-                                                   'models.revision.remote',
-                                                   {'rev': p.remoteRevision}),
-                                           ].join(' · '),
-                                           style: Theme.of(ctx)
-                                               .textTheme
-                                               .bodySmall,
-                                         ),
-                                       ],
-                                     ],
-                                   ),
-                                 ),
-                                 Expanded(
-                                   flex: 2,
-                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      if (p.isDefault) ...[
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 3),
-                                          decoration: BoxDecoration(
-                                            color: Colors.amber
-                                                .withValues(alpha: 0.15),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          child: Text(
-                                            dict['models.badge.recommended'] ?? 'Recommended',
-                                            style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.amber),
-                                          ),
+                        const SizedBox(height: 8),
+                      ],
+                      for (final p in g.packages) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          p.packageId,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(ctx)
+                                              .textTheme
+                                              .bodyMedium,
                                         ),
-                                        const SizedBox(width: 8),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          [
+                                            if (p.sizeBytes != null)
+                                              formatBytes(p.sizeBytes),
+                                            if (p.estMemoryBytes != null)
+                                              trF(ref, 'models.memory', {
+                                                'size': formatBytes(
+                                                    p.estMemoryBytes)
+                                              }),
+                                            if (p.estVramBytes != null)
+                                              trF(ref, _vramLabelKey(p), {
+                                                'size':
+                                                    formatBytes(p.estVramBytes)
+                                              }),
+                                          ].join('  ·  '),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(ctx)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(ctx)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
+                                        ),
+                                        if (p.localRevision.isNotEmpty ||
+                                            p.remoteRevision.isNotEmpty) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            [
+                                              if (p.localRevision.isNotEmpty)
+                                                trF(
+                                                    ref,
+                                                    'models.revision.local',
+                                                    {'rev': p.localRevision}),
+                                              if (p.remoteRevision.isNotEmpty)
+                                                trF(
+                                                    ref,
+                                                    'models.revision.remote',
+                                                    {'rev': p.remoteRevision}),
+                                            ].join(' · '),
+                                            style: Theme.of(ctx)
+                                                .textTheme
+                                                .bodySmall,
+                                          ),
+                                        ],
                                       ],
-                                      if (p.installed) ...[
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 3),
-                                          decoration: BoxDecoration(
-                                            color: Colors.green
-                                                .withValues(alpha: 0.12),
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                          child: Text(
-                                            dict['models.badge.installed'] ?? 'Installed',
-                                            style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.green),
-                                          ),
-                                        ),
-                                        if (p.activeVersion) ...[
-                                          const SizedBox(width: 6),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        if (p.isDefault) ...[
                                           Container(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 3),
                                             decoration: BoxDecoration(
-                                              color: Colors.blue
+                                              color: Colors.amber
+                                                  .withValues(alpha: 0.15),
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: Text(
+                                              dict['models.badge.recommended'] ??
+                                                  'Recommended',
+                                              style: const TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.amber),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                        ],
+                                        if (p.installed) ...[
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: Colors.green
                                                   .withValues(alpha: 0.12),
                                               borderRadius:
                                                   BorderRadius.circular(5),
                                             ),
                                             child: Text(
-                                              dict['models.badge.current'] ?? 'Current',
+                                              dict['models.badge.installed'] ??
+                                                  'Installed',
                                               style: const TextStyle(
                                                   fontSize: 13,
-                                                  color: Colors.blue),
+                                                  color: Colors.green),
                                             ),
                                           ),
-                                        ],
-                                      ] else if (p.hasSource) ...[
-                                        SizedBox(
-                                          height: 30,
-                                          child: (ref
-                                                      .watch(
-                                                          downloadManagerProvider)
-                                                      .taskOf(p.packageId)
-                                                      ?.active ??
-                                                  false)
-                                              ? FilledButton.tonalIcon(
-                                                  onPressed: () {
-                                                    Navigator.pop(ctx);
-                                                    _jumpToDownloads();
-                                                  },
-                                                  icon: const Icon(
-                                                      Icons.downloading,
-                                                      size: 16),
-                                                  label: Text(dict['models.downloading'] ?? 'Downloading'),
-                                                  style: FilledButton.styleFrom(
-                                                    visualDensity:
-                                                        VisualDensity.compact,
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 12),
-                                                  ),
-                                                )
-                                              : FilledButton.tonalIcon(
-                                                  onPressed: () async {
-                                                    final started =
-                                                        await _showDownload(ctx,
-                                                            g, p.packageId);
-                                                    if (started &&
-                                                        ctx.mounted) {
+                                          if (p.activeVersion) ...[
+                                            const SizedBox(width: 6),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 3),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue
+                                                    .withValues(alpha: 0.12),
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
+                                              child: Text(
+                                                dict['models.badge.current'] ??
+                                                    'Current',
+                                                style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.blue),
+                                              ),
+                                            ),
+                                          ],
+                                        ] else if (p.hasSource) ...[
+                                          SizedBox(
+                                            height: 30,
+                                            child: (ref
+                                                        .watch(
+                                                            downloadManagerProvider)
+                                                        .taskOf(p.packageId)
+                                                        ?.active ??
+                                                    false)
+                                                ? FilledButton.tonalIcon(
+                                                    onPressed: () {
                                                       Navigator.pop(ctx);
-                                                    }
-                                                  },
-                                                  icon: const Icon(
-                                                      Icons.download,
-                                                      size: 16),
-                                                  label: Text(dict['common.download'] ?? 'Download'),
-                                                  style: FilledButton.styleFrom(
-                                                    visualDensity:
-                                                        VisualDensity.compact,
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 12),
+                                                      _jumpToDownloads();
+                                                    },
+                                                    icon: const Icon(
+                                                        Icons.downloading,
+                                                        size: 16),
+                                                    label: Text(dict[
+                                                            'models.downloading'] ??
+                                                        'Downloading'),
+                                                    style:
+                                                        FilledButton.styleFrom(
+                                                      visualDensity:
+                                                          VisualDensity.compact,
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 12),
+                                                    ),
+                                                  )
+                                                : FilledButton.tonalIcon(
+                                                    onPressed: () async {
+                                                      final started =
+                                                          await _showDownload(
+                                                              ctx,
+                                                              g,
+                                                              p.packageId);
+                                                      if (started &&
+                                                          ctx.mounted) {
+                                                        Navigator.pop(ctx);
+                                                      }
+                                                    },
+                                                    icon: const Icon(
+                                                        Icons.download,
+                                                        size: 16),
+                                                    label: Text(dict[
+                                                            'common.download'] ??
+                                                        'Download'),
+                                                    style:
+                                                        FilledButton.styleFrom(
+                                                      visualDensity:
+                                                          VisualDensity.compact,
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 12),
+                                                    ),
                                                   ),
-                                                ),
-                                        ),
+                                          ),
+                                        ],
                                       ],
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(height: 1),
-                    ],
-                    if (variantDescs.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      for (final d in variantDescs)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Text(
-                            d,
-                            style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(ctx)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
+                        const Divider(height: 1),
+                      ],
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              dict['models.license.title'] ?? 'License',
+                              style: Theme.of(ctx).textTheme.titleSmall,
+                            ),
+                          ),
+                          if (g.first.licenses.length > 1)
+                            _LicenseBadge(
+                              licenses: g.first.licenses,
+                              dict: dict,
+                            ),
+                        ],
+                      ),
+                      if (g.first.licenses.isEmpty)
+                        Text(
+                          dict['models.license.missing'] ?? 'No license info',
+                          style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                                color:
+                                    Theme.of(ctx).colorScheme.onSurfaceVariant,
+                              ),
+                        )
+                      else
+                        for (var i = 0; i < g.first.licenses.length; i++)
+                          _LicenseDetail(
+                            license: g.first.licenses[i],
+                            dict: dict,
+                            onOpenUrl: _openUrl,
+                            last: i == g.first.licenses.length - 1,
+                          ),
+                      if (variantDescs.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        for (final d in variantDescs)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Text(
+                              d,
+                              style:
+                                  Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(ctx)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                            ),
+                          ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(dict['common.close'] ?? 'Close'),
+                ),
+              ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text(dict['common.close'] ?? 'Close'),
-              ),
-            ],
-          ),
           );
         },
       ),
@@ -698,22 +810,23 @@ class _ModelsPageState extends ConsumerState<ModelsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) {
-      final dict = ref.read(stringsProvider);
-      return AlertDialog(
-        title: Text(dict['models.uninstall.title'] ?? 'Uninstall model'),
-        content: Text(trF(ref, 'models.uninstall.confirm', {'id': packageId})),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(dict['common.cancel'] ?? 'Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(dict['common.uninstall'] ?? 'Uninstall'),
-          ),
-        ],
-      );
-    },
+        final dict = ref.read(stringsProvider);
+        return AlertDialog(
+          title: Text(dict['models.uninstall.title'] ?? 'Uninstall model'),
+          content:
+              Text(trF(ref, 'models.uninstall.confirm', {'id': packageId})),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(dict['common.cancel'] ?? 'Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(dict['common.uninstall'] ?? 'Uninstall'),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true || !context.mounted) return;
     if (task != null) {
@@ -853,6 +966,180 @@ class _CategorySectionState extends State<_CategorySection> {
   }
 }
 
+String _licenseStatusOf(List<ModelLicense> licenses) {
+  if (licenses.isEmpty) return 'missing';
+  if (licenses.any((e) => e.commercialUse == 'no')) return 'no';
+  if (licenses.any((e) => e.commercialUse == 'unclear')) return 'unclear';
+  if (licenses.any((e) => e.commercialUse == 'conditional')) {
+    return 'conditional';
+  }
+  return 'yes';
+}
+
+class _LicenseBadge extends StatelessWidget {
+  const _LicenseBadge({required this.licenses, required this.dict});
+
+  final List<ModelLicense> licenses;
+  final Map<String, String> dict;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = _licenseStatusOf(licenses);
+    final color = switch (status) {
+      'yes' => Colors.green,
+      'conditional' => Colors.orange,
+      'no' => Colors.red,
+      _ => Colors.grey,
+    };
+    final text = '${dict['models.license.$status'] ?? status}'
+        '${licenses.length > 1 ? '*' : ''}';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 11, color: color),
+      ),
+    );
+  }
+}
+
+class _LicenseDetail extends StatelessWidget {
+  const _LicenseDetail({
+    required this.license,
+    required this.dict,
+    required this.onOpenUrl,
+    required this.last,
+  });
+
+  final ModelLicense license;
+  final Map<String, String> dict;
+  final ValueChanged<String> onOpenUrl;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final name = license.name.isEmpty
+        ? (dict['models.license.unnamed'] ?? 'License')
+        : license.name;
+    final nameText = Text(
+      name,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: theme.textTheme.bodyMedium?.copyWith(
+        color: license.url.isEmpty ? null : theme.colorScheme.primary,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+    final meta = <Widget>[
+      for (final url in license.sourceUrls)
+        Tooltip(
+          message: url,
+          child: InkWell(
+            focusColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+            mouseCursor: SystemMouseCursors.click,
+            onTap: () => onOpenUrl(url),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.link,
+                  size: 14,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  dict['models.license.source'] ?? 'Original source',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      if (license.checkedAt.isNotEmpty)
+        Text(
+          dictTpl(
+            dict,
+            'models.license.checkedAt',
+            {'date': license.checkedAt},
+          ),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: license.url.isEmpty
+                        ? nameText
+                        : InkWell(
+                            focusColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            splashColor: Colors.transparent,
+                            overlayColor: const WidgetStatePropertyAll(
+                                Colors.transparent),
+                            mouseCursor: SystemMouseCursors.click,
+                            onTap: () => onOpenUrl(license.url),
+                            child: Row(
+                              children: [
+                                Flexible(child: nameText),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.open_in_new,
+                                  size: 14,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
+                  const SizedBox(width: 8),
+                  _LicenseBadge(licenses: [license], dict: dict),
+                ],
+              ),
+              if (license.notes.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  license.notes,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              if (meta.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Wrap(spacing: 16, runSpacing: 4, children: meta),
+              ],
+            ],
+          ),
+        ),
+        if (!last) const Divider(height: 1),
+      ],
+    );
+  }
+}
+
 class _ModelCard extends ConsumerWidget {
   const _ModelCard(
       {super.key,
@@ -876,16 +1163,24 @@ class _ModelCard extends ConsumerWidget {
     }
     final featured = active ?? group.packages.first;
     final parts = <String>[
-      '${dictTpl(dict, 'models.specCount', {'count': '${group.packages.length}'})} · ${featured.packageId}'
+      '${dictTpl(dict, 'models.specCount', {
+            'count': '${group.packages.length}'
+          })} · ${featured.packageId}'
     ];
-    if (active != null) parts.add(dict['models.currentVersion'] ?? 'Current version');
+    if (active != null) {
+      parts.add(dict['models.currentVersion'] ?? 'Current version');
+    }
     final p = featured;
-    if (p.sizeBytes != null) parts.add(formatBytes(p.sizeBytes));
+    if (p.sizeBytes != null) {
+      parts.add(formatBytes(p.sizeBytes));
+    }
     if (p.estMemoryBytes != null) {
-      parts.add(dictTpl(dict, 'models.memory', {'size': formatBytes(p.estMemoryBytes)}));
+      parts.add(dictTpl(
+          dict, 'models.memory', {'size': formatBytes(p.estMemoryBytes)}));
     }
     if (p.estVramBytes != null) {
-      parts.add(dictTpl(dict, 'models.vram', {'size': formatBytes(p.estVramBytes)}));
+      parts.add(dictTpl(
+          dict, _vramLabelKey(p), {'size': formatBytes(p.estVramBytes)}));
     }
     return parts.join('  ');
   }
@@ -902,10 +1197,10 @@ class _ModelCard extends ConsumerWidget {
         ref.watch(downloadManagerProvider).taskOf(p.packageId)?.active ??
         false);
     final stateColor = anyInstalled ? Colors.blue : Colors.grey;
-    final desc = ref.watch(localeProvider) == AppLocale.zh &&
-            g.descriptionZh.isNotEmpty
-        ? g.descriptionZh
-        : g.description;
+    final desc =
+        ref.watch(localeProvider) == AppLocale.zh && g.descriptionZh.isNotEmpty
+            ? g.descriptionZh
+            : g.description;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -919,7 +1214,7 @@ class _ModelCard extends ConsumerWidget {
               const Icon(Icons.dataset_outlined, size: 20),
               const SizedBox(width: 12),
               SizedBox(
-                width: 240,
+                width: 320,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -933,6 +1228,11 @@ class _ModelCard extends ConsumerWidget {
                             style: theme.textTheme.titleMedium,
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        _LicenseBadge(
+                          licenses: g.first.licenses,
+                          dict: dict,
+                        ),
                         if (g.first.isExperimental) ...[
                           const SizedBox(width: 8),
                           Container(
@@ -942,7 +1242,8 @@ class _ModelCard extends ConsumerWidget {
                               color: Colors.orange.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text(dict['models.experimental'] ?? 'Experimental',
+                            child: Text(
+                                dict['models.experimental'] ?? 'Experimental',
                                 style: const TextStyle(
                                     fontSize: 11, color: Colors.orange)),
                           ),
@@ -1032,22 +1333,22 @@ class _ModelCard extends ConsumerWidget {
 }
 
 String categoryLabel(String cat, Map<String, String> dict) {
-    final key = switch (cat) {
-      'tts' => 'models.cat.tts',
-      'asr' => 'models.cat.asr',
-      'clone' => 'models.cat.clone',
-      'voice_conversion' => 'models.cat.vc',
-      'separation' => 'models.cat.separation',
-      'singing' => 'models.cat.singing',
-      'music' => 'models.cat.music',
-      'audio_generation' => 'models.cat.audioGeneration',
-      'audio_tools' => 'models.cat.audioTools',
-      'speech_analysis' => 'models.cat.speechAnalysis',
-      'community' => 'models.cat.community',
-      _ => cat.isEmpty ? 'models.cat.general' : cat,
-    };
-    return dict[key] ?? key;
-  }
+  final key = switch (cat) {
+    'tts' => 'models.cat.tts',
+    'asr' => 'models.cat.asr',
+    'clone' => 'models.cat.clone',
+    'voice_conversion' => 'models.cat.vc',
+    'separation' => 'models.cat.separation',
+    'singing' => 'models.cat.singing',
+    'music' => 'models.cat.music',
+    'audio_generation' => 'models.cat.audioGeneration',
+    'audio_tools' => 'models.cat.audioTools',
+    'speech_analysis' => 'models.cat.speechAnalysis',
+    'community' => 'models.cat.community',
+    _ => cat.isEmpty ? 'models.cat.general' : cat,
+  };
+  return dict[key] ?? key;
+}
 
 class _DownloadTabLabel extends ConsumerWidget {
   const _DownloadTabLabel({required this.count});
@@ -1092,6 +1393,13 @@ class _DownloadTabLabel extends ConsumerWidget {
       ],
     );
   }
+}
+
+int? _estimatedBytes(WidgetRef ref, String packageId) {
+  for (final entry in ref.watch(modelLibraryProvider).entries) {
+    if (entry.packageId == packageId) return entry.sizeBytes;
+  }
+  return null;
 }
 
 String _formatSpeed(int receivedBytes, double speedBytesPerSec) {
@@ -1248,7 +1556,8 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog> {
   Widget build(BuildContext context) {
     final dict = ref.watch(stringsProvider);
     return AlertDialog(
-      title: Text(dictTpl(dict, 'models.download.title', {'name': widget.group.name})),
+      title: Text(
+          dictTpl(dict, 'models.download.title', {'name': widget.group.name})),
       content: SizedBox(
         width: 540,
         child: SingleChildScrollView(
@@ -1257,7 +1566,8 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                dict['models.download.chooseSpec'] ?? 'Choose a spec package to download:',
+                dict['models.download.chooseSpec'] ??
+                    'Choose a spec package to download:',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 8),
@@ -1284,8 +1594,10 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog> {
                 obscureText: true,
                 onChanged: (v) => setState(() => _token = v),
                 decoration: InputDecoration(
-                  labelText: dict['models.download.tokenLabel'] ?? 'Access token (optional)',
-                  hintText: dict['models.download.tokenHint'] ?? 'Required for private / restricted models',
+                  labelText: dict['models.download.tokenLabel'] ??
+                      'Access token (optional)',
+                  hintText: dict['models.download.tokenHint'] ??
+                      'Required for private / restricted models',
                   prefixIcon: const Icon(Icons.key),
                   border: const OutlineInputBorder(),
                   isDense: true,
@@ -1332,8 +1644,8 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog> {
                     if (_repoUrl(_selectedEndpoint!).isNotEmpty)
                       TextButton(
                         onPressed: () => _openUrl(_repoUrl(_selectedEndpoint!)),
-                        child: Text(dict['models.download.viewLicense'] ??
-                            'View license / source'),
+                        child:
+                            Text(dict['models.download.viewSource'] ?? 'View'),
                       ),
                   ],
                 ),
@@ -1428,8 +1740,10 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog> {
                         ),
                         if (p.isDefault) ...[
                           const SizedBox(width: 6),
-                          Text(dict['models.badge.recommended'] ?? 'Recommended',
-                              style: const TextStyle(fontSize: 11, color: Colors.amber)),
+                          Text(
+                              dict['models.badge.recommended'] ?? 'Recommended',
+                              style: const TextStyle(
+                                  fontSize: 11, color: Colors.amber)),
                         ],
                       ],
                     ),
@@ -1441,7 +1755,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog> {
                           dictTpl(dict, 'models.memory',
                               {'size': formatBytes(p.estMemoryBytes)}),
                         if (p.estVramBytes != null)
-                          dictTpl(dict, 'models.vram',
+                          dictTpl(dict, _vramLabelKey(p),
                               {'size': formatBytes(p.estVramBytes)}),
                       ].join('  ·  '),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -1493,9 +1807,15 @@ class _DownloadTaskCard extends ConsumerWidget {
     final processing = downloading || paused;
     final connected = task.receivedBytes > 0;
     final hasProgress = connected && task.progressPercent >= 0;
+    final estimatedBytes = _estimatedBytes(ref, task.packageId);
     final bytes = task.totalBytes > 0
         ? '${formatBytes(task.receivedBytes)} / ${formatBytes(task.totalBytes)}'
-        : (task.receivedBytes > 0 ? formatBytes(task.receivedBytes) : '');
+        : (task.receivedBytes > 0
+            ? [
+                formatBytes(task.receivedBytes),
+                if (estimatedBytes != null) '/ ~${formatBytes(estimatedBytes)}',
+              ].join(' ')
+            : '');
     final speedText = _formatSpeed(task.receivedBytes, task.speedBytesPerSec);
     final eta =
         _formatEta(task.receivedBytes, task.totalBytes, task.speedBytesPerSec);
@@ -1511,11 +1831,26 @@ class _DownloadTaskCard extends ConsumerWidget {
 
     final (statusText, statusColor) = switch (phase) {
       DownloadPhase.done => (dict['models.task.done'] ?? 'Done', Colors.green),
-      DownloadPhase.installed => (dict['models.task.installed'] ?? 'Installed', Colors.green),
-      DownloadPhase.failed => (dict['models.task.failed'] ?? 'Failed', Colors.red),
-      DownloadPhase.cancelled => (dict['models.task.cancelled'] ?? 'Cancelled', Colors.orange),
-      DownloadPhase.paused => (dict['models.task.paused'] ?? 'Paused', Colors.orange),
-      DownloadPhase.downloading => (dict['models.task.downloading'] ?? 'Downloading', Colors.blue),
+      DownloadPhase.installed => (
+          dict['models.task.installed'] ?? 'Installed',
+          Colors.green
+        ),
+      DownloadPhase.failed => (
+          dict['models.task.failed'] ?? 'Failed',
+          Colors.red
+        ),
+      DownloadPhase.cancelled => (
+          dict['models.task.cancelled'] ?? 'Cancelled',
+          Colors.orange
+        ),
+      DownloadPhase.paused => (
+          dict['models.task.paused'] ?? 'Paused',
+          Colors.orange
+        ),
+      DownloadPhase.downloading => (
+          dict['models.task.downloading'] ?? 'Downloading',
+          Colors.blue
+        ),
     };
 
     return Card(
@@ -1587,7 +1922,8 @@ class _DownloadTaskCard extends ConsumerWidget {
                           phase == DownloadPhase.cancelled)
                         _action(
                           icon: Icons.refresh,
-                          tooltip: dict['models.task.redownload'] ?? 'Redownload',
+                          tooltip:
+                              dict['models.task.redownload'] ?? 'Redownload',
                           onPressed: () => manager.resume(task.packageId),
                         ),
                       _action(
@@ -1617,7 +1953,10 @@ class _DownloadTaskCard extends ConsumerWidget {
                     Text(
                       hasProgress
                           ? '${task.progressPercent.toStringAsFixed(1)}%  ·  $bytes'
-                          : (connected ? bytes : (dict['models.task.preparing'] ?? 'Preparing...')),
+                          : (connected
+                              ? bytes
+                              : (dict['models.task.preparing'] ??
+                                  'Preparing...')),
                       style: theme.textTheme.bodySmall,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
@@ -1726,7 +2065,8 @@ class _ManageModelDialogState extends ConsumerState<_ManageModelDialog> {
             'installed': '$installedCount',
           });
     return AlertDialog(
-      title: Text(dictTpl(dict, 'models.manage.title', {'name': widget.group.name})),
+      title: Text(
+          dictTpl(dict, 'models.manage.title', {'name': widget.group.name})),
       content: SizedBox(
         width: 680,
         child: SingleChildScrollView(
@@ -1755,8 +2095,7 @@ class _ManageModelDialogState extends ConsumerState<_ManageModelDialog> {
                 _ManagePackageTile(
                   package: p,
                   installed: byId[p.packageId]?.installed ?? p.installed,
-                  active:
-                      byId[p.packageId]?.activeVersion ?? p.activeVersion,
+                  active: byId[p.packageId]?.activeVersion ?? p.activeVersion,
                   downloading: manager.taskOf(p.packageId)?.active ?? false,
                   onDownload: () => widget.onDownloadPackage(p.packageId),
                   onUninstall: () => widget.onUninstallPackage(p.packageId),
@@ -1834,7 +2173,7 @@ class _ManagePackageTile extends ConsumerWidget {
                         dictTpl(dict, 'models.memory',
                             {'size': formatBytes(p.estMemoryBytes)}),
                       if (p.estVramBytes != null)
-                        dictTpl(dict, 'models.vram',
+                        dictTpl(dict, _vramLabelKey(p),
                             {'size': formatBytes(p.estVramBytes)}),
                     ].join('  ·  '),
                     style: theme.textTheme.bodySmall
@@ -1850,8 +2189,8 @@ class _ManagePackageTile extends ConsumerWidget {
             children: [
               if (installed) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.green.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(5),
@@ -1864,8 +2203,8 @@ class _ManagePackageTile extends ConsumerWidget {
                 if (active) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     decoration: BoxDecoration(
                       color: Colors.blue.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(5),
@@ -1881,7 +2220,8 @@ class _ManagePackageTile extends ConsumerWidget {
                   OutlinedButton.icon(
                     onPressed: onSwitch,
                     icon: const Icon(Icons.swap_horiz, size: 16),
-                    label: Text(dict['models.setAsCurrent'] ?? 'Set as current'),
+                    label:
+                        Text(dict['models.setAsCurrent'] ?? 'Set as current'),
                     style: OutlinedButton.styleFrom(
                       visualDensity: VisualDensity.compact,
                       padding: const EdgeInsets.symmetric(horizontal: 10),

@@ -1,231 +1,237 @@
 {
   "family": "qwen3_tts",
-  "display_name": "Qwen3-TTS",
-  "description": "Qwen TTS family for controllable 10-language speech synthesis, including 3-second voice cloning, CustomVoice instruction control over preset timbres, and VoiceDesign from natural-language descriptions.",
-  "category": "tts",
-  "status": "supported",
-  "tasks": [
-    "tts",
-    "clone",
-    "design"
-  ],
-  "modes": [
-    "offline"
-  ],
-  "languages": [
-    "zh",
-    "en",
-    "ja",
-    "ko",
-    "de",
-    "fr",
-    "ru",
-    "pt",
-    "es",
-    "it"
-  ],
-  "capabilities": {
-    "clone": [
-      "speaker_reference"
-    ],
-    "design": [
-      "voice_design"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "temperature",
-        "type": "float",
-        "description": "Main talker temperature; default 0.9.",
-        "min": 0.0,
-        "default": 0.9
-      },
-      {
-        "name": "top_k",
-        "type": "int",
-        "description": "Main talker top-k; default 50.",
-        "min": 0,
-        "default": 50
-      },
-      {
-        "name": "top_p",
-        "type": "float",
-        "description": "Main talker top-p; default 1.0.",
-        "min": 0.0,
-        "max": 1.0,
-        "default": 1.0
-      },
-      {
-        "name": "repetition_penalty",
-        "type": "float",
-        "description": "Main talker repetition penalty; default 1.05.",
-        "min": 0.0,
-        "default": 1.05
-      },
-      {
-        "name": "seed",
-        "type": "int",
-        "description": "Sampling seed; random if omitted.",
-        "min": 0
-      },
-      {
-        "name": "max_tokens",
-        "type": "int",
-        "description": "Maximum generated speech tokens per chunk; default 8192.",
-        "min": 1,
-        "default": 8192
-      }
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf"
-    ]
-  },
-  "ui": {
-    "recommended_package": "qwen3_tts_1_7b_base_q8_0",
-    "tags": [
-      "TTS",
-      "Clone",
-      "Design",
-      "GGUF"
-    ],
-    "docs": [
-      "docs/models/qwen3.md",
-      "docs/tts.md",
-      "docs/gguf.md"
-    ]
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/audio.cpp-gguf",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json",
-        "generation_config": "model:generation_config.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "vocab": "model:vocab.json",
-        "merges": "model:merges.txt",
-        "speech_tokenizer_config": "model:speech_tokenizer/config.json"
-      },
-      "tensors": {
-        "model_weights": {
-          "source": "weights:",
-          "prefix": "model_weights"
-        },
-        "speech_tokenizer_weights": {
-          "source": "weights:",
-          "prefix": "speech_tokenizer_weights"
-        }
+  "i18n": {
+    "description": {
+      "en": "Qwen3-TTS for controllable 10-language synthesis, 3-second voice cloning, CustomVoice, and VoiceDesign.",
+      "zh": "Qwen3-TTS，支持 10 语言可控语音合成、3 秒音色克隆、CustomVoice 与 VoiceDesign。"
+    },
+    "ui": {
+      "referenceText.hint": {
+        "en": "Recommended: fill it in to improve clone similarity",
+        "zh": "推荐填写，通常能提升克隆相似度"
       }
     },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": "."
+    "options": {
+      "temperature": {
+        "en": "Sampling randomness for the main speech stream",
+        "zh": "主语音流的采样随机性"
       },
-      "files": {
-        "config": "model:config.json",
-        "generation_config": "model:generation_config.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "vocab": "model:vocab.json",
-        "merges": "model:merges.txt",
-        "speech_tokenizer_config": "model:speech_tokenizer/config.json"
+      "top_k": {
+        "en": "Top-k candidate count for the main speech stream",
+        "zh": "主语音流的 Top-k 候选数量"
       },
-      "tensors": {
-        "model_weights": "model:model.safetensors",
-        "speech_tokenizer_weights": "model:speech_tokenizer/model.safetensors"
+      "top_p": {
+        "en": "Top-p retention probability for the main speech stream",
+        "zh": "主语音流的 Top-p 保留概率"
+      },
+      "repetition_penalty": {
+        "en": "Repetition penalty for the main speech stream",
+        "zh": "主语音流的重复惩罚"
+      },
+      "seed": {
+        "en": "Random seed: a fixed value makes results reproducible; leave empty for random",
+        "zh": "随机种子，固定后可复现，留空随机"
+      },
+      "max_tokens": {
+        "en": "Maximum acoustic frames per text chunk; leave empty to use the model default",
+        "zh": "每个文本分段的最大声学帧数，留空使用模型默认值"
+      },
+      "stream_chunk_policy": {
+        "en": "Streaming codec chunk schedule: grow starts with one frame and doubles to stream_frames_per_event; fixed uses that size throughout",
+        "zh": "流式 codec 分块策略：grow 从 1 帧开始逐步翻倍到 stream_frames_per_event；fixed 全程使用固定大小"
+      },
+      "stream_frames_per_event": {
+        "en": "Codec frames per fixed streaming event, or the maximum for growing events. Smaller values reduce chunk latency but increase decoding overhead",
+        "zh": "每个固定流式事件的 codec 帧数，或 grow 模式的最大帧数。较小值降低分块延迟但增加解码开销"
+      },
+      "language": {
+        "en": "Target synthesis language code or label; default auto lets the model infer from text and voice settings",
+        "zh": "目标合成语言代码或标签；默认 auto，由模型根据文本和音色设置推断"
+      },
+      "do_sample": {
+        "en": "Enable sampling for the main speech stream; disable for deterministic decoding",
+        "zh": "主语音流启用采样，关闭后使用确定性解码"
+      },
+      "subtalker_do_sample": {
+        "en": "Enable sampling for the subtalker stream; disable for deterministic decoding",
+        "zh": "子语音流启用采样，关闭后使用确定性解码"
+      },
+      "subtalker_temperature": {
+        "en": "Sampling randomness for the subtalker stream",
+        "zh": "子语音流的采样随机性"
+      },
+      "subtalker_top_k": {
+        "en": "Top-k candidate count for the subtalker stream",
+        "zh": "子语音流的 Top-k 候选数量"
+      },
+      "subtalker_top_p": {
+        "en": "Top-p retention probability for the subtalker stream",
+        "zh": "子语音流的 Top-p 保留概率"
+      },
+      "reference_text": {
+        "en": "Transcript matching the reference audio for voice cloning; required unless x_vector_only_mode=true",
+        "zh": "与参考音频匹配的转写文本，用于音色克隆；除非 x_vector_only_mode=true，否则必填"
+      },
+      "x_vector_only_mode": {
+        "en": "Clone using only the reference speaker embedding; no reference transcript is needed",
+        "zh": "仅用参考音频的音色特征克隆，不需要参考音频转写文本"
+      },
+      "instruct": {
+        "en": "Optional natural-language voice or style instruction for VoiceDesign and CustomVoice variants; empty instructions are accepted",
+        "zh": "VoiceDesign 与 CustomVoice 变体可选的音色/风格自然语言指令；允许空指令"
+      },
+      "voice_id": {
+        "en": "Named preset speaker from the CustomVoice checkpoint. Legacy speaker remains accepted",
+        "zh": "CustomVoice 检查点中的命名预置音色；仍接受旧 speaker 值",
+        "values": {
+          "vivian": {
+            "label": {
+              "en": "Vivian",
+              "zh": "Vivian"
+            },
+            "native_language": {
+              "en": "Chinese",
+              "zh": "中文"
+            },
+            "description": {
+              "en": "Bright, slightly edgy young female voice",
+              "zh": "明亮、略带锋芒的年轻女声"
+            }
+          },
+          "serena": {
+            "label": {
+              "en": "Serena",
+              "zh": "Serena"
+            },
+            "native_language": {
+              "en": "Chinese",
+              "zh": "中文"
+            },
+            "description": {
+              "en": "Warm, gentle young female voice",
+              "zh": "温暖柔和的年轻女声"
+            }
+          },
+          "uncle_fu": {
+            "label": {
+              "en": "Uncle Fu",
+              "zh": "Uncle Fu"
+            },
+            "native_language": {
+              "en": "Chinese",
+              "zh": "中文"
+            },
+            "description": {
+              "en": "Seasoned male voice with a low, mellow timbre",
+              "zh": "低沉醇厚的成熟男声"
+            }
+          },
+          "dylan": {
+            "label": {
+              "en": "Dylan",
+              "zh": "Dylan"
+            },
+            "native_language": {
+              "en": "Chinese (Beijing Dialect)",
+              "zh": "中文（北京话）"
+            },
+            "description": {
+              "en": "Youthful male voice with a clear, natural timbre",
+              "zh": "清亮自然的青年男声"
+            }
+          },
+          "eric": {
+            "label": {
+              "en": "Eric",
+              "zh": "Eric"
+            },
+            "native_language": {
+              "en": "Chinese (Sichuan Dialect)",
+              "zh": "中文（四川话）"
+            },
+            "description": {
+              "en": "Lively male voice with a slightly husky brightness",
+              "zh": "活泼、略带沙哑亮度的男声"
+            }
+          },
+          "ryan": {
+            "label": {
+              "en": "Ryan",
+              "zh": "Ryan"
+            },
+            "native_language": {
+              "en": "English",
+              "zh": "英语"
+            },
+            "description": {
+              "en": "Dynamic male voice with strong rhythmic drive",
+              "zh": "节奏感强、富有推进力的男声"
+            }
+          },
+          "aiden": {
+            "label": {
+              "en": "Aiden",
+              "zh": "Aiden"
+            },
+            "native_language": {
+              "en": "English",
+              "zh": "英语"
+            },
+            "description": {
+              "en": "Sunny male voice with a clear midrange",
+              "zh": "阳光清晰、中频通透的男声"
+            }
+          },
+          "ono_anna": {
+            "label": {
+              "en": "Ono Anna",
+              "zh": "Ono Anna"
+            },
+            "native_language": {
+              "en": "Japanese",
+              "zh": "日语"
+            },
+            "description": {
+              "en": "Playful female voice with a light, nimble timbre",
+              "zh": "轻快灵动、音色轻盈的女声"
+            }
+          },
+          "sohee": {
+            "label": {
+              "en": "Sohee",
+              "zh": "Sohee"
+            },
+            "native_language": {
+              "en": "Korean",
+              "zh": "韩语"
+            },
+            "description": {
+              "en": "Warm female voice with rich emotion",
+              "zh": "温暖、情感丰富的女声"
+            }
+          }
+        }
+      },
+      "text_chunk_size": {
+        "en": "Maximum characters per long-form text chunk",
+        "zh": "长文本分段的最大字符数"
       }
     }
-  ],
+  },
   "packages": [
     {
       "id": "qwen3_tts_1_7b_base_q8_0",
-      "display_name": "Qwen3 TTS 12Hz 1.7B Base Q8_0 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "Qwen3-TTS-12Hz-1.7B-Base-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-1.7B-Base-GGUF/qwen3-tts-12hz-1.7b-base-q8_0_v2.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-1.7B-Base-GGUF",
       "i18n": {
         "description": {
           "en": "Qwen3 TTS Base is the voice-cloning path: clone a voice from reference audio, optionally with its reference transcript.",
           "zh": "Qwen3 TTS Base 是声音克隆方案：用参考音频克隆音色，可选提供该音频的参考文本。"
         }
       },
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 2695175104,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 2695175104,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "modelscope",
-          "repo": "HereIsMark/audio.cpp-gguf",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 2695175104,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
-        }
-      ],
       "sizes": {
         "size_bytes": 2695175104,
         "est_memory_bytes": null,
         "est_vram_bytes": 6710886400,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "qwen3_tts_1_7b_base_bf16",
-      "display_name": "Qwen3 TTS 12Hz 1.7B Base BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "Qwen3-TTS-12Hz-1.7B-Base-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-1.7B-Base-GGUF/qwen3-tts-12hz-1.7b-base-bf16.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-1.7B-Base-GGUF",
-      "i18n": {
-        "description": {
-          "en": "Qwen3 TTS Base is the voice-cloning path: clone a voice from reference audio, optionally with its reference transcript.",
-          "zh": "Qwen3 TTS Base 是声音克隆方案：用参考音频克隆音色，可选提供该音频的参考文本。"
-        }
       },
       "downloads": [
         {
@@ -235,7 +241,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 4203158464,
+          "size_bytes": 2695175104,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -245,7 +251,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 4203158464,
+          "size_bytes": 2695175104,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -258,92 +264,76 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 4203158464,
+          "size_bytes": 2695175104,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "qwen3_tts_1_7b_base_bf16",
+      "i18n": {
+        "description": {
+          "en": "Qwen3 TTS Base is the voice-cloning path: clone a voice from reference audio, optionally with its reference transcript.",
+          "zh": "Qwen3 TTS Base 是声音克隆方案：用参考音频克隆音色，可选提供该音频的参考文本。"
+        }
+      },
       "sizes": {
         "size_bytes": 4203158464,
         "est_memory_bytes": null,
         "est_vram_bytes": 8254390272,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 4203158464,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 4203158464,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 4203158464,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ]
     },
     {
       "id": "qwen3_tts_1_7b_base_orig",
-      "display_name": "Qwen3 TTS 12Hz 1.7B Base Original-Dtype GGUF",
-      "format": "gguf",
-      "precision": "orig",
-      "target_directory": "Qwen3-TTS-12Hz-1.7B-Base-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-1.7B-Base-GGUF/qwen3-tts-12hz-1.7b-base-orig.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-1.7B-Base-GGUF",
       "i18n": {
         "description": {
           "en": "Qwen3 TTS Base is the voice-cloning path: clone a voice from reference audio, optionally with its reference transcript.",
           "zh": "Qwen3 TTS Base 是声音克隆方案：用参考音频克隆音色，可选提供该音频的参考文本。"
         }
       },
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 4544273280,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 4544273280,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "modelscope",
-          "repo": "HereIsMark/audio.cpp-gguf",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 4544273280,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
-        }
-      ],
       "sizes": {
         "size_bytes": 4544273280,
         "est_memory_bytes": null,
         "est_vram_bytes": 8254390272,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "qwen3_tts_1_7b_customvoice_q8_0",
-      "display_name": "Qwen3 TTS 12Hz 1.7B CustomVoice Q8_0 GGUF",
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF/qwen3-tts-12hz-1.7b-customvoice-q8_0.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF",
-      "i18n": {
-        "description": {
-          "en": "Qwen3 TTS CustomVoice uses built-in speaker ids (for example Vivian or Ryan) and supports an optional style instruction.",
-          "zh": "Qwen3 TTS CustomVoice 使用内置音色（如 Vivian、Ryan），可选指令控制风格。"
-        }
       },
       "downloads": [
         {
@@ -353,7 +343,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 2817044064,
+          "size_bytes": 4544273280,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -363,7 +353,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 2817044064,
+          "size_bytes": 4544273280,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -376,33 +366,76 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 2817044064,
+          "size_bytes": 4544273280,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "qwen3_tts_1_7b_customvoice_q8_0",
+      "i18n": {
+        "description": {
+          "en": "Qwen3 TTS CustomVoice uses built-in speaker ids (for example Vivian or Ryan) and supports an optional style instruction.",
+          "zh": "Qwen3 TTS CustomVoice 使用内置音色（如 Vivian、Ryan），可选指令控制风格。"
+        }
+      },
       "sizes": {
         "size_bytes": 2817044064,
         "est_memory_bytes": null,
         "est_vram_bytes": 6845104128,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
-      }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2817044064,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2817044064,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2817044064,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ]
     },
     {
       "id": "qwen3_tts_1_7b_customvoice_bf16",
-      "display_name": "Qwen3 TTS 12Hz 1.7B CustomVoice BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF/qwen3-tts-12hz-1.7b-customvoice-bf16.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-1.7B-CustomVoice-GGUF",
       "i18n": {
         "description": {
           "en": "Qwen3 TTS CustomVoice uses built-in speaker ids (for example Vivian or Ryan) and supports an optional style instruction.",
           "zh": "Qwen3 TTS CustomVoice 使用内置音色（如 Vivian、Ryan），可选指令控制风格。"
         }
+      },
+      "sizes": {
+        "size_bytes": 4179144352,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 8187281408,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
       },
       "downloads": [
         {
@@ -439,150 +472,75 @@
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
-      "sizes": {
-        "size_bytes": 4179144352,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 8187281408,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
-      }
+      ]
     },
     {
       "id": "qwen3_tts_1_7b_voicedesign_q8_0",
-      "display_name": "Qwen3 TTS 12Hz 1.7B VoiceDesign Q8_0 GGUF",
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF/qwen3-tts-12hz-1.7b-voicedesign-q8_0.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF",
       "i18n": {
         "description": {
           "en": "Qwen3 TTS VoiceDesign creates a voice from a text instruction and needs no reference audio.",
           "zh": "Qwen3 TTS VoiceDesign 无需参考音频，按文字指令设计音色。"
         }
       },
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 2816988960,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 2816988960,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "modelscope",
-          "repo": "HereIsMark/audio.cpp-gguf",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 2816988960,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
-        }
-      ],
+      "task": "vdes",
       "sizes": {
         "size_bytes": 2816988960,
         "est_memory_bytes": null,
         "est_vram_bytes": 6845104128,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
       },
-      "task": "vdes"
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 2816988960,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 2816988960,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 2816988960,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ]
     },
     {
       "id": "qwen3_tts_1_7b_voicedesign_bf16",
-      "display_name": "Qwen3 TTS 12Hz 1.7B VoiceDesign BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF/qwen3-tts-12hz-1.7b-voicedesign-bf16.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-1.7B-VoiceDesign-GGUF",
       "i18n": {
         "description": {
           "en": "Qwen3 TTS VoiceDesign creates a voice from a text instruction and needs no reference audio.",
           "zh": "Qwen3 TTS VoiceDesign 无需参考音频，按文字指令设计音色。"
         }
       },
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 4179089248,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 4179089248,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "modelscope",
-          "repo": "HereIsMark/audio.cpp-gguf",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 4179089248,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
-        }
-      ],
+      "task": "vdes",
       "sizes": {
         "size_bytes": 4179089248,
         "est_memory_bytes": null,
         "est_vram_bytes": 8187281408,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
       },
-      "task": "vdes"
-    },
-    {
-      "id": "qwen3_tts_0_6b_base_q8_0",
-      "display_name": "Qwen3 TTS 12Hz 0.6B Base Q8_0 GGUF",
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "Qwen3-TTS-12Hz-0.6B-Base-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-0.6B-Base-GGUF/qwen3-tts-12hz-0.6b-base-q8_0.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-0.6B-Base-GGUF",
-      "i18n": {
-        "description": {
-          "en": "Qwen3 TTS Base is the voice-cloning path: clone a voice from reference audio, optionally with its reference transcript.",
-          "zh": "Qwen3 TTS Base 是声音克隆方案：用参考音频克隆音色，可选提供该音频的参考文本。"
-        }
-      },
       "downloads": [
         {
           "source": "huggingface",
@@ -591,7 +549,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 1991211136,
+          "size_bytes": 4179089248,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -601,7 +559,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 1991211136,
+          "size_bytes": 4179089248,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -614,33 +572,76 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 1991211136,
+          "size_bytes": 4179089248,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "qwen3_tts_0_6b_base_q8_0",
+      "i18n": {
+        "description": {
+          "en": "Qwen3 TTS Base is the voice-cloning path: clone a voice from reference audio, optionally with its reference transcript.",
+          "zh": "Qwen3 TTS Base 是声音克隆方案：用参考音频克隆音色，可选提供该音频的参考文本。"
+        }
+      },
       "sizes": {
         "size_bytes": 1991211136,
         "est_memory_bytes": null,
         "est_vram_bytes": 5972688896,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
-      }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1991211136,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1991211136,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1991211136,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ]
     },
     {
       "id": "qwen3_tts_0_6b_base_bf16",
-      "display_name": "Qwen3 TTS 12Hz 0.6B Base BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "Qwen3-TTS-12Hz-0.6B-Base-GGUF",
-      "files": [
-        "Qwen3-TTS-12Hz-0.6B-Base-GGUF/qwen3-tts-12hz-0.6b-base-bf16.gguf"
-      ],
-      "strip_prefix": "Qwen3-TTS-12Hz-0.6B-Base-GGUF",
       "i18n": {
         "description": {
           "en": "Qwen3 TTS Base is the voice-cloning path: clone a voice from reference audio, optionally with its reference transcript.",
           "zh": "Qwen3 TTS Base 是声音克隆方案：用参考音频克隆音色，可选提供该音频的参考文本。"
         }
+      },
+      "sizes": {
+        "size_bytes": 2516154496,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6509559808,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
       },
       "downloads": [
         {
@@ -677,39 +678,21 @@
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
-      "sizes": {
-        "size_bytes": 2516154496,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 6509559808,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
-      }
+      ]
     },
     {
       "id": "qwen3_tts_1_7b_base_safetensors",
-      "display_name": "Qwen3 TTS 12Hz 1.7B Base Safetensors",
-      "format": "safetensors",
-      "precision": "native",
-      "target_directory": "Qwen3-TTS-12Hz-1.7B-Base",
-      "files": [
-        "config.json",
-        "generation_config.json",
-        "model.safetensors",
-        "speech_tokenizer/config.json",
-        "speech_tokenizer/model.safetensors",
-        "tokenizer_config.json",
-        "vocab.json",
-        "merges.txt"
-      ],
-      "download": {
-        "kind": "huggingface_snapshot",
-        "repo": "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
-      },
       "i18n": {
         "description": {
           "en": "Qwen3 TTS Base is the voice-cloning path: clone a voice from reference audio, optionally with its reference transcript.",
           "zh": "Qwen3 TTS Base 是声音克隆方案：用参考音频克隆音色，可选提供该音频的参考文本。"
         }
+      },
+      "sizes": {
+        "size_bytes": 4544169927,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 8254390272,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
       },
       "downloads": [
         {
@@ -747,45 +730,55 @@
           "license": "apache-2.0",
           "license_url": "https://www.modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-Base"
         }
+      ]
+    },
+    {
+      "id": "qwen3_tts_0_6b_base_speech_decoder_rk3588",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "wOvANAI/rknn-tts-engines",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 504587157,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://huggingface.co/wOvANAI/rknn-tts-engines"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "wOvANAI/rknn-tts-engines",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 504587157,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "gated": false,
+          "license_url": "https://huggingface.co/wOvANAI/rknn-tts-engines"
+        }
       ],
       "sizes": {
-        "size_bytes": 4544169927,
+        "size_bytes": 504587157,
         "est_memory_bytes": null,
-        "est_vram_bytes": 8254390272,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf/HEAD; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
       }
     }
   ],
-  "i18n": {
-    "description": {
-      "en": "Qwen TTS family for controllable 10-language speech synthesis, including 3-second voice cloning, CustomVoice instruction control over preset timbres, and VoiceDesign from natural-language descriptions.",
-      "zh": "Qwen TTS 家族，面向可控的 10 语言语音合成，含 3 秒音色克隆、CustomVoice 对预设音色的指令控制，以及依据自然语言描述进行声音设计（VoiceDesign）。"
-    },
-    "options": {
-      "temperature": {
-        "en": "Main talker temperature; default 0.9.",
-        "zh": "主 talker 采样温度；默认 0.9。"
-      },
-      "top_k": {
-        "en": "Main talker top-k; default 50.",
-        "zh": "主 talker 的 top-k；默认 50。"
-      },
-      "top_p": {
-        "en": "Main talker top-p; default 1.0.",
-        "zh": "主 talker 的 top-p；默认 1.0。"
-      },
-      "repetition_penalty": {
-        "en": "Main talker repetition penalty; default 1.05.",
-        "zh": "主 talker 重复惩罚；默认 1.05。"
-      },
-      "seed": {
-        "en": "Sampling seed; random if omitted.",
-        "zh": "采样随机种子；省略时随机。"
-      },
-      "max_tokens": {
-        "en": "Maximum generated speech tokens per chunk; default 8192.",
-        "zh": "每个分块最多生成的语音 token 数；默认 8192。"
-      }
+  "licenses": [
+    {
+      "name": "Apache-2.0",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "",
+      "checked_at": "2026-09-21",
+      "source_urls": [
+        "https://huggingface.co/Qwen/Qwen3-TTS-12Hz-0.6B-Base",
+        "https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+        "https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign"
+      ]
     }
-  }
+  ]
 }

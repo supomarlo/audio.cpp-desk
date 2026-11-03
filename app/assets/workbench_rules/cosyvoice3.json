@@ -1,3 +1,0 @@
-{
-  "cosyvoice3": {"reference":"required","referenceText":"optional","instruction":"optional","instructionKey":"instruction","language":"hidden","source":"docs/models/cosyvoice3.md"}
-}

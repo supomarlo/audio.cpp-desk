@@ -9,11 +9,14 @@ import 'package:path/path.dart' as p;
 
 import '../core/app_logger.dart';
 import '../core/audio_transcoder.dart';
-import '../core/variant_key.dart';
+import '../core/server_client.dart';
+import '../features/workbench/workbench_contract.dart';
 import '../models/model_catalog_entry.dart';
+import '../models/model_spec.dart';
 import '../models/server_snapshot.dart';
 import '../models/session.dart';
-import '../models/workbench_rule.dart';
+import '../features/workbench/generic/generic_controller.dart';
+import '../features/workbench/workbench_registry.dart';
 import 'app_providers.dart';
 import 'catalog_providers.dart';
 import 'library_providers.dart';
@@ -38,7 +41,6 @@ class GenerationQueue extends ChangeNotifier {
   String? _runningId;
   String? _runningSessionId;
   DateTime? _runningSince;
-  String? _lastText;
 
   /// 当前任务已重试次数（UI 显示"重试 N 次"，并在重试时重置计时）。
   int _retryCount = 0;
@@ -55,7 +57,6 @@ class GenerationQueue extends ChangeNotifier {
   List<GenQueueItem> get items => List.unmodifiable(_items);
   String? get runningId => _runningId;
   DateTime? get runningSince => _runningSince;
-  String? get lastText => _lastText;
   bool get busy => _runningId != null;
   int get retryCount => _retryCount;
   bool get pausing => _pausing;
@@ -202,18 +203,21 @@ class GenerationQueue extends ChangeNotifier {
     return null;
   }
 
-  Future<void> _ensureServer(String packageId, Map<String, String> dict) async {
+  Future<String> _ensureServer(
+    String modelId,
+    Map<String, String> dict,
+  ) async {
     final versions = await _ref.read(versionsProvider.future);
     if (versions.isNotEmpty) {
       try {
-        await ensureServerStartedRef(_ref, requireModelId: packageId);
+        await ensureServerStartedRef(_ref, requireModelId: modelId);
       } catch (_) {}
     }
     // （重）启动后需等待就绪，避免"没等好就跑"导致误报未就绪（最多 ~30s）。
     final deadline = DateTime.now().add(const Duration(seconds: 30));
     while (DateTime.now().isBefore(deadline)) {
       final snap = _ref.read(serverControllerProvider);
-      if (snap.isRunning && snap.healthy) return;
+      if (snap.isRunning && snap.healthy) return snap.recordVersion;
       if (snap.lifecycle == ServerLifecycle.error ||
           snap.lifecycle == ServerLifecycle.stopped) {
         break;
@@ -224,6 +228,7 @@ class GenerationQueue extends ChangeNotifier {
     if (!(snap.isRunning && snap.healthy)) {
       throw _Msg(dict['workbench.serverNotReady'] ?? 'Server not ready');
     }
+    return snap.recordVersion;
   }
 
   /// 失败时写一次"对接诊断"：客户端实际请求地址 + 生效端口 + 状态，
@@ -248,9 +253,17 @@ class GenerationQueue extends ChangeNotifier {
     _retryCount = 0;
     record.status = 'generating';
     _persist(it, record);
+    final call = _buildCallFromRecord(record);
+    if (call == null) {
+      record.status = 'failed';
+      record.error = dict['workbench.unsupportedTask'] ?? 'Unsupported task';
+      _persist(it, record);
+      notifyListeners();
+      return;
+    }
     AppLogger.info(
         'task start: session=${it.sessionId}, record=${it.recordId}, '
-        'type=${record.type}, model=${record.packageId}');
+        'type=${record.type}, model=${call.modelId}');
     // 显存不足（模型常驻、新模型权重分配失败）时：重启一次服务端后重试一次；
     // 每个任务最多重试一次，重试再失败即判失败，绝不循环。
     var retried = false;
@@ -264,23 +277,14 @@ class GenerationQueue extends ChangeNotifier {
         if (entry == null) {
           throw _Msg(dict['workbench.modelMissing'] ?? 'Model not available');
         }
-        await _ensureServer(record.packageId, dict);
+        record.audioCppVersion = await _ensureServer(call.modelId, dict);
         if (pendingRetry) {
           pendingRetry = false;
           _noteRetry(record.id);
         }
-        if (record.type == RecordType.asr) {
-          await _runAsr(it, record, entry, dict);
-        } else if (record.type == RecordType.vc) {
-          await _runVc(it, record, entry, dict);
-        } else {
-          await _runTts(it, record, entry);
-        }
+        await _runCall(it, record, call, dict);
         if (_aborted) return;
         record.status = 'done';
-        if (record.type == RecordType.asr && record.text.isNotEmpty) {
-          _lastText = record.text;
-        }
         AppLogger.info('task done: record=${it.recordId}');
         break;
       } catch (e) {
@@ -317,7 +321,7 @@ class GenerationQueue extends ChangeNotifier {
             pendingRetry = true;
             _ref.read(workbenchNoticeProvider.notifier).state =
                 dict['workbench.timeoutRestarting'] ?? msg;
-            if (await _restartForBusy(record.packageId, dict, it.recordId)) {
+            if (await _restartForBusy(call.modelId, dict, it.recordId)) {
               record.outputs.clear();
               record.error = '';
               AppLogger.info(
@@ -345,7 +349,7 @@ class GenerationQueue extends ChangeNotifier {
           break;
         }
         // 连接类错误（服务端正在重启 / 端口未就绪等）：再确保一次服务端就绪并重试一次。
-        if (!retried && _isContactFailure(msg)) {
+        if (!retried && _isContactFailure(e, msg)) {
           retried = true;
           pendingRetry = true;
           AppLogger.info(
@@ -356,7 +360,7 @@ class GenerationQueue extends ChangeNotifier {
         }
         // 重试后仍是连接类错误 → 视为"服务端不可用"（起不来 / 中途异常退出）：
         // 本次判失败，并**暂停整个队列**（保留排队项），避免批量失败。
-        if (_isContactFailure(msg)) {
+        if (_isContactFailure(e, msg)) {
           record.status = 'failed';
           record.error = msg;
           _logContactDiag(record.id, msg);
@@ -370,7 +374,10 @@ class GenerationQueue extends ChangeNotifier {
         _logContactDiag(record.id, msg);
         AppLogger.error('task failed: record=${it.recordId}', e);
         // 让错误在界面可见（底部持久提示条，不自动关闭）。
-        _ref.read(workbenchErrorNoticeProvider.notifier).state = msg;
+        final serverFailed = e is ServerError && e.statusCode != null;
+        _ref.read(workbenchErrorNoticeProvider.notifier).state = serverFailed
+            ? '${dict['workbench.serverError'] ?? 'Server error'}\n$msg'
+            : msg;
         break;
       }
     }
@@ -378,127 +385,157 @@ class GenerationQueue extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _runTts(
-      GenQueueItem it, GenerationRecord record, ModelCatalogEntry entry) async {
-    // 模型规则：提供字段名覆盖与指令伴随选项（通用代码，模型差异在规则）。
-    final rules = _ref.read(workbenchRulesProvider).value ?? const {};
-    final rule = rules[VariantKey.of(record.packageId)] ??
-        rules[record.family] ??
-        WorkbenchRule.none;
-    final extra = <String, dynamic>{};
-    final rt = _nz(record.inputs['reference_text']);
-    if (rt != null) {
-      extra[rule.fieldFor('referenceText', 'reference_text')] = rt;
+  ModelSpec? _specFor(String family) {
+    final specs = _ref.read(specsProvider).value ?? const <ModelSpec>[];
+    for (final spec in specs) {
+      if (spec.family == family) return spec;
     }
-    final ins = _nz(record.inputs['instruction']);
-    if (ins != null) {
-      extra[record.inputs['instruction_key'] ?? 'instruction'] = ins;
-      extra.addAll(rule.instructionOptions);
-    }
-    // 高级参数（记录快照里的 request options）；不覆盖专用字段。
-    final paramsRaw = record.inputs['params'];
-    if (paramsRaw != null && paramsRaw.isNotEmpty) {
-      try {
-        final decoded = jsonDecode(paramsRaw);
-        if (decoded is Map) {
-          decoded.forEach((k, v) {
-            final key = k.toString();
-            final value = v?.toString() ?? '';
-            if (value.isNotEmpty && !extra.containsKey(key)) {
-              extra[key] = value;
-            }
-          });
-        }
-      } catch (_) {}
-    }
+    return null;
+  }
 
-    // 规则声明的派生选项（如 template_name）：仅当规则声明时执行。
-    final derived = rule.derivedOptions;
-    if (derived != null) {
-      final vi = rule.voiceId;
-      final builtinVoice = vi != null &&
-          ((vi.option.isNotEmpty && _nz(extra[vi.option]) != null) ||
-              (vi.option.isEmpty && _nz(record.inputs['voice_id']) != null));
-      final referenceVoice = !builtinVoice &&
-          (_nz(record.inputs['voice_ref']) != null ||
-              _nz(record.inputs['voice']) != null);
-      final result = derived.resolve(
-        extra,
-        builtinVoice: builtinVoice,
-        referenceVoice: referenceVoice,
-      );
-      if (result != null) {
-        for (final key in result.clear) {
-          extra.remove(key);
-        }
-        extra.addAll(result.set);
-      }
-    }
-
-    final client = _ref.read(serverClientProvider);
-    final language = _nz(record.inputs['language']);
-    // 语言提交位置由规则声明：languageKey 非空 → 提交到 options.<languageKey>；
-    // 否则走顶层 `language`（通用 + Fallback）。
-    final languageInOptions = language != null && rule.languageKey.isNotEmpty;
-    if (languageInOptions) {
-      extra[rule.languageKey] = language;
-    }
-    final topLevelLanguage = languageInOptions ? null : language;
-    // 情感参考音频：需转码 WAV 并走通用任务路由（可携带 audio_input）。
-    final emotionAudio = _nz(record.inputs['emotion_audio']);
-    late final List<int> bytes;
-    if (emotionAudio != null) {
-      final paths = _ref.read(appPathsProvider);
-      final transcoder =
-          AudioTranscoder(tmpDir: paths.tmpDir, appRoot: paths.appRoot);
-      final tool = await transcoder.toolPath();
-      File? tmp;
-      var wav = emotionAudio;
-      if (tool != null) {
-        try {
-          tmp = await transcoder.toWav(emotionAudio, tool);
-          wav = tmp.path;
-        } on AudioTranscodeException catch (e) {
-          throw _Msg('emotion audio transcode failed: ${e.message}');
-        }
-      } else if (p.extension(emotionAudio).toLowerCase() != '.wav') {
-        throw _Msg('emotion reference audio requires WAV (no transcoder)');
-      }
+  /// 由记录参数和当前模型控制器重建提交方案。
+  WorkbenchCall? _buildCallFromRecord(GenerationRecord record) {
+    final spec = _specFor(record.family);
+    if (spec == null) return null;
+    final registration =
+        WorkbenchRegistry.registrationFor(record.family, record.type);
+    if (registration != null) {
+      final controller = registration.controller(record.packageId, spec);
       try {
-        bytes = await client.taskAudio(
-          model: entry.packageId,
-          request: {
-            'text': record.inputs['text'] ?? '',
-            'audio': wav,
-            if (_nz(record.inputs['voice_ref']) != null)
-              'voice_ref': record.inputs['voice_ref'],
-            if (_nz(record.inputs['voice']) != null) 'voice': record.inputs['voice'],
-            if (_nz(record.inputs['voice_id']) != null)
-              'voice_id': record.inputs['voice_id'],
-            if (topLevelLanguage != null) 'language': topLevelLanguage,
-            if (extra.isNotEmpty) 'options': extra,
-          },
-        );
+        controller.restore(record);
+        return controller.buildCall();
       } finally {
-        if (tmp != null) {
-          try {
-            if (tmp.existsSync()) tmp.deleteSync();
-          } catch (_) {}
-        }
+        controller.dispose();
       }
-    } else {
-      // 内置音色（speaker / cached_voice_id）走顶层 `voice`；voice 库预设优先。
-      final voice = _nz(record.inputs['voice']) ?? _nz(record.inputs['voice_id']);
-      bytes = await client.speech(
-        model: entry.packageId,
-        input: record.inputs['text'] ?? '',
-        voice: voice,
-        voiceRef: _nz(record.inputs['voice_ref']),
-        language: topLevelLanguage,
-        responseFormat: 'wav',
-        extra: extra,
-      );
     }
+    final controller =
+        GenericWorkbenchController(record.packageId, spec, record.type);
+    try {
+      controller.restore(record);
+      return controller.buildCall();
+    } finally {
+      controller.dispose();
+    }
+  }
+
+  /// 按 call 执行：只处理传输、转码、落盘，不解释模型字段。
+  Future<void> _runCall(
+    GenQueueItem it,
+    GenerationRecord record,
+    WorkbenchCall call,
+    Map<String, String> dict,
+  ) async {
+    final client = _ref.read(serverClientProvider);
+    final paths = _ref.read(appPathsProvider);
+    final transcoder = AudioTranscoder(
+      tmpDir: paths.tmpDir,
+      appRoot: paths.appRoot,
+    );
+    final tool = await transcoder.toolPath();
+    File? tmp;
+    try {
+      final request = _copyJson(call.request);
+      if (call.transport == 'multipart') {
+        final audio = call.audioPath ?? (request['audio']?.toString() ?? '');
+        final upload = await _prepareUpload(
+            audio, tool, transcoder, dict, call.audioRate, call.audioChannels);
+        tmp = upload.tmp;
+        final text = await client.transcription(
+          model: call.modelId,
+          audioBytes: await upload.file.readAsBytes(),
+          filename: upload.file.uri.pathSegments.last,
+          language: request['language']?.toString(),
+        );
+        record.ret = {'text': text};
+        await _saveInputAudio(it, record, audio);
+        return;
+      }
+
+      if (call.audioPath != null && call.audioPath!.isNotEmpty) {
+        final upload = await _prepareUpload(call.audioPath!, tool, transcoder,
+            dict, call.audioRate, call.audioChannels);
+        tmp = upload.tmp;
+        _replaceAudio(request, call.audioPath!, upload.file.path);
+      }
+
+      if (call.responseFormat == 'bytes') {
+        final bytes = await client.postJsonBytes(call.endpoint, request);
+        await _saveOutputAudio(it, record, bytes);
+      } else if (call.responseFormat == 'json_base64') {
+        final m = await client.postJson(call.endpoint, request);
+        final audio = m['audio'];
+        if (audio is! String || audio.isEmpty) {
+          throw _Msg(
+              dict['workbench.taskNoAudio'] ?? 'Task result has no audio');
+        }
+        await _saveOutputAudio(it, record, base64Decode(audio));
+      } else if (call.responseFormat == 'json_text') {
+        final m = await client.postJson(call.endpoint, request);
+        final ret = Map<String, dynamic>.from(m)..remove('timing');
+        record.ret = ret;
+        final audio = call.audioPath;
+        if (audio != null && audio.isNotEmpty) {
+          await _saveInputAudio(it, record, audio);
+        }
+      } else {
+        throw _Msg('unsupported response format: ${call.responseFormat}');
+      }
+    } finally {
+      if (tmp != null) {
+        try {
+          if (tmp.existsSync()) tmp.deleteSync();
+        } catch (_) {}
+      }
+    }
+  }
+
+  Map<String, dynamic> _copyJson(Map<String, dynamic> source) {
+    try {
+      final decoded = jsonDecode(jsonEncode(source));
+      if (decoded is Map) return Map<String, dynamic>.from(decoded);
+    } catch (_) {}
+    return Map<String, dynamic>.from(source);
+  }
+
+  void _replaceAudio(
+      Map<String, dynamic> request, String original, String wav) {
+    if (request['audio']?.toString() == original) request['audio'] = wav;
+    final inner = request['request'];
+    if (inner is Map && inner['audio']?.toString() == original) {
+      inner['audio'] = wav;
+    }
+  }
+
+  Future<({File file, File? tmp})> _prepareUpload(
+    String audio,
+    String? tool,
+    AudioTranscoder transcoder,
+    Map<String, String> dict,
+    int rate,
+    int channels,
+  ) async {
+    final file = File(audio);
+    if (tool == null) {
+      if (p.extension(audio).toLowerCase() != '.wav') {
+        throw _Msg(dict['workbench.wavOnly'] ?? 'Only WAV audio is supported');
+      }
+      return (file: file, tmp: null);
+    }
+    try {
+      final wav =
+          await transcoder.toWav(audio, tool, rate: rate, channels: channels);
+      return (file: wav, tmp: wav);
+    } on AudioTranscodeException catch (e) {
+      throw _Msg(
+          '${dict['workbench.transcodeFailed'] ?? 'Audio transcode failed'}: ${e.message}');
+    }
+  }
+
+  Future<void> _saveOutputAudio(
+    GenQueueItem it,
+    GenerationRecord record,
+    List<int> bytes,
+  ) async {
     final store = _ref.read(sessionStoreProvider);
     final outPath = store.audioPath(it.sessionId, record.id);
     await File(outPath).parent.create(recursive: true);
@@ -507,133 +544,36 @@ class GenerationQueue extends ChangeNotifier {
       kind: 'audio',
       path: store.relativeAudioPath(it.sessionId, record.id),
     ));
-    // 播放器已可见（用户在试听）时不抢占，避免打断。
     final player = _ref.read(audioPlayerProvider);
     if (player.currentPath == null) {
-      player.load(outPath, title: record.inputs['text'] ?? entry.family);
+      player.load(
+        outPath,
+        title: record.inputs['text'] ??
+            record.inputs['voice_name'] ??
+            record.family,
+      );
     }
   }
 
-  Future<void> _runAsr(GenQueueItem it, GenerationRecord record,
-      ModelCatalogEntry entry, Map<String, String> dict) async {
-    final path = record.inputs['audio'] ?? '';
-    final file = File(path);
-    final paths = _ref.read(appPathsProvider);
-    final transcoder = AudioTranscoder(
-      tmpDir: paths.tmpDir,
-      appRoot: paths.appRoot,
-    );
-    final tool = await transcoder.toolPath();
-    File? tmp;
-    var upload = file;
-    if (tool != null) {
-      try {
-        tmp = await transcoder.toWav(path, tool, rate: 16000, channels: 1);
-      } on AudioTranscodeException catch (e) {
-        throw _Msg(
-            '${dict['workbench.transcodeFailed'] ?? 'Audio transcode failed'}: ${e.message}');
-      }
-      upload = tmp;
-    } else if (p.extension(path).toLowerCase() != '.wav') {
-      throw _Msg(dict['workbench.wavOnly'] ?? 'Only WAV audio is supported');
-    }
-
+  Future<void> _saveInputAudio(
+    GenQueueItem it,
+    GenerationRecord record,
+    String source,
+  ) async {
+    final file = File(source);
+    if (!file.existsSync()) return;
     try {
-      final client = _ref.read(serverClientProvider);
-      final text = await client.transcription(
-        model: entry.packageId,
-        audioBytes: await upload.readAsBytes(),
-        filename: upload.uri.pathSegments.last,
-        language: _nz(record.inputs['language']),
-      );
       final store = _ref.read(sessionStoreProvider);
-      try {
-        final ext = p.extension(path);
-        final dst = p.join(
-            store.audioDir(it.sessionId).path, '${record.id}_in$ext');
-        await File(dst).parent.create(recursive: true);
-        await file.copy(dst);
-        record.outputs.add(RecordOutput(
-          kind: 'audio',
-          path: p.join('audio', it.sessionId, '${record.id}_in$ext'),
-        ));
-      } catch (_) {}
-      record.text = text;
-    } finally {
-      if (tmp != null) {
-        try {
-          if (tmp.existsSync()) tmp.deleteSync();
-        } catch (_) {}
-      }
-    }
-  }
-
-  /// 语音转换（VC）：源音频 + 参考音色，走 `/v1/tasks/run` 的 `audio` + `voice_ref`。
-  Future<void> _runVc(GenQueueItem it, GenerationRecord record,
-      ModelCatalogEntry entry, Map<String, String> dict) async {
-    final path = record.inputs['audio'] ?? '';
-    final voiceRef = record.inputs['voice_ref'] ?? '';
-    final paths = _ref.read(appPathsProvider);
-    final transcoder = AudioTranscoder(
-      tmpDir: paths.tmpDir,
-      appRoot: paths.appRoot,
-    );
-    final tool = await transcoder.toolPath();
-    File? tmp;
-    var upload = File(path);
-    if (tool != null) {
-      try {
-        tmp = await transcoder.toWav(path, tool, rate: 16000, channels: 1);
-      } on AudioTranscodeException catch (e) {
-        throw _Msg(
-            '${dict['workbench.transcodeFailed'] ?? 'Audio transcode failed'}: ${e.message}');
-      }
-      upload = tmp;
-    } else if (p.extension(path).toLowerCase() != '.wav') {
-      throw _Msg(dict['workbench.wavOnly'] ?? 'Only WAV audio is supported');
-    }
-    try {
-      final params = <String, String>{};
-      final raw = record.inputs['params'];
-      if (raw != null && raw.isNotEmpty) {
-        try {
-          final decoded = jsonDecode(raw);
-          if (decoded is Map) {
-            decoded.forEach((k, v) {
-              final value = v?.toString() ?? '';
-              if (value.isNotEmpty) params[k.toString()] = value;
-            });
-          }
-        } catch (_) {}
-      }
-      final bytes = await _ref.read(serverClientProvider).taskAudio(
-        model: entry.packageId,
-        request: {
-          'audio': upload.path,
-          if (voiceRef.isNotEmpty) 'voice_ref': voiceRef,
-          if (params.isNotEmpty) 'options': params,
-        },
-      );
-      final store = _ref.read(sessionStoreProvider);
-      final outPath = store.audioPath(it.sessionId, record.id);
-      await File(outPath).parent.create(recursive: true);
-      await File(outPath).writeAsBytes(bytes);
+      final ext = p.extension(source);
+      final dst =
+          p.join(store.audioDir(it.sessionId).path, '${record.id}_in$ext');
+      await File(dst).parent.create(recursive: true);
+      await file.copy(dst);
       record.outputs.add(RecordOutput(
         kind: 'audio',
-        path: store.relativeAudioPath(it.sessionId, record.id),
+        path: p.join('audio', it.sessionId, '${record.id}_in$ext'),
       ));
-      final player = _ref.read(audioPlayerProvider);
-      if (player.currentPath == null) {
-        player.load(outPath,
-            title: record.inputs['voice_name'] ?? entry.family);
-      }
-    } finally {
-      if (tmp != null) {
-        try {
-          if (tmp.existsSync()) tmp.deleteSync();
-        } catch (_) {}
-      }
-    }
+    } catch (_) {}
   }
 
   /// 分配失败后经 API 卸载常驻模型释放显存：最多 3 次，任一次成功即通过。
@@ -680,7 +620,8 @@ class GenerationQueue extends ChangeNotifier {
   }
 
   /// 是否为「连接 / 服务端未就绪」类错误（用于再等一次服务端就绪并重试一次）。
-  static bool _isContactFailure(String msg) {
+  static bool _isContactFailure(Object error, String msg) {
+    if (error is ServerError && error.statusCode != null) return false;
     // 接收超时说明请求已送达（服务端在跑但不响应），交给"卡死"分支处理。
     if (_isReceiveTimeout(msg)) return false;
     final m = msg.toLowerCase();
@@ -701,13 +642,13 @@ class GenerationQueue extends ChangeNotifier {
 
   /// 模型卡死后重启服务端（卡死的推理无法取消，只能杀进程释放模型锁）。
   Future<bool> _restartForBusy(
-      String packageId, Map<String, String> dict, String recordId) async {
+      String modelId, Map<String, String> dict, String recordId) async {
     AppLogger.info(
         'model wedged/busy: restarting server before retry: record=$recordId');
     try {
       await _ref.read(serverControllerProvider.notifier).stop();
     } catch (_) {}
-    await _ensureServer(packageId, dict);
+    await _ensureServer(modelId, dict);
     final snap = _ref.read(serverControllerProvider);
     return snap.isRunning && snap.healthy;
   }
@@ -737,8 +678,6 @@ class GenerationQueue extends ChangeNotifier {
     final m = msg.toLowerCase();
     return m.contains('receive timeout') || m.contains('receivetimeout');
   }
-
-  static String? _nz(String? s) => (s == null || s.isEmpty) ? null : s;
 }
 
 class _Msg implements Exception {

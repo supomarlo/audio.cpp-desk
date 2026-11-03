@@ -250,11 +250,11 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
   }
 
   Future<void> _saveRecordText(Map<String, String> dict, GenerationRecord r) async {
-    if (r.text.isEmpty) return;
+    if (r.displayText.isEmpty) return;
     final save = await getSaveLocation(suggestedName: 'transcript_${r.id}.txt');
     if (save == null) return;
     try {
-      await File(save.path).writeAsString(r.text);
+      await File(save.path).writeAsString(r.displayText);
       if (mounted) _showNotice(dict['session.saved'] ?? 'Saved');
     } catch (_) {}
   }
@@ -272,7 +272,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
   String _recordTitle(GenerationRecord r) {
     final t = r.inputs['text'] ?? '';
     if (t.isNotEmpty) return t;
-    if (r.text.isNotEmpty) return r.text;
+    if (r.displayText.isNotEmpty) return r.displayText;
     return r.family.isEmpty ? r.type : r.family;
   }
 
@@ -319,7 +319,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                             r.outputs.any((o) => o.kind == 'audio');
                         final isAsr = r.type == RecordType.asr;
                         final failed = r.status == 'failed';
-                        final hasResource = hasAudio || r.text.isNotEmpty;
+                        final hasResource = hasAudio || r.displayText.isNotEmpty;
                         final meta =
                             '${r.type.toUpperCase()} · ${_fmtTime(r.createdAtMs)}';
                         return ListTile(
@@ -363,7 +363,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                                     ? r.error
                                     : (dict['record.status.failed'] ??
                                         'Failed'))
-                                : (isAsr ? r.text : meta),
+                                : (isAsr ? r.displayText : meta),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -401,7 +401,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                                   title: _recordTitle(r),
                                 ),
                               if (isAsr) ...[
-                                if (r.text.isNotEmpty)
+                                if (r.displayText.isNotEmpty)
                                   IconButton(
                                     icon: const Icon(Icons.save_alt),
                                     tooltip: dict['session.export'] ?? 'Export',

@@ -1,297 +1,5 @@
 {
-  "schema_version": 1,
   "family": "moss_tts_v15",
-  "display_name": "MOSS-TTS-v1.5",
-  "description": "8B delay-pattern MOSS-TTS: zero-shot voice cloning from a short reference, 24 kHz, with an explicit duration budget.",
-  "category": "community",
-  "status": "experimental",
-  "tasks": [
-    "tts",
-    "clone"
-  ],
-  "modes": [
-    "offline"
-  ],
-  "languages": [
-    "en",
-    "zh"
-  ],
-  "capabilities": {
-    "tts": [
-      "speaker_reference",
-      "style_control",
-      "long_form"
-    ],
-    "clone": [
-      "speaker_reference"
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf"
-    ]
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_json": "model:tokenizer.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "tokenizer_merges": "model:merges.txt",
-        "audio_tokenizer_config": "model:audio_tokenizer/config.json"
-      },
-      "tensors": {
-        "model_weights": {
-          "source": "weights:",
-          "prefix": "model_weights"
-        },
-        "audio_tokenizer_weights": {
-          "source": "weights:",
-          "prefix": "audio_tokenizer_weights"
-        }
-      }
-    },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": ".",
-        "audio_tokenizer": "audio_tokenizer"
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_json": "model:tokenizer.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "tokenizer_merges": "model:merges.txt",
-        "audio_tokenizer_config": "audio_tokenizer:config.json"
-      },
-      "tensors": {
-        "model_weights": "model:model.safetensors.index.json",
-        "audio_tokenizer_weights": "audio_tokenizer:model.safetensors.index.json"
-      }
-    }
-  ],
-  "options": {
-    "request": [
-      {
-        "name": "instruct",
-        "type": "string",
-        "required": false,
-        "description": "Voice description. Followed only loosely on this checkpoint; a reference recording is far more reliable."
-      },
-      {
-        "name": "tokens",
-        "type": "int",
-        "min": 1,
-        "required": false,
-        "description": "Duration budget in codec frames at 12.5 a second, the model's own '- Tokens:' field."
-      },
-      {
-        "name": "language",
-        "type": "string",
-        "required": false,
-        "description": "Full language name; the model does not understand codes like 'en'."
-      },
-      {
-        "name": "seed",
-        "type": "int",
-        "required": false,
-        "description": "Reproduces a take exactly."
-      },
-      {
-        "name": "temperature",
-        "type": "float",
-        "required": false,
-        "description": "Audio sampling temperature."
-      },
-      {
-        "name": "top_p",
-        "type": "float",
-        "required": false,
-        "description": "Audio nucleus sampling cutoff."
-      },
-      {
-        "name": "top_k",
-        "type": "int",
-        "required": false,
-        "description": "Audio top-k."
-      },
-      {
-        "name": "repetition_penalty",
-        "type": "float",
-        "required": false,
-        "description": "Audio repetition penalty."
-      }
-    ],
-    "session": [
-      {
-        "name": "weight_type",
-        "type": "enum",
-        "preset": "weight_type_full",
-        "required": false,
-        "default": "native",
-        "description": "Backbone and head weight storage; default native, which keeps a GGUF package's own type. Forcing bf16 dequantises a quantised package and costs the VRAM the quantisation was meant to save. f16 is rejected: this backbone produces NaN in it."
-      }
-    ],
-    "load": []
-  },
-  "ui": {
-    "tags": [
-      "TTS",
-      "Clone",
-      "GGUF"
-    ],
-    "docs": [
-      "docs/community_models/moss_tts_v15.md",
-      "docs/tts.md",
-      "docs/gguf.md"
-    ],
-    "recommended_package": "moss_tts_v15_q8_0_codec_f16"
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "dependencies": [],
-  "packages": [
-    {
-      "id": "moss_tts_v15_q8_0_codec_f16",
-      "display_name": "MOSS-TTS-v1.5 Q8_0 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "MOSS-TTS-v1.5-GGUF",
-      "files": [
-        "moss_tts_v15_q8_0_codec_f16.gguf"
-      ],
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 13184125376,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "apache-2.0",
-          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 13184125376,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "apache-2.0",
-          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 13184125376,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 13153337344,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    },
-    {
-      "id": "moss_tts_v15_q4_k_codec_f16",
-      "display_name": "MOSS-TTS-v1.5 Q4_K GGUF",
-      "default": false,
-      "format": "gguf",
-      "precision": "q4_k",
-      "target_directory": "MOSS-TTS-v1.5-GGUF",
-      "files": [
-        "moss_tts_v15_q4_k_codec_f16.gguf"
-      ],
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 9258125760,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "apache-2.0",
-          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 9258125760,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "apache-2.0",
-          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 9258125760,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 9261023232,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    },
-    {
-      "id": "moss_tts_v15_bf16_codec_f16",
-      "display_name": "MOSS-TTS-v1.5 BF16 GGUF",
-      "default": false,
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "MOSS-TTS-v1.5-GGUF",
-      "files": [
-        "moss_tts_v15_bf16_codec_f16.gguf"
-      ],
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 20545374656,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "apache-2.0",
-          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 20545374656,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "apache-2.0",
-          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
-        }
-      ],
-      "sizes": {
-        "size_bytes": 20545374656,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 20535312384,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
-    }
-  ],
   "i18n": {
     "description": {
       "en": "8B delay-pattern MOSS-TTS: zero-shot voice cloning from a short reference, 24 kHz, with an explicit duration budget.",
@@ -302,34 +10,173 @@
         "en": "Voice description. Followed only loosely on this checkpoint; a reference recording is far more reliable.",
         "zh": "音色描述。此检查点对其遵循较松；提供参考录音要可靠得多。"
       },
-      "tokens": {
-        "en": "Duration budget in codec frames at 12.5 a second, the model's own '- Tokens:' field.",
-        "zh": "以编解码帧计的时长预算（每秒 12.5 帧），即模型自带的“- Tokens:”字段。"
-      },
       "language": {
         "en": "Full language name; the model does not understand codes like 'en'.",
         "zh": "完整语言名称；该模型不识别 'en' 这类代码。"
       },
       "seed": {
-        "en": "Reproduces a take exactly.",
-        "zh": "可精确复现同一次生成。"
+        "en": "Reproduces a take exactly; default 0. Parsed as signed 32-bit integer then converted to uint32; negative values wrap.",
+        "zh": "准确再现镜头；默认 0。解析为有符号 32 位整数，然后转换为 uint32；负值换行。"
       },
       "temperature": {
-        "en": "Audio sampling temperature.",
-        "zh": "音频采样温度。"
+        "en": "Audio sampling temperature; default 1.5. Must be finite and positive when sampling.",
+        "zh": "音频采样温度；默认 1.5。采样时必须是有限且正的。"
       },
       "top_p": {
-        "en": "Audio nucleus sampling cutoff.",
-        "zh": "音频核采样截断。"
+        "en": "Audio nucleus sampling cutoff; default 0.6.",
+        "zh": "音频核心采样截止；默认 0.6。"
       },
       "top_k": {
-        "en": "Audio top-k.",
-        "zh": "音频 top-k。"
+        "en": "Audio top-k; default 50.",
+        "zh": "音频top-k；默认 50。"
       },
       "repetition_penalty": {
-        "en": "Audio repetition penalty.",
-        "zh": "音频重复惩罚。"
+        "en": "Audio repetition penalty; default 1.1. Must be finite and positive when history is nonempty.",
+        "zh": "音频重复惩罚；默认 1.1。当历史非空时，必须是有限且正的。"
+      },
+      "min_frames": {
+        "en": "Minimum generated audio frames per text chunk; nonpositive values derive a text-length-based floor. Separate from duration_frames conditioning.",
+        "zh": "每个文本分块生成音频帧的下限；非正值按文本长度推导下限。与 duration_frames 条件分开。"
+      },
+      "max_frames": {
+        "en": "Generated audio-frame ceiling per text chunk; nonpositive values derive a text-length-based ceiling. Runtime raises it to at least the effective min_frames plus the number of codebooks.",
+        "zh": "每个文本分块生成音频帧上限；非正值按文本长度推导上限。运行时会提升到至少有效 min_frames 加 codebook 数。"
+      },
+      "duration_frames": {
+        "en": "Duration budget in codec frames at 12.5 a second, the model's own '- Tokens:' field. Nonpositive values disable duration conditioning.",
+        "zh": "以 12.5 帧/秒计的 codec 时长预算，即模型自身的 '- Tokens:' 字段；非正值关闭时长条件。"
+      },
+      "text_temperature": {
+        "en": "Text-token sampling temperature. Must be finite and positive when sampling.",
+        "zh": "文本 token 采样温度；采样时必须为有限正数。"
+      },
+      "text_chunk_size": {
+        "en": "Maximum Unicode codepoints per long-form text chunk; default 200.",
+        "zh": "每个长文本分块的最大 Unicode 码点数；默认 200。"
+      },
+      "text_chunk_mode": {
+        "en": "Text chunking policy; word_budget also accepts default.",
+        "zh": "文本分块策略；word_budget 也接受 default。"
       }
     }
-  }
+  },
+  "packages": [
+    {
+      "id": "moss_tts_v15_q8_0_codec_f16",
+      "sizes": {
+        "size_bytes": 13184125376,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 13153337344,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 13184125376,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 13184125376,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
+        }
+      ]
+    },
+    {
+      "id": "moss_tts_v15_q4_k_codec_f16",
+      "sizes": {
+        "size_bytes": 9258125760,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 9261023232,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 9258125760,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 9258125760,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
+        }
+      ]
+    },
+    {
+      "id": "moss_tts_v15_bf16_codec_f16",
+      "sizes": {
+        "size_bytes": 20545374656,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 20535312384,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 20545374656,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "christopherthompson81/MOSS-TTS-v1.5-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 20545374656,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "apache-2.0",
+          "license_url": "https://huggingface.co/christopherthompson81/MOSS-TTS-v1.5-GGUF"
+        }
+      ]
+    }
+  ],
+  "licenses": [
+    {
+      "name": "Apache-2.0",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "",
+      "checked_at": "2026-09-22",
+      "source_urls": [
+        "https://huggingface.co/OpenMOSS-Team/MOSS-TTS-v1.5"
+      ]
+    }
+  ]
 }

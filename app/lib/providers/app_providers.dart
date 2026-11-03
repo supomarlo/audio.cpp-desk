@@ -15,6 +15,9 @@ final homeTabProvider = StateProvider<int>((ref) => 0);
 /// 跨页一次性提示：其它页面写入后，工作台在页内 SnackBar 展示并清空。
 final workbenchNoticeProvider = StateProvider<String?>((ref) => null);
 
+/// 跨页一次性提示的自动关闭时长；默认 1.5 秒。
+final workbenchNoticeDurationProvider = StateProvider<int>((ref) => 1500);
+
 /// 跨页持久提示（不自动关闭）：如服务端多次启动失败导致队列停止。
 /// 工作台读取后以页内固定提示条展示，需用户手动关闭。
 final workbenchErrorNoticeProvider = StateProvider<String?>((ref) => null);
@@ -49,8 +52,7 @@ final stringsProvider = Provider<Map<String, String>>((ref) {
   return Dictionary.of(ref.watch(localeProvider));
 });
 
-String tr(WidgetRef ref, String key) =>
-    ref.watch(stringsProvider)[key] ?? key;
+String tr(WidgetRef ref, String key) => ref.watch(stringsProvider)[key] ?? key;
 
 String trF(WidgetRef ref, String key, Map<String, String> args) {
   var s = ref.watch(stringsProvider)[key] ?? key;

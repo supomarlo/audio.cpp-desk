@@ -177,7 +177,8 @@ class ServerController extends StateNotifier<ServerSnapshot> {
             adoptedHealth = h;
             effectivePort = recPort;
           } else {
-            _log('Our recorded instance does not match configuration; restarting');
+            _log(
+                'Our recorded instance does not match configuration; restarting');
           }
         }
       }
@@ -194,6 +195,8 @@ class ServerController extends StateNotifier<ServerSnapshot> {
         lifecycle: ServerLifecycle.running,
         healthy: true,
         backend: h.backend,
+        version: h.version,
+        git: h.git,
         loadedModelsCount: h.models,
         port: effectivePort,
       );
@@ -334,6 +337,8 @@ class ServerController extends StateNotifier<ServerSnapshot> {
             lifecycle: ServerLifecycle.running,
             healthy: true,
             backend: h.backend,
+            version: h.version,
+            git: h.git,
             loadedModelsCount: h.models,
             port: _effectivePort,
           );
@@ -380,12 +385,14 @@ class ServerController extends StateNotifier<ServerSnapshot> {
         _log('Failed to stop adopted instance: $e');
       }
       await _waitPortReleased(_config.host, _effectivePort);
-      state = state.copyWith(lifecycle: ServerLifecycle.stopped, healthy: false);
+      state =
+          state.copyWith(lifecycle: ServerLifecycle.stopped, healthy: false);
       return;
     }
     final p = _process;
     if (p == null) {
-      state = state.copyWith(lifecycle: ServerLifecycle.stopped, healthy: false);
+      state =
+          state.copyWith(lifecycle: ServerLifecycle.stopped, healthy: false);
       return;
     }
     _log('Stopping server...');

@@ -85,8 +85,9 @@ class Collection {
         note: j['note'] as String? ?? '',
         createdAtMs: (j['created_at_ms'] as num?)?.toInt() ?? 0,
         updatedAtMs: (j['updated_at_ms'] as num?)?.toInt() ?? 0,
-        sessionIds:
-            (j['session_ids'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+        sessionIds: (j['session_ids'] as List<dynamic>? ?? [])
+            .map((e) => e.toString())
+            .toList(),
       );
 }
 
@@ -111,6 +112,8 @@ class GenerationRecord {
     List<RecordOutput>? outputs,
     this.text = '',
     this.error = '',
+    this.ret,
+    this.audioCppVersion = '',
   })  : inputs = inputs ?? {},
         outputs = outputs ?? [];
 
@@ -118,6 +121,8 @@ class GenerationRecord {
   final String type;
   final String family;
   final String packageId;
+
+  String audioCppVersion;
 
   /// 会话内序号；旧记录为 0，加载时补写。
   int seq;
@@ -132,6 +137,15 @@ class GenerationRecord {
   String text;
   String error;
 
+  /// 服务端原始响应（文本类任务）。
+  Map<String, dynamic>? ret;
+
+  String get displayText {
+    final value = ret?['text'];
+    if (value is String && value.isNotEmpty) return value;
+    return text;
+  }
+
   Map<String, dynamic> toJson() => {
         'schema_version': 1,
         'id': id,
@@ -139,30 +153,37 @@ class GenerationRecord {
         'family': family,
         'package_id': packageId,
         if (seq > 0) 'seq': seq,
+        if (audioCppVersion.isNotEmpty) 'audio_cpp_version': audioCppVersion,
         'status': status,
         'created_at_ms': createdAtMs,
         'inputs': inputs,
         'outputs': outputs.map((e) => e.toJson()).toList(),
         if (text.isNotEmpty) 'text': text,
+        if (ret != null && ret!.isNotEmpty) 'ret': ret,
         if (error.isNotEmpty) 'error': error,
       };
 
-  static GenerationRecord fromJson(Map<String, dynamic> json) => GenerationRecord(
+  static GenerationRecord fromJson(Map<String, dynamic> json) =>
+      GenerationRecord(
         id: json['id'] as String? ?? '',
         type: json['type'] as String? ?? RecordType.other,
         family: json['family'] as String? ?? '',
         packageId: json['package_id'] as String? ?? '',
         seq: (json['seq'] as num?)?.toInt() ?? 0,
+        audioCppVersion: json['audio_cpp_version'] as String? ?? '',
         status: json['status'] as String? ?? 'done',
         createdAtMs: (json['created_at_ms'] as num?)?.toInt() ?? 0,
-        inputs: (json['inputs'] as Map?)?.map(
-                (k, v) => MapEntry(k.toString(), v?.toString() ?? '')) ??
+        inputs: (json['inputs'] as Map?)
+                ?.map((k, v) => MapEntry(k.toString(), v?.toString() ?? '')) ??
             {},
         outputs: (json['outputs'] as List<dynamic>? ?? [])
             .whereType<Map>()
             .map((e) => RecordOutput.fromJson(Map<String, dynamic>.from(e)))
             .toList(),
         text: json['text'] as String? ?? '',
+        ret: (json['ret'] as Map?)?.map(
+          (k, v) => MapEntry(k.toString(), v),
+        ),
         error: json['error'] as String? ?? '',
       );
 }

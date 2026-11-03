@@ -1,6 +1,8 @@
 import 'package:audio_cpp_desk/core/variant_key.dart';
+import 'package:audio_cpp_desk/models/health_info.dart';
 import 'package:audio_cpp_desk/models/model_catalog_entry.dart';
 import 'package:audio_cpp_desk/models/model_spec.dart';
+import 'package:audio_cpp_desk/models/server_snapshot.dart';
 import 'package:audio_cpp_desk/providers/server_providers.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -79,6 +81,63 @@ void main() {
         VariantKey.of('qwen3_tts_1_7b_base_q8_0'),
         isNot(VariantKey.of('qwen3_tts_1_7b_customvoice_q8_0')),
       );
+    });
+  });
+
+  group('服务端健康信息', () {
+    test('解析 audio.cpp 版本', () {
+      final health = HealthInfo.fromJson({
+        'status': 'ok',
+        'version': '0.9.3',
+        'git': '41c1f8ff',
+      });
+      expect(health.status, 'ok');
+      expect(health.version, '0.9.3');
+      expect(health.git, '41c1f8ff');
+    });
+
+    test('记录版本的回退与过滤', () {
+      expect(const ServerSnapshot().recordVersion, '');
+      expect(
+        const ServerSnapshot(version: '0.9.3', git: '41c1f8ff').recordVersion,
+        '0.9.3',
+      );
+      expect(
+        const ServerSnapshot(version: 'dev', git: '41c1f8ff').recordVersion,
+        'dev+41c1f8ff',
+      );
+      expect(
+        const ServerSnapshot(
+          version: '0.9.3-pixxxx',
+          git: '41c1f8ff',
+        ).recordVersion,
+        '0.9.3-pixxxx',
+      );
+      expect(
+        const ServerSnapshot(version: 'v0.9.3', git: '41c1f8ff').recordVersion,
+        'v0.9.3',
+      );
+      expect(
+        const ServerSnapshot(version: '0.9.3-pixxxx').recordVersion,
+        '0.9.3-pixxxx',
+      );
+      expect(
+        const ServerSnapshot(version: 'dev', git: 'unknown').recordVersion,
+        '',
+      );
+      expect(const ServerSnapshot(version: 'dev').recordVersion, '');
+    });
+  });
+
+  group('模型体积信息', () {
+    test('保留显存下限标记', () {
+      final entry = _entry(id: 'q8').copyWith(
+        estVramBytes: 1024,
+        vramLowerBound: true,
+      );
+      final decoded = ModelCatalogEntry.fromJson(entry.toJson());
+      expect(decoded.estVramBytes, 1024);
+      expect(decoded.vramLowerBound, isTrue);
     });
   });
 

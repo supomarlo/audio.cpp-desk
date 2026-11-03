@@ -29,8 +29,8 @@ class ModelSpecLoader {
       }
       final name = p.basename(entry.path);
       try {
-        final base =
-            jsonDecode(_stripBom(entry.readAsStringSync())) as Map<String, dynamic>;
+        final base = jsonDecode(_stripBom(entry.readAsStringSync()))
+            as Map<String, dynamic>;
         final overlay = await _loadOverlay(name, overlayDir);
         specs.add(ModelSpec.fromJson(_merge(base, overlay)));
       } catch (_) {
@@ -79,14 +79,16 @@ class ModelSpecLoader {
       // 运行时契约字段：上游 JSON 为 legacy/不完整时，以本地库的 options 为准
       // （参数必须由 audio.cpp 实际处理，故以本地库契约补充/覆盖）。
       if (overlay['options'] is Map) out['options'] = overlay['options'];
-      for (final pkg in (overlay['packages'] as List<dynamic>? ?? [])
-          .whereType<Map>()) {
+      if (overlay['licenses'] is List) out['licenses'] = overlay['licenses'];
+      for (final pkg
+          in (overlay['packages'] as List<dynamic>? ?? []).whereType<Map>()) {
         final id = pkg['id'] as String? ?? '';
         if (id.isNotEmpty) overlayPackages[id] = pkg;
       }
     }
 
-    for (final pkg in (out['packages'] as List<dynamic>? ?? []).whereType<Map>()) {
+    for (final pkg
+        in (out['packages'] as List<dynamic>? ?? []).whereType<Map>()) {
       final id = pkg['id'] as String? ?? '';
       final ov = overlayPackages[id];
       if (ov != null) {
@@ -114,7 +116,8 @@ class ModelSpecLoader {
     final dl = pkg['download'];
     final repo = ((dl is Map ? dl['repo'] : null) as String?) ?? defaultRepo;
     if (repo.isEmpty) return const [];
-    final kind = (dl is Map ? dl['kind'] : null) as String? ?? 'huggingface_snapshot';
+    final kind =
+        (dl is Map ? dl['kind'] : null) as String? ?? 'huggingface_snapshot';
     final revision = (dl is Map ? dl['revision'] : null) as String? ??
         (kind == 'modelscope_snapshot' ? 'master' : 'main');
     final gated = (dl is Map ? dl['gated'] : null) as bool? ?? false;

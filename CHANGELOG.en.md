@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.1.5
+
+> This release targets the new audio.cpp 0.9.3 interfaces. Use audio.cpp 0.9.3 or newer.
+
+**Model support**
+- Align specs with audio.cpp 0.9.3, add and adjust advanced parameters for adapted models, and refine parameter descriptions, UI, and validation.
+
+**New**
+- Qwen3-ASR returns word-level timestamps (requires Qwen3 Forced Aligner). Timestamp results can be previewed and exported as words JSON or SRT.
+- Qwen3-ASR can accept video files directly and extract their audio track for transcription.
+- Qwen3-TTS Base submission without reference text.
+- Random seed fill for BreezeTTS 2.
+- Model license and commercial-use information with license filtering.
+
+**Fixes**
+- Persist advanced parameters immediately on save so restoring history does not overwrite the current custom configuration.
+
+**Improvements**
+- Warn when the audio.cpp server is older than the minimum supported version, with clear prompts for missing or unknown versions.
+- Make server logs selectable and copyable.
+- Mark lower-bound VRAM estimates with `≥` to distinguish them from measured peaks.
+- Show the estimated download size when the total size is unavailable.
+
+**Build**
+- Upgrade CI to Flutter 3.47.9.
+
 ## 0.1.4
 
 **Model support**

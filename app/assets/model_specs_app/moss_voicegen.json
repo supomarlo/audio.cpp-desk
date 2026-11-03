@@ -1,148 +1,70 @@
 {
   "family": "moss_voicegen",
-  "display_name": "MOSS-VoiceGenerator",
-  "description": "MOSS voice design model: creates a speaker from a written instruction instead of a reference recording, then speaks the supplied text in that voice.",
-  "category": "community",
-  "status": "community",
-  "tasks": [
-    "design"
-  ],
-  "modes": [
-    "offline"
-  ],
-  "languages": [
-    "en",
-    "zh"
-  ],
-  "capabilities": {
-    "vdes": [
-      "style_condition"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "instruct",
-        "type": "string",
-        "description": "Voice description: timbre, age, pace, emotion."
-      },
-      {
-        "name": "language",
-        "type": "enum",
-        "description": "Full language name; the model does not understand codes like 'en'.",
-        "values": [
-          "English",
-          "Chinese"
-        ]
-      },
-      {
-        "name": "seed",
-        "type": "int",
-        "description": "Reproduces a take exactly. Note that it does not carry a voice across different text."
-      },
-      {
-        "name": "temperature",
-        "type": "float",
-        "description": "Audio sampling temperature (default 1.5)."
-      },
-      {
-        "name": "top_p",
-        "type": "float",
-        "description": "Audio nucleus sampling cutoff (default 0.6)."
-      },
-      {
-        "name": "top_k",
-        "type": "int",
-        "description": "Audio top-k (default 50)."
-      },
-      {
-        "name": "repetition_penalty",
-        "type": "float",
-        "description": "Audio repetition penalty (default 1.1)."
-      }
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf"
-    ]
-  },
-  "ui": {
-    "recommended_package": "moss_voicegen_bf16_codec_f16_decode",
-    "tags": [
-      "Voice Design",
-      "GGUF"
-    ],
-    "docs": [
-      "docs/community_models/moss_voicegen.md",
-      "docs/tts.md",
-      "docs/gguf.md"
-    ]
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/audio.cpp-gguf",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_json": "model:tokenizer.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "tokenizer_merges": "model:merges.txt",
-        "audio_tokenizer_config": "model:audio_tokenizer/config.json"
-      },
-      "tensors": {
-        "model_weights": {
-          "source": "weights:",
-          "prefix": "model_weights"
-        },
-        "audio_tokenizer_weights": {
-          "source": "weights:",
-          "prefix": "audio_tokenizer_weights"
-        }
-      }
+  "i18n": {
+    "description": {
+      "en": "MOSS voice design model: creates a speaker from a written instruction instead of a reference recording, then speaks the supplied text in that voice.",
+      "zh": "MOSS 声音设计模型：以文字指令而非参考录音创建说话人，再用该音色朗读给定文本。"
     },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": ".",
-        "audio_tokenizer": "audio_tokenizer"
+    "options": {
+      "instruct": {
+        "en": "Voice description: timbre, age, pace, emotion.",
+        "zh": "音色描述：音质、年龄、节奏、情绪。"
       },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_json": "model:tokenizer.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "tokenizer_merges": "model:merges.txt",
-        "audio_tokenizer_config": "audio_tokenizer:config.json"
+      "language": {
+        "en": "Optional full language name, such as English or Chinese; not an ISO language code.",
+        "zh": "可选的完整语言名称，例如英文或中文；不是 ISO 语言代码。"
       },
-      "tensors": {
-        "model_weights": "model:model.safetensors",
-        "audio_tokenizer_weights": "audio_tokenizer:model.safetensors.index.json"
+      "seed": {
+        "en": "Generation seed; later text chunks add their chunk index. Parsed as signed 32-bit integer then converted to uint32; negative values wrap.",
+        "zh": "一代种子；后面的文本块添加它们的块索引。解析为有符号 32 位整数，然后转换为 uint32；负值换行。"
+      },
+      "temperature": {
+        "en": "Audio-token sampling temperature. Must be finite and positive when sampling.",
+        "zh": "音频令牌采样温度。采样时必须是有限且正的。"
+      },
+      "top_p": {
+        "en": "Audio-token nucleus sampling cutoff.",
+        "zh": "音频令牌核心采样截止。"
+      },
+      "top_k": {
+        "en": "Audio-token top-k sampling limit.",
+        "zh": "音频令牌 top-k 采样限制。"
+      },
+      "repetition_penalty": {
+        "en": "Audio-token repetition penalty. Must be finite and positive when history is nonempty.",
+        "zh": "音频令牌重复惩罚。当历史非空时，必须是有限且正的。"
+      },
+      "min_frames": {
+        "en": "Minimum generated audio frames per text chunk; nonpositive values derive a text-length-based floor.",
+        "zh": "每个文本分块生成音频帧的下限；非正值按文本长度推导下限。"
+      },
+      "max_frames": {
+        "en": "Generated audio-frame ceiling per text chunk; nonpositive values derive a text-length-based ceiling. Runtime raises it to at least the effective min_frames plus the number of codebooks.",
+        "zh": "每个文本分块生成音频帧上限；非正值按文本长度推导上限。运行时会提升到至少有效 min_frames 加 codebook 数。"
+      },
+      "text_temperature": {
+        "en": "Text-token sampling temperature. Must be finite and positive when sampling.",
+        "zh": "文本 token 采样温度；采样时必须为有限正数。"
+      },
+      "text_chunk_size": {
+        "en": "Maximum characters per generated text chunk; must be positive.",
+        "zh": "每个生成文本分块的最大字符数；必须为正。"
+      },
+      "text_chunk_mode": {
+        "en": "Text chunking policy.",
+        "zh": "文本分块策略。"
       }
     }
-  ],
+  },
   "packages": [
     {
       "id": "moss_voicegen_bf16_codec_f16_decode",
-      "display_name": "MOSS-VoiceGenerator BF16 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "MOSS-VoiceGenerator-GGUF",
-      "files": [
-        "MOSS-VoiceGenerator-GGUF/moss_voicegen_bf16_codec_f16_decode.gguf"
-      ],
-      "strip_prefix": "MOSS-VoiceGenerator-GGUF",
+      "sizes": {
+        "size_bytes": 6022979936,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 6039797760,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -178,49 +100,19 @@
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
-      "sizes": {
-        "size_bytes": 6022979936,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 6039797760,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
+      ]
     }
   ],
-  "i18n": {
-    "description": {
-      "en": "MOSS voice design model: creates a speaker from a written instruction instead of a reference recording, then speaks the supplied text in that voice.",
-      "zh": "MOSS 声音设计模型：以文字指令而非参考录音创建说话人，再用该音色朗读给定文本。"
-    },
-    "options": {
-      "instruct": {
-        "en": "Voice description: timbre, age, pace, emotion.",
-        "zh": "音色描述：音质、年龄、节奏、情绪。"
-      },
-      "language": {
-        "en": "Full language name; the model does not understand codes like 'en'.",
-        "zh": "完整语言名称；该模型不识别 'en' 这类代码。"
-      },
-      "seed": {
-        "en": "Reproduces a take exactly. Note that it does not carry a voice across different text.",
-        "zh": "可精确复现同一次生成。注意它不能在换文本后保持同一音色。"
-      },
-      "temperature": {
-        "en": "Audio sampling temperature (default 1.5).",
-        "zh": "音频采样温度（默认 1.5）。"
-      },
-      "top_p": {
-        "en": "Audio nucleus sampling cutoff (default 0.6).",
-        "zh": "音频核采样截断（默认 0.6）。"
-      },
-      "top_k": {
-        "en": "Audio top-k (default 50).",
-        "zh": "音频 top-k（默认 50）。"
-      },
-      "repetition_penalty": {
-        "en": "Audio repetition penalty (default 1.1).",
-        "zh": "音频重复惩罚（默认 1.1）。"
-      }
+  "licenses": [
+    {
+      "name": "Apache-2.0",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "",
+      "checked_at": "2026-09-21",
+      "source_urls": [
+        "https://huggingface.co/OpenMOSS-Team/MOSS-VoiceGenerator"
+      ]
     }
-  }
+  ]
 }

@@ -5,6 +5,8 @@ class HealthInfo {
     required this.models,
     required this.ui,
     required this.uiManagement,
+    this.version = '',
+    this.git = '',
   });
 
   final String status;
@@ -12,6 +14,8 @@ class HealthInfo {
   final int models;
   final bool ui;
   final bool uiManagement;
+  final String version;
+  final String git;
 
   static HealthInfo fromJson(Map<String, dynamic> json) {
     return HealthInfo(
@@ -20,6 +24,8 @@ class HealthInfo {
       models: (json['models'] as num?)?.toInt() ?? 0,
       ui: json['ui'] as bool? ?? false,
       uiManagement: json['ui_management'] as bool? ?? false,
+      version: json['version'] as String? ?? '',
+      git: json['git'] as String? ?? '',
     );
   }
 }

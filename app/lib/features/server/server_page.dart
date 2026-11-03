@@ -54,7 +54,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
   Future<void> _saveConfig({String? activeVersion}) async {
     await ref.read(appConfigProvider.notifier).update((c) {
       c.device = _device.clamp(0, 16).toInt();
-      c.threads = (int.tryParse(_threadsCtrl.text.trim()) ?? 4).clamp(1, 256).toInt();
+      c.threads =
+          (int.tryParse(_threadsCtrl.text.trim()) ?? 4).clamp(1, 256).toInt();
       c.backend = _backend;
       if (activeVersion != null) c.activeVersionPath = activeVersion;
     });
@@ -66,7 +67,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     final version = await ref.read(activeVersionProvider.future);
     if (!mounted) return;
     if (version == null) {
-      AppLogger.info('[server] start aborted: no audiocpp_server version found');
+      AppLogger.info(
+          '[server] start aborted: no audiocpp_server version found');
       final dict = ref.read(stringsProvider);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(dict['server.startNoVersion'] ??
@@ -87,6 +89,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     // 等待模型库首次加载完成，避免重载空窗被误判为"没有已安装模型"；
     // 模型条目构建与工作台自动启动共用 buildServerModels，保证口径一致。
     await ref.read(modelLibraryProvider.notifier).ready;
+    if (!mounted) return;
+    await ref.read(specsProvider.future);
     if (!mounted) return;
     final models = buildServerModels(ref);
     if (models.isEmpty) {
@@ -150,7 +154,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
   ) {
     final running = snapshot.isRunning;
     final starting = snapshot.isStarting;
-    final busy = running || starting || snapshot.lifecycle == ServerLifecycle.stopping;
+    final busy =
+        running || starting || snapshot.lifecycle == ServerLifecycle.stopping;
     final dict = ref.watch(stringsProvider);
     // 非 stopped 状态禁止修改版本、后端、设备、线程等参数。
     final locked = !snapshot.isStopped;
@@ -180,107 +185,107 @@ class _ServerPageState extends ConsumerState<ServerPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-            _buildVersionPicker(versions, locked, lockHint),
-            const Divider(height: 28),
-            if (capsLoading)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: [
-                    const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        dict['server.readingBackends'] ??
-                            'Reading backend capabilities…',
-                        style: Theme.of(context).textTheme.bodySmall,
+              _buildVersionPicker(versions, locked, lockHint),
+              const Divider(height: 28),
+              if (capsLoading)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          dict['server.readingBackends'] ??
+                              'Reading backend capabilities…',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              _lockable(
+                locked,
+                lockHint,
+                DropdownButtonFormField<String>(
+                  initialValue: _backend,
+                  decoration: _dec(dict['server.backend'] ?? 'Backend'),
+                  items: [
+                    for (final b in backendOptions)
+                      DropdownMenuItem(
+                        value: b,
+                        child: Text(b),
+                      ),
+                  ],
+                  onChanged: locked
+                      ? null
+                      : (v) {
+                          if (v != null) {
+                            setState(() => _backend = v);
+                            _saveConfig();
+                          }
+                        },
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildDeviceField(context, locked, lockHint),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _lockable(
+                      locked,
+                      lockHint,
+                      TextField(
+                        controller: _threadsCtrl,
+                        enabled: !locked,
+                        decoration: _dec(dict['server.threads'] ?? 'Threads'),
+                        keyboardType: TextInputType.number,
+                        onSubmitted: (_) => _saveConfig(),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            _lockable(
-              locked,
-              lockHint,
-              DropdownButtonFormField<String>(
-                initialValue: _backend,
-                decoration: _dec(dict['server.backend'] ?? 'Backend'),
-                items: [
-                  for (final b in backendOptions)
-                    DropdownMenuItem(
-                      value: b,
-                      child: Text(b),
-                    ),
+                  ),
                 ],
-                onChanged: locked
-                    ? null
-                    : (v) {
-                        if (v != null) {
-                          setState(() => _backend = v);
-                          _saveConfig();
-                        }
-                      },
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildDeviceField(context, locked, lockHint),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _lockable(
-                    locked,
-                    lockHint,
-                    TextField(
-                      controller: _threadsCtrl,
-                      enabled: !locked,
-                      decoration: _dec(dict['server.threads'] ?? 'Threads'),
-                      keyboardType: TextInputType.number,
-                      onSubmitted: (_) => _saveConfig(),
+              const SizedBox(height: 8),
+              Text(
+                _backend == 'cpu'
+                    ? (dict['server.threads.hintCpu'] ??
+                        'CPU threads for inference; keep it at or below your '
+                            'physical core count (e.g. 6-8 on a 10-core CPU)')
+                    : (dict['server.threads.hintGpu'] ??
+                        'Inference runs mainly on the GPU; 4-8 is enough, '
+                            'leaving CPU for the system and audio'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: busy || _selectedPath == null ? null : _start,
+                      icon: const Icon(Icons.play_arrow),
+                      label: Text(dict['server.start'] ?? 'Start'),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _backend == 'cpu'
-                  ? (dict['server.threads.hintCpu'] ??
-                      'CPU threads for inference; keep it at or below your '
-                          'physical core count (e.g. 6-8 on a 10-core CPU)')
-                  : (dict['server.threads.hintGpu'] ??
-                      'Inference runs mainly on the GPU; 4-8 is enough, '
-                          'leaving CPU for the system and audio'),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: busy || _selectedPath == null ? null : _start,
-                    icon: const Icon(Icons.play_arrow),
-                    label: Text(dict['server.start'] ?? 'Start'),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: !(running || starting) ? null : _stop,
+                      icon: const Icon(Icons.stop),
+                      label: Text(dict['server.stop'] ?? 'Stop'),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: !(running || starting) ? null : _stop,
-                    icon: const Icon(Icons.stop),
-                    label: Text(dict['server.stop'] ?? 'Stop'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildStatusCard(context, snapshot),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _buildStatusCard(context, snapshot),
             ],
           ),
         ),
@@ -369,8 +374,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     } catch (_) {}
   }
 
-  Widget _buildVersionPicker(
-      AsyncValue<List<AudioCppVersion>> versions, bool locked, String lockHint) {
+  Widget _buildVersionPicker(AsyncValue<List<AudioCppVersion>> versions,
+      bool locked, String lockHint) {
     final dict = ref.watch(stringsProvider);
     return versions.when(
       loading: () => const LinearProgressIndicator(),
@@ -396,8 +401,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                         TextButton.icon(
                           onPressed: _openVersionsDir,
                           icon: const Icon(Icons.folder_open_outlined),
-                          label: Text(
-                              dict['server.openDir'] ?? 'Open directory'),
+                          label:
+                              Text(dict['server.openDir'] ?? 'Open directory'),
                         ),
                         TextButton.icon(
                           onPressed: () => rescanVersions(ref),
@@ -454,11 +459,26 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     final scheme = Theme.of(context).colorScheme;
     final dict = ref.watch(stringsProvider);
     final (label, color) = switch (s.lifecycle) {
-      ServerLifecycle.running => (dict['server.status.running'] ?? 'Running', Colors.green),
-      ServerLifecycle.starting => (dict['server.status.starting'] ?? 'Starting', Colors.orange),
-      ServerLifecycle.stopping => (dict['server.status.stopping'] ?? 'Stopping', Colors.orange),
-      ServerLifecycle.error => (dict['server.status.error'] ?? 'Error', scheme.error),
-      ServerLifecycle.stopped => (dict['server.status.stopped'] ?? 'Stopped', Colors.grey),
+      ServerLifecycle.running => (
+          dict['server.status.running'] ?? 'Running',
+          Colors.green
+        ),
+      ServerLifecycle.starting => (
+          dict['server.status.starting'] ?? 'Starting',
+          Colors.orange
+        ),
+      ServerLifecycle.stopping => (
+          dict['server.status.stopping'] ?? 'Stopping',
+          Colors.orange
+        ),
+      ServerLifecycle.error => (
+          dict['server.status.error'] ?? 'Error',
+          scheme.error
+        ),
+      ServerLifecycle.stopped => (
+          dict['server.status.stopped'] ?? 'Stopped',
+          Colors.grey
+        ),
     };
 
     return Column(
@@ -484,16 +504,17 @@ class _ServerPageState extends ConsumerState<ServerPage> {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-                trF(ref, 'server.version',
-                    {'name': p.basename(s.exeName!)}),
+                trF(ref, 'server.version', {'name': p.basename(s.exeName!)}),
                 style: Theme.of(context).textTheme.bodySmall),
           ),
         if (s.isRunning)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              trF(ref, 'server.backendInfo',
-                  {'backend': s.backend ?? '-', 'count': '${s.loadedModelsCount}'}),
+              trF(ref, 'server.backendInfo', {
+                'backend': s.backend ?? '-',
+                'count': '${s.loadedModelsCount}'
+              }),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -539,24 +560,27 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                   color: const Color(0xFF1E1E1E),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: s.logLines.isEmpty
-                    ? Text(dict['server.logEmpty'] ?? 'No logs',
-                        style: const TextStyle(color: Colors.white54, fontSize: 12))
-                    : ListView.builder(
-                        reverse: true,
-                        itemCount: s.logLines.length,
-                        itemBuilder: (context, i) {
-                          final line = s.logLines[s.logLines.length - 1 - i];
-                          return Text(
-                            line,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontFamily: 'monospace',
-                            ),
-                          );
-                        },
-                      ),
+                child: SelectionArea(
+                  child: s.logLines.isEmpty
+                      ? Text(dict['server.logEmpty'] ?? 'No logs',
+                          style: const TextStyle(
+                              color: Colors.white54, fontSize: 12))
+                      : ListView.builder(
+                          reverse: true,
+                          itemCount: s.logLines.length,
+                          itemBuilder: (context, i) {
+                            final line = s.logLines[s.logLines.length - 1 - i];
+                            return Text(
+                              line,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontFamily: 'monospace',
+                              ),
+                            );
+                          },
+                        ),
+                ),
               ),
             ),
           ],

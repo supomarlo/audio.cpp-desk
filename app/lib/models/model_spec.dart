@@ -161,6 +161,111 @@ class SpecOption {
   return (en: '', zh: '');
 }
 
+class SpecValueMeta {
+  const SpecValueMeta({
+    this.labels = const {},
+    this.nativeLanguages = const {},
+    this.descriptions = const {},
+  });
+
+  final Map<String, String> labels;
+  final Map<String, String> nativeLanguages;
+  final Map<String, String> descriptions;
+
+  String label(String locale) => _localized(labels, locale);
+  String nativeLanguage(String locale) => _localized(nativeLanguages, locale);
+  String description(String locale) => _localized(descriptions, locale);
+
+  static SpecValueMeta? fromJson(Map<String, dynamic> json) {
+    Map<String, String> read(String key) {
+      final raw = json[key];
+      if (raw is! Map) return const {};
+      return {
+        for (final e in raw.entries)
+          if (e.value is String) e.key.toString(): e.value as String,
+      };
+    }
+
+    final labels = read('label');
+    final nativeLanguages = read('native_language');
+    final descriptions = read('description');
+    if (labels.isEmpty && nativeLanguages.isEmpty && descriptions.isEmpty) {
+      return null;
+    }
+    return SpecValueMeta(
+      labels: labels,
+      nativeLanguages: nativeLanguages,
+      descriptions: descriptions,
+    );
+  }
+}
+
+String _localized(Map<String, String> values, String locale) {
+  final direct = values[locale];
+  if (direct != null && direct.isNotEmpty) return direct;
+  final en = values['en'];
+  if (en != null && en.isNotEmpty) return en;
+  for (final v in values.values) {
+    if (v.isNotEmpty) return v;
+  }
+  return '';
+}
+
+class ModelLicense {
+  const ModelLicense({
+    this.name = '',
+    this.url = '',
+    this.commercialUse = 'unclear',
+    this.notes = '',
+    this.checkedAt = '',
+    this.sourceUrls = const [],
+  });
+
+  final String name;
+  final String url;
+  final String commercialUse;
+  final String notes;
+  final String checkedAt;
+  final List<String> sourceUrls;
+
+  static ModelLicense? fromJson(Map<String, dynamic> json) {
+    final name = json['name'] as String? ?? '';
+    final url = json['url'] as String? ?? '';
+    final notes = json['notes'] as String? ?? '';
+    final checkedAt = json['checked_at'] as String? ?? '';
+    final sourceUrls = (json['source_urls'] as List<dynamic>? ?? [])
+        .map((e) => e.toString())
+        .toList();
+    if (name.isEmpty &&
+        url.isEmpty &&
+        notes.isEmpty &&
+        checkedAt.isEmpty &&
+        sourceUrls.isEmpty) {
+      return null;
+    }
+    final use = json['commercial_use'] as String? ?? '';
+    return ModelLicense(
+      name: name,
+      url: url,
+      commercialUse: const {'yes', 'conditional', 'no', 'unclear'}.contains(use)
+          ? use
+          : 'unclear',
+      notes: notes,
+      checkedAt: checkedAt,
+      sourceUrls: sourceUrls,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'url': url,
+        'commercial_use': commercialUse,
+        'notes': notes,
+        'checked_at': checkedAt,
+        'source_urls': sourceUrls,
+      };
+}
+
 class ModelSpec {
   ModelSpec({
     required this.family,
@@ -175,6 +280,10 @@ class ModelSpec {
     this.defaultRepo = '',
     this.requestOptions = const [],
     this.optionDescriptions = const {},
+    this.optionValueMeta = const {},
+    this.uiTexts = const {},
+    this.capabilities = const {},
+    this.licenses = const [],
   });
 
   final String family;
@@ -194,12 +303,38 @@ class ModelSpec {
   /// 参数说明的多语言叠加：`i18n.options.<name> = {en, zh}`。
   final Map<String, Map<String, String>> optionDescriptions;
 
+  /// 枚举值元数据：`i18n.options.<name>.values.<value>`。
+  final Map<String, Map<String, SpecValueMeta>> optionValueMeta;
+
+  /// 模型专属 UI 文案：`i18n.ui.<key> = {en, zh}`。
+  final Map<String, Map<String, String>> uiTexts;
+
+  /// 能力枚举列表（标签/语言相关由 `capabilities`）。
+  final Map<String, List<String>> capabilities;
+
+  final List<ModelLicense> licenses;
+
+  List<String> capabilitiesOf(String task) => capabilities[task] ?? const [];
+
+  SpecValueMeta? optionValueMetaFor(String option, String value) =>
+      optionValueMeta[option]?[value];
+
   /// 按界面语言取参数说明：i18n 叠加 → 规格英文 description → 空。
   String optionDescription(SpecOption o, String locale) {
     final m = optionDescriptions[o.name];
     final v = m?[locale];
     if (v != null && v.isNotEmpty) return v;
     return o.description;
+  }
+
+  /// 模型专属 UI 文案：目标语言 → 英文 → 调用方 fallback。
+  String uiText(String key, String locale, {String fallback = ''}) {
+    final m = uiTexts[key];
+    final v = m?[locale];
+    if (v != null && v.isNotEmpty) return v;
+    final en = m?['en'];
+    if (en != null && en.isNotEmpty) return en;
+    return fallback;
   }
 
   bool get isSupported => status == 'supported';
@@ -210,26 +345,56 @@ class ModelSpec {
     final i18n = i18nDescription(json);
     return ModelSpec(
       family: json['family'] as String? ?? '',
-      displayName: json['display_name'] as String? ?? json['family'] as String? ?? '',
-      description: i18n.en.isNotEmpty
-          ? i18n.en
-          : (json['description'] as String? ?? ''),
+      displayName:
+          json['display_name'] as String? ?? json['family'] as String? ?? '',
+      description:
+          i18n.en.isNotEmpty ? i18n.en : (json['description'] as String? ?? ''),
       descriptionZh: i18n.zh.isNotEmpty
           ? i18n.zh
           : (json['description_zh'] as String? ?? ''),
       category: json['category'] as String? ?? 'other',
       status: json['status'] as String? ?? '',
-      tasks: (json['tasks'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
-      languages: (json['languages'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      tasks: (json['tasks'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
+      languages: (json['languages'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
       packages: rawPackages
           .whereType<Map<String, dynamic>>()
           .map(SpecPackage.fromJson)
           .toList(),
-      defaultRepo:
-          (defaults?['download'] as Map<String, dynamic>?)?['repo'] as String? ?? '',
+      defaultRepo: (defaults?['download'] as Map<String, dynamic>?)?['repo']
+              as String? ??
+          '',
       requestOptions: _requestOptions(json),
       optionDescriptions: _optionDescriptions(json),
+      optionValueMeta: _optionValueMeta(json),
+      uiTexts: _uiTexts(json),
+      capabilities: _capabilities(json),
+      licenses: _licenses(json),
     );
+  }
+
+  static List<ModelLicense> _licenses(Map<String, dynamic> json) {
+    final raw = json['licenses'];
+    if (raw is! List) return const [];
+    return raw
+        .whereType<Map>()
+        .map((e) => ModelLicense.fromJson(Map<String, dynamic>.from(e)))
+        .whereType<ModelLicense>()
+        .toList();
+  }
+
+  static Map<String, List<String>> _capabilities(Map<String, dynamic> json) {
+    final caps = json['capabilities'];
+    if (caps is! Map) return const {};
+    return {
+      for (final e in caps.entries)
+        e.key.toString(): e.value is List
+            ? (e.value as List).map((x) => x.toString()).toList()
+            : const <String>[],
+    };
   }
 
   static List<SpecOption> _requestOptions(Map<String, dynamic> json) {
@@ -250,10 +415,53 @@ class ModelSpec {
     if (options is! Map) return const {};
     final out = <String, Map<String, String>>{};
     options.forEach((k, v) {
-      if (v is Map) {
-        out[k.toString()] =
-            v.map((k2, v2) => MapEntry(k2.toString(), v2.toString()));
+      if (v is! Map) return;
+      final descriptions = <String, String>{};
+      for (final locale in const ['en', 'zh']) {
+        final value = v[locale];
+        if (value is String && value.isNotEmpty) {
+          descriptions[locale] = value;
+        }
       }
+      if (descriptions.isNotEmpty) out[k.toString()] = descriptions;
+    });
+    return out;
+  }
+
+  static Map<String, Map<String, String>> _uiTexts(Map<String, dynamic> json) {
+    final i18n = json['i18n'];
+    final ui = (i18n is Map) ? i18n['ui'] : null;
+    if (ui is! Map) return const {};
+    final out = <String, Map<String, String>>{};
+    ui.forEach((key, value) {
+      if (value is! Map) return;
+      final texts = <String, String>{};
+      for (final locale in const ['en', 'zh']) {
+        final text = value[locale];
+        if (text is String && text.isNotEmpty) texts[locale] = text;
+      }
+      if (texts.isNotEmpty) out[key.toString()] = texts;
+    });
+    return out;
+  }
+
+  static Map<String, Map<String, SpecValueMeta>> _optionValueMeta(
+      Map<String, dynamic> json) {
+    final i18n = json['i18n'];
+    final options = (i18n is Map) ? i18n['options'] : null;
+    if (options is! Map) return const {};
+    final out = <String, Map<String, SpecValueMeta>>{};
+    options.forEach((name, option) {
+      if (option is! Map) return;
+      final values = option['values'];
+      if (values is! Map) return;
+      final parsed = <String, SpecValueMeta>{};
+      values.forEach((value, meta) {
+        if (meta is! Map) return;
+        final item = SpecValueMeta.fromJson(Map<String, dynamic>.from(meta));
+        if (item != null) parsed[value.toString()] = item;
+      });
+      if (parsed.isNotEmpty) out[name.toString()] = parsed;
     });
     return out;
   }
@@ -315,22 +523,25 @@ class SpecPackage {
     final kind = download?['kind'] as String? ?? 'huggingface_snapshot';
     final i18n = i18nDescription(json);
     final downloads = <DownloadEndpoint>[];
-    for (final e in (json['downloads'] as List<dynamic>? ?? []).whereType<Map>()) {
+    for (final e
+        in (json['downloads'] as List<dynamic>? ?? []).whereType<Map>()) {
       final d = DownloadEndpoint.fromJson(Map<String, dynamic>.from(e));
       if (d != null) downloads.add(d);
     }
     return SpecPackage(
       id: json['id'] as String? ?? '',
-      displayName: json['display_name'] as String? ?? json['id'] as String? ?? '',
+      displayName:
+          json['display_name'] as String? ?? json['id'] as String? ?? '',
       format: json['format'] as String? ?? '',
       precision: json['precision'] as String? ?? '',
       isDefault: json['default'] as bool? ?? false,
       targetDirectory: json['target_directory'] as String? ?? '',
-      files: (json['files'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      files: (json['files'] as List<dynamic>? ?? [])
+          .map((e) => e.toString())
+          .toList(),
       stripPrefix: json['strip_prefix'] as String? ?? '',
-      description: i18n.en.isNotEmpty
-          ? i18n.en
-          : (json['description'] as String? ?? ''),
+      description:
+          i18n.en.isNotEmpty ? i18n.en : (json['description'] as String? ?? ''),
       descriptionZh: i18n.zh.isNotEmpty
           ? i18n.zh
           : (json['description_zh'] as String? ?? ''),

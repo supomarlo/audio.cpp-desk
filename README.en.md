@@ -38,7 +38,7 @@ The main features of the following models have been tested at a basic level:
 | Qwen3-TTS 1.7B Base | TTS / clone |
 | Qwen3-TTS 1.7B CustomVoice | TTS / built-in voices |
 | Qwen3-TTS 1.7B VoiceDesign | TTS / voice design |
-| IndexTTS-2.5 | TTS / clone / emotion control |
+| IndexTTS-2.0 / 2.5 | TTS / clone / emotion control |
 | Ming 3.0 TTS 0.5B | TTS / clone / voice design / emotion / dialect / built-in voices |
 | Qwen3-ASR 1.7B | ASR / speech recognition |
 | MeanVC2 | VC / voice conversion |
@@ -56,7 +56,7 @@ The main features of the following models have been tested at a basic level:
 - Prebuilt release packages bundle the Microsoft Visual C++ runtime, so **no separate
   Visual C++ Redistributable install is required**. (Building from source still needs
   the MSVC toolchain.)
-- An **audio.cpp** build: the `audiocpp_server.exe` release directory placed
+- An **audio.cpp 0.9.3 or newer** build: the `audiocpp_server.exe` release directory placed
   under `audio.cpp/<version>/` in the application root. Get it from
   <https://github.com/0xShug0/audio.cpp>.
 - The build **must keep its `model_specs/` directory** (`audio.cpp/<version>/model_specs/`):

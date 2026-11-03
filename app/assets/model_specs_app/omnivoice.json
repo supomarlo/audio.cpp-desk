@@ -1,221 +1,136 @@
 {
   "family": "omnivoice",
-  "display_name": "OmniVoice",
-  "description": "Massively multilingual zero-shot TTS model from k2-fsa for 600+ languages, supporting short-reference voice cloning, attribute-based voice design, pronunciation controls, and nonverbal tags.",
-  "category": "tts",
-  "status": "supported",
-  "tasks": [
-    "tts",
-    "clone",
-    "design"
-  ],
-  "modes": [
-    "offline",
-    "streaming"
-  ],
-  "languages": [
-    "600+ languages"
-  ],
-  "capabilities": {
-    "clone": [
-      "speaker_reference"
-    ],
-    "design": [
-      "voice_design"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "speed",
-        "type": "float",
-        "description": "Speech speed multiplier.",
-        "default": 1.0
+  "i18n": {
+    "description": {
+      "en": "Massively multilingual zero-shot TTS model from k2-fsa for 600+ languages, supporting short-reference voice cloning, attribute-based voice design, pronunciation controls, and nonverbal tags.",
+      "zh": "k2-fsa 的大规模多语言零样本 TTS 模型，覆盖 600 多种语言，支持短参考音色克隆、基于属性的音色设计、发音控制和非语言标签。"
+    },
+    "options": {
+      "speed": {
+        "en": "Speech rate multiplier, adjusting the overall speed of the generated speech",
+        "zh": "语速倍率，调整生成语音的整体速度"
       },
-      {
-        "name": "duration",
-        "type": "float",
-        "description": "Target output duration in seconds; omitted uses the model's estimated duration.",
-        "min": 0.0
+      "guidance_scale": {
+        "en": "Guidance scale, adjusting how closely the generated speech follows the prompt",
+        "zh": "引导系数，调整生成语音与提示条件的贴合程度"
       },
-      {
-        "name": "guidance_scale",
-        "type": "float",
-        "description": "Classifier-free guidance scale; default 2.0.",
-        "default": 2.0
+      "num_inference_steps": {
+        "en": "Diffusion inference steps; higher values usually improve quality but take longer",
+        "zh": "扩散推理步数，越大通常质量更好、耗时更长"
       },
-      {
-        "name": "num_inference_steps",
-        "type": "int",
-        "description": "Diffusion language-model inference steps; default 32.",
-        "min": 1,
-        "default": 32
+      "seed": {
+        "en": "Random seed; a fixed value makes results reproducible, and leaving it empty picks a random seed",
+        "zh": "随机种子，固定后可复现，留空随机"
       },
-      {
-        "name": "seed",
-        "type": "int",
-        "description": "Generation seed for reproducible output; omitted keeps the session RNG state.",
-        "min": 0
+      "language": {
+        "en": "Synthesis language; leave empty for automatic detection",
+        "zh": "合成语言，留空自动判断"
       },
-      {
-        "name": "audio_chunk_duration",
-        "type": "float",
-        "description": "Model-side automatic chunk duration when framework chunking is not explicitly enabled.",
-        "min": 0.0,
-        "default": 15.0
+      "reference_text": {
+        "en": "Text corresponding to the reference voice audio",
+        "zh": "音色参考音频对应的文本"
       },
-      {
-        "name": "audio_chunk_threshold",
-        "type": "float",
-        "description": "Estimated audio length threshold before model-side chunking is used.",
-        "min": 0.0,
-        "default": 30.0
-      }
-    ]
-  },
-  "runtime": {
-    "tags": [
-      "gguf",
-      "stream"
-    ]
-  },
-  "ui": {
-    "recommended_package": "omnivoice_q8_0",
-    "tags": [
-      "TTS",
-      "Clone",
-      "Design",
-      "GGUF",
-      "Stream"
-    ],
-    "docs": [
-      "docs/models/omnivoice.md",
-      "docs/tts.md",
-      "docs/gguf.md"
-    ]
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "huggingface_snapshot",
-      "repo": "audio-cpp/audio.cpp-gguf",
-      "revision": "main",
-      "gated": false
-    }
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
+      "instruct": {
+        "en": "Voice-design instruction describing speaker, accent, style, or delivery",
+        "zh": "音色设计指令，描述说话人、口音、风格或表达方式"
       },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_json": "model:tokenizer.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "audio_tokenizer_config": "model:audio_tokenizer/config.json",
-        "audio_tokenizer_preprocessor": "model:audio_tokenizer/preprocessor_config.json"
+      "duration_sec": {
+        "en": "Target audio duration in seconds; leave empty to use the model estimate",
+        "zh": "目标音频时长（秒），留空由模型估算"
       },
-      "optional_files": {
-        "chat_template": "model:chat_template.jinja"
+      "shift": {
+        "en": "Diffusion timestep schedule shift",
+        "zh": "扩散时间步调度偏移"
       },
-      "tensors": {
-        "weights": {
-          "source": "weights:",
-          "prefix": "weights"
-        },
-        "audio_tokenizer_weights": {
-          "source": "weights:",
-          "prefix": "audio_tokenizer_weights"
-        }
+      "denoise": {
+        "en": "Enable denoise control; active after selecting a voice",
+        "zh": "启用去噪控制，选择音色后生效"
+      },
+      "preprocess_prompt": {
+        "en": "Preprocess the reference audio before tokenization; active after selecting a voice",
+        "zh": "在分词前预处理参考音频，选择音色后生效"
+      },
+      "postprocess_output": {
+        "en": "Apply output postprocessing and trimming",
+        "zh": "对输出进行后处理与裁剪"
+      },
+      "layer_penalty_factor": {
+        "en": "Layer-order penalty for audio codebook position selection",
+        "zh": "选择音频码本位置时的层序惩罚"
+      },
+      "position_temperature": {
+        "en": "Gumbel temperature for masked-position selection",
+        "zh": "选择遮罩位置时的 Gumbel 温度"
+      },
+      "class_temperature": {
+        "en": "Audio-token class sampling temperature; 0 selects greedily",
+        "zh": "音频 token 类别采样温度，0 时按贪心方式选择类别"
+      },
+      "audio_chunk_duration_sec": {
+        "en": "Target duration for automatic long-audio segmentation (seconds)",
+        "zh": "长音频自动分段的目标时长（秒）"
+      },
+      "audio_chunk_threshold_sec": {
+        "en": "Enable long-audio segmentation when the estimated duration exceeds this value (seconds)",
+        "zh": "估算时长超过该值（秒）时启用长音频分段"
+      },
+      "text_chunk_size": {
+        "en": "Maximum characters per long-text segment; leave empty to segment automatically by duration",
+        "zh": "长文本分段的最大字符数，留空按时长自动分段"
+      },
+      "text_chunk_mode": {
+        "en": "Long-text segmentation mode",
+        "zh": "长文本分段方式"
       }
     },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": "."
+    "ui": {
+      "language.auto": {
+        "en": "Auto",
+        "zh": "自动"
       },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer_json": "model:tokenizer.json",
-        "tokenizer_config": "model:tokenizer_config.json",
-        "audio_tokenizer_config": "model:audio_tokenizer/config.json",
-        "audio_tokenizer_preprocessor": "model:audio_tokenizer/preprocessor_config.json"
+      "textChunkMode.default": {
+        "en": "Default",
+        "zh": "默认"
       },
-      "optional_files": {
-        "chat_template": "model:chat_template.jinja"
+      "textChunkMode.tag_aware": {
+        "en": "Preserve tags",
+        "zh": "保留标签"
       },
-      "tensors": {
-        "weights": "model:model.safetensors",
-        "audio_tokenizer_weights": "model:audio_tokenizer/model.safetensors"
+      "textChunkMode.japanese": {
+        "en": "Japanese-aware",
+        "zh": "适配日文"
+      },
+      "textChunkMode.endline": {
+        "en": "Line-end sentence split",
+        "zh": "行尾句末分段"
+      },
+      "speed.ignoredByDuration": {
+        "en": "When target duration is set, it takes priority",
+        "zh": "目标时长非空时，优先使用目标时长"
+      },
+      "textChunkMode.requiresChunkSize": {
+        "en": "Please set a segment size first",
+        "zh": "请先设置分段大小"
+      },
+      "audioChunk.ignoredByTextChunk": {
+        "en": "Segmentation is controlled by text segment size",
+        "zh": "当前由文本分段控制"
+      },
+      "northeasternRequiresNewerServer": {
+        "en": "Requires audio.cpp newer than 0.9.3",
+        "zh": "需要 audio.cpp 版本高于 0.9.3"
       }
     }
-  ],
+  },
   "packages": [
     {
       "id": "omnivoice_q8_0",
-      "display_name": "OmniVoice Q8_0 GGUF",
-      "default": true,
-      "format": "gguf",
-      "precision": "q8_0",
-      "target_directory": "OmniVoice-GGUF",
-      "files": [
-        "OmniVoice-GGUF/omnivoice-q8_0.gguf"
-      ],
-      "strip_prefix": "OmniVoice-GGUF",
-      "downloads": [
-        {
-          "source": "huggingface",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "kind": "huggingface_snapshot",
-          "gated": false,
-          "available": true,
-          "size_bytes": 1350288416,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "hf_mirror",
-          "repo": "audio-cpp/audio.cpp-gguf",
-          "revision": "main",
-          "available": true,
-          "size_bytes": 1350288416,
-          "note": "assumed mirror of huggingface",
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "gated": false,
-          "license": "other",
-          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
-        },
-        {
-          "source": "modelscope",
-          "repo": "HereIsMark/audio.cpp-gguf",
-          "revision": "master",
-          "kind": "modelscope_snapshot",
-          "available": true,
-          "size_bytes": 1350288416,
-          "checked_at": "2026-09-23T10:38:25.496770",
-          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
-        }
-      ],
       "sizes": {
         "size_bytes": 1350288416,
         "est_memory_bytes": null,
         "est_vram_bytes": 3288334336,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
-    },
-    {
-      "id": "omnivoice_bf16",
-      "display_name": "OmniVoice BF16 GGUF",
-      "format": "gguf",
-      "precision": "bf16",
-      "target_directory": "OmniVoice-GGUF",
-      "files": [
-        "OmniVoice-GGUF/omnivoice-bf16.gguf"
-      ],
-      "strip_prefix": "OmniVoice-GGUF",
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -224,7 +139,7 @@
           "kind": "huggingface_snapshot",
           "gated": false,
           "available": true,
-          "size_bytes": 1639548640,
+          "size_bytes": 1350288416,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license": "other",
           "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
@@ -234,7 +149,7 @@
           "repo": "audio-cpp/audio.cpp-gguf",
           "revision": "main",
           "available": true,
-          "size_bytes": 1639548640,
+          "size_bytes": 1350288416,
           "note": "assumed mirror of huggingface",
           "checked_at": "2026-09-23T10:38:25.496770",
           "gated": false,
@@ -247,28 +162,65 @@
           "revision": "master",
           "kind": "modelscope_snapshot",
           "available": true,
-          "size_bytes": 1639548640,
+          "size_bytes": 1350288416,
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
+      ]
+    },
+    {
+      "id": "omnivoice_bf16",
       "sizes": {
         "size_bytes": 1639548640,
         "est_memory_bytes": null,
         "est_vram_bytes": 3422552064,
         "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
+      },
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1639548640,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "audio-cpp/audio.cpp-gguf",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1639548640,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "gated": false,
+          "license": "other",
+          "license_url": "https://huggingface.co/audio-cpp/audio.cpp-gguf"
+        },
+        {
+          "source": "modelscope",
+          "repo": "HereIsMark/audio.cpp-gguf",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 1639548640,
+          "checked_at": "2026-09-23T10:38:25.496770",
+          "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
+        }
+      ]
     },
     {
       "id": "omnivoice_f16",
-      "display_name": "OmniVoice F16 GGUF",
-      "format": "gguf",
-      "precision": "f16",
-      "target_directory": "OmniVoice-GGUF",
-      "files": [
-        "OmniVoice-GGUF/omnivoice-f16.gguf"
-      ],
-      "strip_prefix": "OmniVoice-GGUF",
+      "sizes": {
+        "size_bytes": 1639548768,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 3422552064,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
+      },
       "downloads": [
         {
           "source": "huggingface",
@@ -304,32 +256,15 @@
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/HereIsMark/audio.cpp-gguf"
         }
-      ],
-      "sizes": {
-        "size_bytes": 1639548768,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 3422552064,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=report peak (docs/reports)"
-      }
+      ]
     },
     {
       "id": "omnivoice_safetensors",
-      "display_name": "OmniVoice Safetensors",
-      "format": "safetensors",
-      "precision": "native",
-      "target_directory": "OmniVoice",
-      "files": [
-        "config.json",
-        "model.safetensors",
-        "tokenizer.json",
-        "tokenizer_config.json",
-        "audio_tokenizer/config.json",
-        "audio_tokenizer/preprocessor_config.json",
-        "audio_tokenizer/model.safetensors"
-      ],
-      "download": {
-        "kind": "huggingface_snapshot",
-        "repo": "k2-fsa/OmniVoice"
+      "sizes": {
+        "size_bytes": 3267439234,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 5234491392,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
       },
       "downloads": [
         {
@@ -364,49 +299,86 @@
           "checked_at": "2026-09-23T10:38:25.496770",
           "license_url": "https://www.modelscope.cn/models/k2-fsa/OmniVoice"
         }
+      ]
+    },
+    {
+      "id": "voicetut_tts_q8_0",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "mohammedaly22/VoiceTut-TTS-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1350264224,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://huggingface.co/mohammedaly22/VoiceTut-TTS-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "mohammedaly22/VoiceTut-TTS-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1350264224,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "gated": false,
+          "license_url": "https://huggingface.co/mohammedaly22/VoiceTut-TTS-GGUF"
+        }
       ],
       "sizes": {
-        "size_bytes": 3267439234,
+        "size_bytes": 1350264224,
         "est_memory_bytes": null,
-        "est_vram_bytes": 5234491392,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size+family overhead (derived)"
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf/HEAD; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
+    },
+    {
+      "id": "voicetut_tts_f16",
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "mohammedaly22/VoiceTut-TTS-GGUF",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 1639524576,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://huggingface.co/mohammedaly22/VoiceTut-TTS-GGUF"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "mohammedaly22/VoiceTut-TTS-GGUF",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 1639524576,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "gated": false,
+          "license_url": "https://huggingface.co/mohammedaly22/VoiceTut-TTS-GGUF"
+        }
+      ],
+      "sizes": {
+        "size_bytes": 1639524576,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf/HEAD; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
       }
     }
   ],
-  "i18n": {
-    "description": {
-      "en": "Massively multilingual zero-shot TTS model from k2-fsa for 600+ languages, supporting short-reference voice cloning, attribute-based voice design, pronunciation controls, and nonverbal tags.",
-      "zh": "k2-fsa 的海量多语言零样本 TTS 模型，覆盖 600+ 语言，支持短参考音色克隆、基于属性的声音设计、发音控制与非语言标签。"
-    },
-    "options": {
-      "speed": {
-        "en": "Speech speed multiplier.",
-        "zh": "语速倍率。"
-      },
-      "duration": {
-        "en": "Target output duration in seconds; omitted uses the model's estimated duration.",
-        "zh": "目标输出时长（秒）；省略时使用模型估算时长。"
-      },
-      "guidance_scale": {
-        "en": "Classifier-free guidance scale; default 2.0.",
-        "zh": "无分类器引导强度；默认 2.0。"
-      },
-      "num_inference_steps": {
-        "en": "Diffusion language-model inference steps; default 32.",
-        "zh": "扩散语言模型推理步数；默认 32。"
-      },
-      "seed": {
-        "en": "Generation seed for reproducible output; omitted keeps the session RNG state.",
-        "zh": "生成随机种子；省略时沿用会话 RNG 状态。"
-      },
-      "audio_chunk_duration": {
-        "en": "Model-side automatic chunk duration when framework chunking is not explicitly enabled.",
-        "zh": "未显式启用框架分块时，模型侧自动分块的时长。"
-      },
-      "audio_chunk_threshold": {
-        "en": "Estimated audio length threshold before model-side chunking is used.",
-        "zh": "启用模型侧分块前的估计音频长度阈值。"
-      }
+  "licenses": [
+    {
+      "name": "CC-BY-NC",
+      "url": "https://huggingface.co/k2-fsa/OmniVoice#license",
+      "commercial_use": "no",
+      "notes": "Changed from Apache-2.0 on 2026-07-03, \"due to constraints from its training data (e.g., Emilia)\". The code is Apache-2.0. The audio tokenizer, bosonai/higgs-audio-v2-tokenizer (https://huggingface.co/bosonai/higgs-audio-v2-tokenizer), is under the Boson Higgs Audio 2 Community License. VoiceTut-TTS is a fine-tune of OmniVoice that its model card declares as Apache-2.0; it reuses the OmniVoice audio tokenizer unchanged.",
+      "checked_at": "2026-10-04",
+      "source_urls": [
+        "https://huggingface.co/k2-fsa/OmniVoice",
+        "https://huggingface.co/mohammedaly22/VoiceTut-TTS"
+      ]
     }
-  }
+  ]
 }

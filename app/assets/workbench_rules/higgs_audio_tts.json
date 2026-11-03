@@ -1,3 +1,0 @@
-{
-  "higgs_audio_tts": {"reference":"required","referenceText":"optional","instruction":"hidden","language":"hidden","source":"docs/models/higgs_audio_tts.md"}
-}

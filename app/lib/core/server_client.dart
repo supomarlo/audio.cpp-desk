@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 
 import '../models/health_info.dart';
 import '../models/openai_model.dart';
-import 'app_logger.dart';
 
 class ServerClient {
   ServerClient(
@@ -32,79 +31,53 @@ class ServerClient {
   Future<List<OpenAIModel>> models() async {
     final resp = await _dio.get('/v1/models');
     final data = (resp.data as Map?)?['data'] as List<dynamic>? ?? [];
-    return data
-        .map((e) => OpenAIModel.fromJson(_map(e)))
-        .toList();
+    return data.map((e) => OpenAIModel.fromJson(_map(e))).toList();
   }
 
-  Future<List<String>> voices({String? model}) async {
-    final query = model == null ? null : {'model': model};
-    final resp = await _dio.get('/v1/audio/voices', queryParameters: query);
-    final data = resp.data as Map?;
-    final list = data?['voices'] as List<dynamic>? ?? [];
-    return list.map((e) => e.toString()).toList();
-  }
-
-  Future<Uint8List> speech({
-    required String model,
-    required String input,
-    String? voice,
-    String? voiceRef,
-    String? language,
-    String? responseFormat,
-    Map<String, dynamic> extra = const {},
-  }) async {
-    try {
-      final resp = await _dio.post(
-        '/v1/audio/speech',
-        data: {
-          'model': model,
-          'input': input,
-          if (voice != null) 'voice': voice,
-          if (voiceRef != null) 'voice_ref': voiceRef,
-          if (language != null) 'language': language,
-          if (responseFormat != null) 'response_format': responseFormat,
-          // audio.cpp 从 body 的 `options` 对象读取 request options
-          // （instruction / reference_text / voice_id 等）；平铺到顶层会被忽略。
-          if (extra.isNotEmpty) 'options': extra,
-        },
-        options: Options(responseType: ResponseType.bytes),
-      );
-      return resp.data as Uint8List;
-    } on DioException catch (e) {
-      throw ServerError(_serverMessage(e) ?? '$e');
-    }
-  }
-
-  /// 卸载所有常驻模型以释放显存（API-only 模式可用）。
   Future<void> unloadAllModels() async {
     try {
       await _dio.post('/v1/tasks/unload_all_models');
     } on DioException catch (e) {
-      throw ServerError(_serverMessage(e) ?? '$e');
+      throw ServerError(
+        _serverMessage(e) ?? '$e',
+        statusCode: e.response?.statusCode,
+      );
     }
   }
 
-  /// 通用任务路由（`/v1/tasks/run`）：可携带 `request.audio`（进入 `audio_input`，
-  /// 用于模型的额外音频输入，如情感参考音频），返回结果里的 base64 WAV。
-  Future<Uint8List> taskAudio({
-    required String model,
-    required Map<String, dynamic> request,
-  }) async {
-    AppLogger.info('task request: model=$model, request=$request');
+  /// 通用 JSON 请求，返回二进制响应（TTS / 流式前的离线音频）。
+  Future<Uint8List> postJsonBytes(
+    String path,
+    Map<String, dynamic> data,
+  ) async {
     try {
       final resp = await _dio.post(
-        '/v1/tasks/run',
-        data: {'model': model, 'request': request},
+        path,
+        data: data,
+        options: Options(responseType: ResponseType.bytes),
       );
-      final m = _map(resp.data);
-      final audio = m['audio'];
-      if (audio is! String || audio.isEmpty) {
-        throw ServerError('task result has no audio');
-      }
-      return base64Decode(audio);
+      return resp.data as Uint8List;
     } on DioException catch (e) {
-      throw ServerError(_serverMessage(e) ?? '$e');
+      throw ServerError(
+        _serverMessage(e) ?? '$e',
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  /// 通用 JSON 请求，返回 JSON 响应。
+  Future<Map<String, dynamic>> postJson(
+    String path,
+    Map<String, dynamic> data,
+  ) async {
+    try {
+      final resp = await _dio.post(path, data: data);
+      return _map(resp.data);
+    } on DioException catch (e) {
+      throw ServerError(
+        _serverMessage(e) ?? '$e',
+        statusCode: e.response?.statusCode,
+      );
     }
   }
 
@@ -131,7 +104,10 @@ class ServerClient {
       final m = _map(resp.data);
       return m['text'] as String? ?? '';
     } on DioException catch (e) {
-      throw ServerError(_serverMessage(e) ?? '$e');
+      throw ServerError(
+        _serverMessage(e) ?? '$e',
+        statusCode: e.response?.statusCode,
+      );
     }
   }
 
@@ -151,6 +127,12 @@ class ServerClient {
       try {
         data = jsonDecode(utf8.decode(data));
       } catch (_) {}
+    } else if (data is String && data.isNotEmpty) {
+      try {
+        data = jsonDecode(data);
+      } catch (_) {
+        return data;
+      }
     }
     if (data is Map) {
       final err = data['error'];
@@ -170,9 +152,10 @@ class ServerClient {
 
 /// 服务端返回的可读错误（取 `error.message`）。
 class ServerError implements Exception {
-  ServerError(this.message);
+  ServerError(this.message, {this.statusCode});
 
   final String message;
+  final int? statusCode;
 
   @override
   String toString() => message;

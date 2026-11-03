@@ -1,247 +1,104 @@
 {
-  "schema_version": 1,
   "family": "sopro_tts",
-  "display_name": "Sopro V2 Turbo",
-  "description": "Community Sopro V2 Turbo (samuel-vitorino/sopro-v2-turbo): a 120M zero-shot voice-cloning TTS. SentencePiece text tokenizer, style-prefix conditioned autoregressive semantic LM over FSQ tokens, rectified-flow acoustic DiT and a Vocos ISTFT vocoder at 24 kHz.",
-  "category": "tts",
-  "status": "community",
-  "tasks": [
-    "tts",
-    "clone"
-  ],
-  "modes": [
-    "offline",
-    "streaming"
-  ],
-  "languages": [
-    "en",
-    "pt",
-    "fr",
-    "de"
-  ],
-  "runtime": {
-    "tags": [
-      "server"
-    ]
-  },
-  "capabilities": {
-    "clone": [
-      "speaker_reference"
-    ]
-  },
-  "options": {
-    "request": [
-      {
-        "name": "language",
-        "type": "string",
-        "description": "Language tag prepended to the prompt (en, pt, fr, de). Optional; helps pronunciation on ambiguous text.",
-        "required": false,
-        "default": ""
-      },
-      {
-        "name": "temperature",
-        "type": "float",
-        "description": "Semantic LM sampling temperature; default 0.8.",
-        "required": false,
-        "min": 0.0,
-        "max": 2.0,
-        "default": 0.8
-      },
-      {
-        "name": "top_p",
-        "type": "float",
-        "description": "Nucleus sampling threshold for the semantic LM; default 0.9.",
-        "required": false,
-        "min": 0.0,
-        "max": 1.0,
-        "default": 0.9
-      },
-      {
-        "name": "top_k",
-        "type": "int",
-        "description": "Top-k truncation for the semantic LM; 0 disables. Default 25.",
-        "required": false,
-        "min": 0,
-        "default": 25
-      },
-      {
-        "name": "num_inference_steps",
-        "type": "int",
-        "description": "Acoustic rectified-flow Euler steps; default 2.",
-        "required": false,
-        "min": 1,
-        "max": 32,
-        "default": 2
-      },
-      {
-        "name": "max_seconds",
-        "type": "float",
-        "description": "Cap on generated audio per segment; long text is split into segments so total length is unbounded. Default 30.",
-        "required": false,
-        "min": 1.0,
-        "max": 60.0,
-        "default": 30.0
-      },
-      {
-        "name": "min_seconds",
-        "type": "float",
-        "description": "Minimum audio per segment before the semantic LM may emit EOS; default 0.4.",
-        "required": false,
-        "min": 0.0,
-        "max": 10.0,
-        "default": 0.4
-      },
-      {
-        "name": "ref_seconds",
-        "type": "float",
-        "description": "Reference audio window used for cloning; default 10.",
-        "required": false,
-        "min": 1.0,
-        "max": 30.0,
-        "default": 10.0
-      },
-      {
-        "name": "seed",
-        "type": "int",
-        "description": "Non-negative seed for semantic sampling and the acoustic noise prior; omit for a random seed.",
-        "required": false,
-        "min": 0
-      }
-    ],
-    "session": [
-      {
-        "name": "language",
-        "type": "string",
-        "description": "Default language tag for requests that do not set one.",
-        "required": false,
-        "default": ""
-      }
-    ],
-    "load": [
-      {
-        "name": "matmul_weight_type",
-        "type": "enum",
-        "preset": "weight_type_full",
-        "description": "Storage type for the matmul weights of every stage (semantic LM, acoustic DiT, encoders, vocoder head).",
-        "required": false,
-        "default": "f32"
-      },
-      {
-        "name": "conv_weight_type",
-        "type": "enum",
-        "preset": "weight_type_conv",
-        "description": "Storage type for convolution weights (speaker/semantic encoders and the Vocos backbone).",
-        "required": false,
-        "default": "f32"
-      }
-    ]
-  },
-  "package_defaults": {
-    "download": {
-      "kind": "unsupported",
-      "reason": "No audio.cpp GGUF build of sopro-v2-turbo is published yet: install the sopro_v2_turbo_safetensors package and run from safetensors, or pack one locally with audiocpp_gguf (one --input namespace per stage: model, semantic_encoder, speaker_encoder, vocoder)."
-    }
-  },
-  "dependencies": [],
-  "ui": {
-    "recommended_package": "sopro_v2_turbo_safetensors",
-    "tags": [
-      "TTS",
-      "Clone"
-    ],
-    "docs": [
-      "docs/community_models/sopro_tts.md"
-    ]
-  },
-  "sources": [
-    {
-      "format": "gguf",
-      "roots": {
-        "model": ".",
-        "weights": "$gguf"
-      },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer": "model:tokenizer.model"
-      },
-      "tensors": {
-        "model": {
-          "source": "weights:",
-          "prefix": "model"
-        },
-        "semantic_encoder": {
-          "source": "weights:",
-          "prefix": "semantic_encoder"
-        },
-        "speaker_encoder": {
-          "source": "weights:",
-          "prefix": "speaker_encoder"
-        },
-        "vocoder": {
-          "source": "weights:",
-          "prefix": "vocoder"
-        }
-      }
+  "i18n": {
+    "description": {
+      "en": "Community Sopro V2 Turbo (samuel-vitorino/sopro-v2-turbo): a 120M zero-shot voice-cloning TTS. SentencePiece text tokenizer, style-prefix conditioned autoregressive semantic LM over FSQ tokens, rectified-flow acoustic DiT and a Vocos ISTFT vocoder at 24 kHz.",
+      "zh": "社区 Sopro V2 Turbo（samuel-vitorino/sopro-v2-turbo）：120M 零样本音色克隆 TTS。SentencePiece 文本分词器、基于 FSQ token 的风格前缀条件自回归语义 LM、rectified-flow 声学 DiT 与 24 kHz 的 Vocos ISTFT 声码器。"
     },
-    {
-      "format": "safetensors",
-      "roots": {
-        "model": "."
+    "options": {
+      "language": {
+        "en": "Language tag (en, pt, fr, de); omitted inherits transcript language, then the session default.",
+        "zh": "语言标签（en、pt、fr、de）；省略继承转录语言，然后会话默认。"
       },
-      "files": {
-        "config": "model:config.json",
-        "tokenizer": "model:tokenizer.model"
+      "temperature": {
+        "en": "Semantic sampling temperature; nonpositive selects greedy decoding. Omitted uses checkpoint generation.temperature.",
+        "zh": "语义采样温度；非正选择贪婪解码。省略使用检查点生成.温度。"
       },
-      "tensors": {
-        "model": {
-          "source": "model:model.safetensors"
-        },
-        "semantic_encoder": {
-          "source": "model:semantic_encoder.safetensors"
-        },
-        "speaker_encoder": {
-          "source": "model:speaker_encoder.safetensors"
-        },
-        "vocoder": {
-          "source": "model:vocoder.safetensors"
-        }
+      "top_p": {
+        "en": "Semantic nucleus cutoff; values outside [0,1] are disabled/clamped by the sampler. Omitted uses checkpoint generation.top_p.",
+        "zh": "语义核切断； [0,1] 之外的值被采样器禁用/钳位。省略使用检查点生成.top_p。"
+      },
+      "top_k": {
+        "en": "Semantic top-k; nonpositive disables filtering. Omitted uses checkpoint generation.top_k.",
+        "zh": "语义top-k；非正数禁用过滤。省略使用检查点 Generation.top_k。"
+      },
+      "num_inference_steps": {
+        "en": "Positive acoustic sampling steps; omitted uses checkpoint generation.steps.",
+        "zh": "正声学采样步骤；省略使用检查点生成.steps。"
+      },
+      "seed": {
+        "en": "Non-negative seed for semantic sampling and the acoustic noise prior; omit for a random seed.",
+        "zh": "语义采样与声学噪声先验的非负随机种子；省略时随机。"
+      },
+      "max_duration_sec": {
+        "en": "Positive maximum segment duration; must be >= min_duration_sec. Omitted uses checkpoint generation.max_seconds.",
+        "zh": "最大分段时长，必须为正且 >= min_duration_sec；省略时使用检查点 generation.max_seconds。"
+      },
+      "min_duration_sec": {
+        "en": "Nonnegative minimum duration; must be <= max_duration_sec. Omitted uses checkpoint generation.min_seconds.",
+        "zh": "最小分段时长，必须非负且 <= max_duration_sec；省略时使用检查点 generation.min_seconds。"
+      },
+      "reference_duration_sec": {
+        "en": "Positive reference window in seconds; omitted uses checkpoint generation.ref_seconds.",
+        "zh": "参考窗口时长（秒），必须为正；省略时使用检查点 generation.ref_seconds。"
+      },
+      "text_chunk_size": {
+        "en": "Positive codepoint budget per segment; omitted uses checkpoint generation.max_segment_chars.",
+        "zh": "每个分段的码点预算，必须为正；省略时使用检查点 generation.max_segment_chars。"
       }
     }
-  ],
+  },
   "packages": [
     {
       "id": "sopro_v2_turbo_f16",
-      "display_name": "Sopro V2 Turbo F16 GGUF",
-      "description": "Locally packed GGUF holding all four stages plus the embedded config and tokenizer sidecars. Produced with audiocpp_gguf --family sopro_tts.",
-      "default": true,
-      "format": "gguf",
-      "precision": "f16",
-      "target_directory": "sopro-v2-turbo-GGUF",
-      "files": [
-        "sopro-v2-turbo-GGUF/sopro-v2-turbo-f16.gguf"
+      "downloads": [
+        {
+          "source": "huggingface",
+          "repo": "samuel-vitorino/sopro-v2-turbo",
+          "revision": "main",
+          "kind": "huggingface_snapshot",
+          "gated": false,
+          "available": true,
+          "size_bytes": 317653216,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://huggingface.co/samuel-vitorino/sopro-v2-turbo"
+        },
+        {
+          "source": "hf_mirror",
+          "repo": "samuel-vitorino/sopro-v2-turbo",
+          "revision": "main",
+          "available": true,
+          "size_bytes": 317653216,
+          "note": "assumed mirror of huggingface",
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "gated": false,
+          "license_url": "https://huggingface.co/samuel-vitorino/sopro-v2-turbo"
+        },
+        {
+          "source": "modelscope",
+          "repo": "samuel-vitorino/sopro-v2-turbo",
+          "revision": "master",
+          "kind": "modelscope_snapshot",
+          "available": true,
+          "size_bytes": 317653216,
+          "checked_at": "2026-10-28T10:53:54.918229",
+          "license_url": "https://www.modelscope.cn/models/samuel-vitorino/sopro-v2-turbo"
+        }
       ],
-      "strip_prefix": "sopro-v2-turbo-GGUF"
+      "sizes": {
+        "size_bytes": 317653216,
+        "est_memory_bytes": null,
+        "est_vram_bytes": null,
+        "basis": "size=tree@hf/HEAD; hf_mirror=assumed; modelscope=files API; est_memory=n/a; est_vram=n/a"
+      }
     },
     {
       "id": "sopro_v2_turbo_safetensors",
-      "display_name": "Sopro V2 Turbo (upstream safetensors)",
-      "description": "Upstream checkpoint from samuel-vitorino/sopro-v2-turbo: config.json, tokenizer.model and the four safetensors stages. Runs directly, no conversion needed.",
-      "format": "safetensors",
-      "precision": "orig",
-      "target_directory": "sopro-v2-turbo",
-      "files": [
-        "config.json",
-        "tokenizer.model",
-        "model.safetensors",
-        "semantic_encoder.safetensors",
-        "speaker_encoder.safetensors",
-        "vocoder.safetensors"
-      ],
-      "download": {
-        "kind": "huggingface_snapshot",
-        "repo": "samuel-vitorino/sopro-v2-turbo",
-        "revision": "main",
-        "gated": false
+      "sizes": {
+        "size_bytes": 634337563,
+        "est_memory_bytes": null,
+        "est_vram_bytes": 603979776,
+        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
       },
       "downloads": [
         {
@@ -279,57 +136,19 @@
           "license": "apache-2.0",
           "license_url": "https://www.modelscope.cn/models/samuel-vitorino/sopro-v2-turbo"
         }
-      ],
-      "sizes": {
-        "size_bytes": 634337563,
-        "est_memory_bytes": null,
-        "est_vram_bytes": 603979776,
-        "basis": "size=tree@huggingface; hf_mirror=assumed; modelscope=files API; est_vram=size lower bound (no measurement)"
-      }
+      ]
     }
   ],
-  "i18n": {
-    "description": {
-      "en": "Community Sopro V2 Turbo (samuel-vitorino/sopro-v2-turbo): a 120M zero-shot voice-cloning TTS. SentencePiece text tokenizer, style-prefix conditioned autoregressive semantic LM over FSQ tokens, rectified-flow acoustic DiT and a Vocos ISTFT vocoder at 24 kHz.",
-      "zh": "社区 Sopro V2 Turbo（samuel-vitorino/sopro-v2-turbo）：120M 零样本音色克隆 TTS。SentencePiece 文本分词器、基于 FSQ token 的风格前缀条件自回归语义 LM、rectified-flow 声学 DiT 与 24 kHz 的 Vocos ISTFT 声码器。"
-    },
-    "options": {
-      "language": {
-        "en": "Language tag prepended to the prompt (en, pt, fr, de). Optional; helps pronunciation on ambiguous text.",
-        "zh": "加在提示前端的语言标记（en、pt、fr、de）。可选；有助于歧义文本的发音。"
-      },
-      "temperature": {
-        "en": "Semantic LM sampling temperature; default 0.8.",
-        "zh": "语义 LM 采样温度；默认 0.8。"
-      },
-      "top_p": {
-        "en": "Nucleus sampling threshold for the semantic LM; default 0.9.",
-        "zh": "语义 LM 的核采样阈值；默认 0.9。"
-      },
-      "top_k": {
-        "en": "Top-k truncation for the semantic LM; 0 disables. Default 25.",
-        "zh": "语义 LM 的 top-k 截断；0 表示关闭；默认 25。"
-      },
-      "num_inference_steps": {
-        "en": "Acoustic rectified-flow Euler steps; default 2.",
-        "zh": "声学整流流 Euler 步数；默认 2。"
-      },
-      "max_seconds": {
-        "en": "Cap on generated audio per segment; long text is split into segments so total length is unbounded. Default 30.",
-        "zh": "每段生成音频的时长上限；长文本会被拆成多段，因此总时长不受限。默认 30。"
-      },
-      "min_seconds": {
-        "en": "Minimum audio per segment before the semantic LM may emit EOS; default 0.4.",
-        "zh": "语义 LM 允许发出 EOS 前每段的最小音频时长；默认 0.4。"
-      },
-      "ref_seconds": {
-        "en": "Reference audio window used for cloning; default 10.",
-        "zh": "克隆所用的参考音频窗口；默认 10。"
-      },
-      "seed": {
-        "en": "Non-negative seed for semantic sampling and the acoustic noise prior; omit for a random seed.",
-        "zh": "语义采样与声学噪声先验的非负随机种子；省略时随机。"
-      }
+  "licenses": [
+    {
+      "name": "Apache-2.0",
+      "url": "",
+      "commercial_use": "yes",
+      "notes": "",
+      "checked_at": "2026-09-21",
+      "source_urls": [
+        "https://huggingface.co/samuel-vitorino/sopro-v2-turbo"
+      ]
     }
-  }
+  ]
 }

@@ -70,9 +70,14 @@ class ModelLibraryStore {
           sizeBytes: pkg.sizes?.sizeBytes ?? prev?.sizeBytes,
           estMemoryBytes: pkg.sizes?.estMemoryBytes ?? prev?.estMemoryBytes,
           estVramBytes: pkg.sizes?.estVramBytes ?? prev?.estVramBytes,
+          vramLowerBound:
+              pkg.sizes?.basis.contains('est_vram=size lower bound') ??
+                  prev?.vramLowerBound ??
+                  false,
           sources: available.map((e) => e.source).toList(),
           downloads: pkg.downloads,
           task: pkg.task,
+          licenses: spec.licenses,
           installed: _locallyInstalled(pkg, modelsRoot),
         );
       }
